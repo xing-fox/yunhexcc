@@ -1,95 +1,79 @@
 <template>
-  <div class="container" @click="clickHandle('test click', $event)">
-
-    <div class="userinfo" @click="bindViewTap">
-      <img class="userinfo-avatar" v-if="userInfo.avatarUrl" :src="userInfo.avatarUrl" background-size="cover" />
-      <div class="userinfo-nickname">
-        <card :text="userInfo.nickName"></card>
+<div class="page">
+  <div class="page__bd page__bd_spacing">
+    <swiper class="swiper" :indicator-dots="indicatorDots" :autoplay="autoplay" :interval="interval" :duration="duration" :circular="circular" @change="swiperChange" @animationfinish="animationfinish">
+      <div v-for="(item, index) in imgUrls" :key="index" @click="changeDetails">
+      <swiper-item>
+        <image :src="item" class="slide-image"/>
+      </swiper-item>
       </div>
-    </div>
-
-    <div class="usermotto">
-      <div class="user-motto">
-        <card :text="motto"></card>
-      </div>
-    </div>
-    <a href="/pages/cjjx/main" class="counter">潮机精选</a>
+    </swiper>
+    <TempleList></TempleList>
   </div>
+</div>
 </template>
 
 <script>
-import card from '@/components/card'
-
+import TempleList from '@/components/yhtempIntro'
 export default {
   data () {
     return {
-      userInfo: {}
+      cusTomerData: {
+        name: '你好'
+      },
+      indicatorDots: true,
+      autoplay: true,
+      interval: 5000,
+      duration: 900,
+      circular: true,
+      imgUrls: [
+        'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
+        'http://img06.tooopen.com/images/20160818/tooopen_sy_175866434296.jpg',
+        'http://img06.tooopen.com/images/20160818/tooopen_sy_175833047715.jpg'
+      ]
     }
   },
-
   components: {
-    card
+    TempleList
   },
-
+  mounted () {
+    wx.setNavigationBarTitle({ title: '潮机精选'})
+  },
   methods: {
-    bindViewTap () {
-      const url = '../logs/main'
-      wx.navigateTo({ url })
-    },
-    getUserInfo () {
-      // 调用登录接口
-      wx.login({
-        success: () => {
-          wx.getUserInfo({
-            success: (res) => {
-              this.userInfo = res.userInfo
-            }
-          })
-        }
+    changeDetails () {
+      wx.navigateTo({
+        url: '/pages/details/main'
       })
     },
-    clickHandle (msg, ev) {
-      console.log('clickHandle:', msg, ev)
+    init () {
+      wx.request({
+        url: 'https://www.lexbst.com/server.php/api/v1/supplier/main?agent_id=1&main=1&scale=0',
+        data: {},
+        header: {
+          'content-type': 'application/json'
+        },
+        success: function (res) {
+          console.log(res)
+        },
+        error: function (res) {
+          console.log(res)    
+        }
+      })
     }
-  },
-
-  created () {
-    // 调用应用实例的方法获取全局数据
-    this.getUserInfo()
   }
 }
 </script>
 
-<style scoped>
-.userinfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.userinfo-avatar {
-  width: 128rpx;
-  height: 128rpx;
-  margin: 20rpx;
-  border-radius: 50%;
-}
-
-.userinfo-nickname {
-  color: #aaa;
-}
-
-.form-control {
-  display: block;
-  padding: 0 12px;
-  margin-bottom: 5px;
-  border: 1px solid #ccc;
-}
-
-.counter {
-  display: inline-block;
-  margin: 10px auto;
-  padding: 5px 10px;
-  color: blue;
-  border: 1px solid blue;
-}
+<style>
+  page{
+    background: #f3f5f9;
+  }
+  .swiper{
+    display: block;
+    height: 3.52rem;
+  }
+  .slide-image {
+    width: 100%;
+    height: 100%;
+  }
 </style>
