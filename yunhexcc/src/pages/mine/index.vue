@@ -12,7 +12,7 @@
         <div class="type">购物车</div>
       </li>
     </ul>
-    <div class="order">
+    <div class="order" @click="goToOrderList">
       <div class="title bor-1px-b">
         <span>我的订单</span>
         <i class="icon_right"></i> 
@@ -71,6 +71,11 @@ export default {
       wx.navigateTo({
         url: '/pages/coupon/main'
       })
+    },
+    goToOrderList (){
+    	wx.navigateTo({
+    		url:'/pages/order/main'
+    	})
     }
   },
   created () {
