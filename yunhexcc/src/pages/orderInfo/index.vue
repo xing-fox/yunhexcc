@@ -1,5 +1,8 @@
 <template>
   <div class="page">
+  <div class="">
+  	
+  </div>
   </div>
 </template>
 

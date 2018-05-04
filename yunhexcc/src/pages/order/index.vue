@@ -3,8 +3,7 @@
 		<div class="nav-list">
 			<scroll-view class="swiper-tab" scroll-x style="width: 100%">
 
-				<view :style="menuStyle" v-for="title in titleData" :key="index" class="index == 0? swiper-selectTab-item :swiper-tab-item" :data-current="index" @tap="swichNav">{{title.text}}
-					<view class="block" :style="style"></view>
+				<view :style="menuStyle" v-for="(title,index) in titleData" :key="index" :class="{swiperSelectTabItem:index === selectTab, swiperTabItem:index !== selectTab}" :data-current="index" @tap="swichNav">{{title.text}}
 				</view>
 
 			</scroll-view>
@@ -126,7 +125,14 @@
 				console.log(this.selectTab)
 
 			},
-			swiperChange(e) {}
+			swiperChange(e) {
+				
+			},
+			orderClick() {
+			wx.navigateTo({
+				url: '/pages/orderInfo/main'
+			})
+		}
 		},
 		computed: {
 			style() {
@@ -145,9 +151,7 @@
 		contentClick: {
 
 		},
-		orderClick: {
-
-		}
+		
 
 	}
 </script>
@@ -160,41 +164,23 @@
 		white-space: nowrap;
 		position: relative;
 		background-color: white;
-		.swiper-tab-item {
-			transition: all 1s ease-out;
-			font-size: 18px;
+		.swiperTabItem {
+			transition: all 0.3s ease-out;
+			font-size: 16px;
 			height: 42px;
 			display: inline-block;
 			color: #777777;
 			width: 20%;
-			.block {
-				display: block;
-				position: absolute;
-				left: 0;
-				height: 2px;
-				background: #ff9008;
-				bottom: 20px;
-				transition: left 50px;
-				z-index: 99;
-			}
+			border-bottom: 2px solid white;
 		}
-		.swiper-selectTab-item {
-			transition: all 1s ease-out;
-			font-size: 18px;
+		.swiperSelectTabItem {
+			transition: all 0.3s ease-out;
+			font-size: 16px;
 			height: 42px;
 			display: inline-block;
-			color: red;
+			color: #fada63;
 			width: 20%;
-			.block {
-				display: block;
-				position: absolute;
-				left: 0;
-				height: 2px;
-				background: red;
-				bottom: 20px;
-				transition: left 50px;
-				z-index: 99;
-			}
+			border-bottom: 2px solid #fada63;
 		}
 	}
 	
