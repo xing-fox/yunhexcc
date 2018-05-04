@@ -14,6 +14,8 @@
 </template>
 
 <script>
+// import fly from '@/utils/fly'
+// import wxp from 'minapp-api-promise'
 import TempleList from '@/components/yhtempIntro'
 export default {
   data () {
@@ -37,6 +39,7 @@ export default {
     TempleList
   },
   mounted () {
+    this.init()
     wx.setNavigationBarTitle({ title: '潮机精选'})
   },
   methods: {
@@ -64,7 +67,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less" scoped>
   page{
     background: #f3f5f9;
   }
