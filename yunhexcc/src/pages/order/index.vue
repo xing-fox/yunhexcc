@@ -16,7 +16,7 @@
 						<view class='startDate'>{{content.data1}}</view>
 					</view>
 					<view class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' @tap='orderClick'>
-						<img class='goodsImg'></img>
+						<image class='goodsImg'></image>
 						<view class='goodNameInfo'>
 							<view class='goodsName'>{{goodsData.data2}}</view>
 							<view class='goodsPlans'>{{goodsData.data3}}</view>
