@@ -62,9 +62,6 @@
 					},
 					{
 						text: '待收货',
-					},
-					{
-						text: '待评价',
 					}
 				],
 
@@ -170,7 +167,7 @@
 			height: 42px;
 			display: inline-block;
 			color: #777777;
-			width: 20%;
+			width: 25%;
 			border-bottom: 2px solid white;
 		}
 		.swiperSelectTabItem {
@@ -179,7 +176,7 @@
 			height: 42px;
 			display: inline-block;
 			color: #fada63;
-			width: 20%;
+			width: 25%;
 			border-bottom: 2px solid #fada63;
 		}
 	}
