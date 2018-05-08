@@ -11,6 +11,18 @@
         <div class="count">0</div>
         <div class="type">购物车</div>
       </li>
+      <li>
+        <div class="count">0</div>
+        <div class="type">收藏单</div>
+      </li>
+      <li>
+        <div class="count">0</div>
+        <div class="type">点赞数</div>
+      </li>
+      <li>
+        <div class="count">0</div>
+        <div class="type">猿币数</div>
+      </li>
     </ul>
     <div class="order" @click="goToOrderList">
       <div class="title bor-1px-b">
@@ -30,10 +42,10 @@
           <i class="icon icon_order3"></i>
           <p>待收货</p>
         </li>
-        <li>
+        <!-- <li>
           <i class="icon icon_order4"></i>
           <p>待评价</p>
-        </li>
+        </li> -->
         <li>
           <i class="icon icon_order5"></i>
           <p>退货售后</p>
@@ -91,7 +103,9 @@ export default {
   .header{
     width: 100%;
     height: 4.2rem;
-    background: #ffeb7b;
+    background-image: url('http://test.xclerk.com/mrsyg/YunHaiTongProject/public_tab/image/xcc/bg.jpg');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
     position: relative;
     .userinfo{
       width: 100%;
