@@ -59,7 +59,7 @@
         </a>
       </div>
     </div>
-    <SetMeal v-if="setMealState"></SetMeal>
+    <SetMeal v-if="setMealState" @changeState="stateFunc"></SetMeal>
   </div>
 </template>
 
@@ -109,6 +109,9 @@ export default {
     },
     changeSpecFunc () {
       this.setMealState = true
+    },
+    stateFunc () {
+      this.setMealState = false
     }
   }
 }
