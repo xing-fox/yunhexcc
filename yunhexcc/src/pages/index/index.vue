@@ -25,6 +25,7 @@ import TempleList from '@/components/yhtempIntro'
 import Fly from 'flyio/dist/npm/wx' 
 const fly = new Fly
 export default {
+  pqge () {},
   data () {
     return {
       // indicatorDots: true,
@@ -42,7 +43,7 @@ export default {
   components: {
     TempleList
   },
-  mounted () {
+  created () {
     wx.setNavigationBarTitle({ title: '潮机精选'})
   },
   methods: {
@@ -73,12 +74,11 @@ export default {
     wx.login({
       success (res) {
         if (res.code) {
-          self.$http.Xcclogin(
-            {
-              'code': res.code
-            }).then(res => {
-              console.log(res)
-            })
+          self.$http.Xcclogin({
+            'code': res.code
+          }).then(res => {
+            console.log(res)
+          })
         }
       }
     })

@@ -72,7 +72,7 @@
       </div>
       <div class="payType">
         <span class="title">商品抵用券:</span>
-        <span class="type typeColor">¥ -10</span>
+        <span class="type typeColor">- ¥10</span>
         <i class="icon_right"></i>
       </div>
       <div class="totalMoney bor-1px-t bor-1px-b">

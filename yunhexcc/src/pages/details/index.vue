@@ -48,26 +48,27 @@
     </div>
     <div class="proBuy">
       <div class="star bor-1px-t bor-1px-r">
-        <image src="../../../static/images/star.png"></image>
       </div>
-      <div class="shoppingCart bor-1px-t">
+      <div class="shoppingCart bor-1px-t" @click="shopCartFunc">
         <span>加入购物车</span>
       </div>
-      <div class="buyNow">
-        <a href="/pages/confirm/main">
-          <span>立即购买</span>
-        </a>
+      <div class="buyNow" @click="confirmFunc">
+        <span>立即购买</span>
       </div>
     </div>
     <SetMeal v-if="setMealState" @changeState="stateFunc"></SetMeal>
+    <TelSure v-if="telState" @phoneChangeFunc="sure"></TelSure>
   </div>
 </template>
 
 <script>
 import SetMeal from '@/components/setMeal'
+import TelSure from '@/components/phoneSure'
 export default {
+  page () {},
   data () {
     return {
+      telState: false,
       autoplay: true,
       interval: 5000,
       duration: 900,
@@ -83,11 +84,11 @@ export default {
       ]
     }
   },
-  mounted () {
-    wx.setNavigationBarTitle({ title: '商品详情'})
+  created () {
   },
   components: {
-    SetMeal
+    SetMeal,
+    TelSure
   },
   methods: {
     graphicFunc (arg) {
@@ -112,6 +113,17 @@ export default {
     },
     stateFunc () {
       this.setMealState = false
+    },
+    shopCartFunc () {
+      this.telState = true
+    },
+    sure () {
+      this.telState = false
+    },
+    confirmFunc () {
+      wx.navigateTo({
+    		url:'/pages/confirm/main'
+    	})
     }
   }
 }
@@ -218,11 +230,10 @@ export default {
   .proBuy .star{
     width: 1rem;
     box-sizing: border-box;
-  }
-  .proBuy .star image{
-    width: 40%;
-    height: 40%;
-    margin: 30%;
+    background-image: url('../../../static/images/star.png');
+    background-size: 40% 40%;
+    background-repeat: no-repeat;
+    background-position: center center;
   }
   .proBuy .shoppingCart,.proBuy .buyNow{
     font-size: .28rem;
@@ -235,7 +246,7 @@ export default {
   }
   .proBuy .buyNow{
     color: #fff;
-    background: #ff9008;
+    background: #ffda44;
   }
   .proGraphic{
     width: 100%;
@@ -254,7 +265,7 @@ export default {
         text-align: center;
         position: relative;
         &.active{
-          color: #ff9008;
+          color: #ffda44;
           &:after{
             content: '';
             width: 70%;
@@ -262,7 +273,7 @@ export default {
             bottom: 1px;
             left: 15%;
             right: 15%;
-            border-bottom: 1px solid #ff9008;
+            border-bottom: 1px solid #ffda44;
           }
         }
       }

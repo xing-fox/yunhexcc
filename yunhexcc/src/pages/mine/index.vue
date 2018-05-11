@@ -7,7 +7,7 @@
       </div>
     </div>
     <ul class="tabList">
-      <li>
+      <li @click="goToShopCart">
         <div class="count">0</div>
         <div class="type">购物车</div>
       </li>
@@ -84,9 +84,14 @@ export default {
         url: '/pages/coupon/main'
       })
     },
-    goToOrderList (){
+    goToOrderList () {
     	wx.navigateTo({
     		url:'/pages/order/main'
+    	})
+    },
+    goToShopCart () {
+      wx.navigateTo({
+    		url:'/pages/shopCart/main'
     	})
     }
   },
