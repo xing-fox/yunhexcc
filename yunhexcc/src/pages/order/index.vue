@@ -10,13 +10,13 @@
 		</div>
 		<div class="content-list">
 			<scroll-view class="content-scroller" scroll-y style='width: 100%'>
-				<view v-for="content in orderInfo" class="content-item" @tap='contentClick' track-by="$numb">
+				<div v-for="(content, index) in orderInfo" :key="index" class="content-item" @click='contentClick' track-by="$numb">
 					<view class='topView'>
 						<view class='storeName'>{{content.data0}}</view>
 						<view class='startDate'>{{content.data1}}</view>
 					</view>
-					<view class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' @tap='orderClick'>
-						<image class='goodsImg'></image>
+					<div class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' :key="subIndex" @click='orderClick'>
+						<img class='goodsImg' src="../../../static/images/close.png" />
 						<view class='goodNameInfo'>
 							<view class='goodsName'>{{goodsData.data2}}</view>
 							<view class='goodsPlans'>{{goodsData.data3}}</view>
@@ -25,7 +25,7 @@
 							<view class='goodsPrice'>{{goodsData.data4}}</view>
 							<view class='goodsCount'>{{goodsData.data5}}</view>
 						</view>
-					</view>
+					</div>
 					<view class='footView'>
 						<view class='totalPrice'>
 							{{content.data7}}
@@ -37,7 +37,7 @@
 							<view class='delectOrderBtn'>删除</view>
 						</view>
 					</view>
-				</view>
+				</div>
 			</scroll-view>
 		</div>
 	</div>
