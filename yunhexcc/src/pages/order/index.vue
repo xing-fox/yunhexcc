@@ -123,13 +123,13 @@
 
 			},
 			swiperChange(e) {
-				
+
 			},
 			orderClick() {
-			wx.navigateTo({
-				url: '/pages/orderInfo/main'
-			})
-		}
+				wx.navigateTo({
+					url: '/pages/orderInfo/main'
+				})
+			}
 		},
 		computed: {
 			style() {
@@ -148,7 +148,11 @@
 		contentClick: {
 
 		},
-		
+		onLoad(e) {
+			console.log(e.currentIndex);
+			this.selectTab = parseInt(e.currentIndex); 
+			console.log(this.selectTab)
+		}
 
 	}
 </script>
@@ -193,7 +197,7 @@
 			.storeName {
 				display: inline;
 				text-align: right;
-				font-size: 18px;
+				font-size: 16px;
 				line-height: 50px;
 				margin-left: 10px;
 				color: #333;
@@ -267,11 +271,10 @@
 			.opertionBtn {
 				height: 50px;
 				width: 100%;
-				display: -webkit-flex;
-				display: flex;
+				display: inline-flex;
 				font-size: 12px;
 				text-align: center;
-				flex-direction: flex-direction;
+				justify-content: flex-end;
 				.cancelOrderBtn {
 					padding-top: 8px;
 					margin: 8px 8px;
