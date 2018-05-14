@@ -1,12 +1,21 @@
 <script>
 export default {
   created () {
-    // 调用API从本地缓存中获取数据
-    // const logs = wx.getStorageSync('logs') || []
-    // logs.unshift(Date.now())
-    // wx.setStorageSync('logs', logs)
-
-    console.log('app created and cache logs by setStorageSync')
+    let self  = this
+    wx.login({
+      success: function(res) {
+        if (res.code) {
+          self.$http.Xcclogin({
+            'code': res.code
+          }).then(res => {
+            wx.setStorage({
+              key: 'openId',
+              data: res.data.content.openid
+            })
+          })
+        }
+      }
+    })
   }
 }
 </script>

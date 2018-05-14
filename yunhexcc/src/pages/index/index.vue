@@ -1,95 +1,83 @@
 <template>
 <div class="page">
   <div class="page__bd page__bd_spacing">
-    <!-- <swiper class="swiper" :indicator-dots="indicatorDots" :autoplay="autoplay" :interval="interval" :duration="duration" :circular="circular" @change="swiperChange" @animationfinish="animationfinish">
-      <div v-for="(item, index) in imgUrls" :key="index" @click="changeDetails">
-      <swiper-item>
-        <image :src="item" class="slide-image"/>
-      </swiper-item>
-      </div>
-    </swiper> -->
-    <div class="newProduct" v-for="(item, index) in imgUrls" :key="index">
-      <img :src="item" alt="">
-      <div class="proInduce">宁波云赫科技有限公司出品</div>
-      <div>
-        <span>宁波云赫科技有限公司</span>
-      </div>
+    <div class="newProduct" v-for="(item, index) in dataList" :key="index" @click="changeDetails(item.product_id)">
+      <img :src="item.new_picture">
+      <div class="proInduce">{{ item.new_name }}</div>
     </div>
-    <TempleList></TempleList>
+    <templeList :data="newData"></templeList>
   </div>
 </div>
 </template>
 
 <script>
-import TempleList from '@/components/yhtempIntro'
-import Fly from 'flyio/dist/npm/wx' 
-const fly = new Fly
+import templeList from '@/components/yhtempIntro'
+import Fly from 'flyio/dist/npm/wx'
 export default {
-  pqge () {},
   data () {
     return {
-      // indicatorDots: true,
-      // autoplay: true,
-      // interval: 5000,
-      // duration: 900,
-      // circular: true,
-      imgUrls: [
-        'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
-        'http://img06.tooopen.com/images/20160818/tooopen_sy_175866434296.jpg',
-        'http://img06.tooopen.com/images/20160818/tooopen_sy_175833047715.jpg'
-      ]
+      pag_no: 1,
+      openId: '',
+      newData: [],
+      dataList: []
     }
   },
   components: {
-    TempleList
+    templeList
   },
-  created () {
-    wx.setNavigationBarTitle({ title: '潮机精选'})
-  },
+  created () {},
   methods: {
-    // changeDetails () {
-    //   wx.navigateTo({
-    //     url: '/pages/details/main'
-    //   })
-    // },
-    init () {
-      /* 登录接口 */
-      wx.request({
-        url: 'https://www.lexbst.com/server.php/api/v1/supplier/main?agent_id=1&main=1&scale=0',
-        data: {},
-        header: {
-          'content-type': 'application/json'
-        },
-        success: function (res) {
-          console.log(res)
-        },
-        error: function (res) {
-          console.log(res)    
-        }
+    changeDetails (id) {
+      wx.navigateTo({
+        url: '/pages/details/main?id=' + id
+      })
+    },
+    allProduct () {
+      this.$http.CJJX({
+        data: JSON.stringify({
+          pag_no: this.pag_no,
+          pag_num: 5
+        }),
+        'openid': this.openId
+      }).then(res => {
+        this.newData = this.newData.concat(res.data.content.data)
       })
     }
   },
   onLoad () {
+    let fly = new Fly
     let self = this
-    wx.login({
-      success (res) {
-        if (res.code) {
-          self.$http.Xcclogin({
-            'code': res.code
-          }).then(res => {
-            console.log(res)
-          })
-        }
-      }
+    wx.getStorage({
+      key: 'openId',
+      success: function(res) {
+        self.openId = res.data
+        self.$http.Allproduct({
+          data: JSON.stringify({
+            pag_no: 1,
+            pag_num: 5
+          }),
+          'openid': self.openId
+        }).then(res => {
+          console.log(res)
+          self.dataList = res.data.content.data
+        })
+        self.allProduct()
+      } 
     })
+  },
+  onReachBottom () {
+    this.pag_no++
+    this.allProduct()
   }
 }
 </script>
 
-<style lang="less" scoped>
-  .page{
+<style>
+  page{
     background: #f3f5f9;
   }
+</style>
+<style lang="less" scoped>
   .newProduct{
     font-size: 0;
     width: 100%;

@@ -1,17 +1,19 @@
 <template>
-  <div class="boxList" @click="changeDetails">
-    <div class="boxLeft">
-      <img src="http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg">
-    </div>
-    <div class="boxRight">
-      <div class="boxname">
-        由各种物质组成的巨型球状天体，叫做星球
+  <div>
+    <div v-for="(item, index) in data" :key="index" class="boxList" @click="changeDetails(item.product_id)">
+      <div class="boxLeft">
+        <img :src="item.picture_url">
       </div>
-      <div class="boxSite">
-        安徽省合肥市
-      </div>
-      <div class="boxPrice">
-        ¥3000
+      <div class="boxRight">
+        <div class="boxname">
+          {{ item.product_name }}
+        </div>
+        <div v-if="item.detail_address" class="boxSite">
+          {{ item.detail_address }}
+        </div>
+        <div class="boxPrice">
+          ¥{{ item.product_price }}
+        </div>
       </div>
     </div>
   </div>
@@ -19,10 +21,16 @@
 
 <script>
 export default {
+  props: {
+    data: {
+      type: Array,
+      default: []
+    }
+  },
   methods: {
-    changeDetails () {
+    changeDetails (id) {
       wx.navigateTo({
-        url: '/pages/details/main'
+        url: '/pages/details/main?id=' + id
       })
     }
   }

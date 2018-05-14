@@ -2,8 +2,10 @@
   <div class="page">
     <div class="header">
       <div class="userinfo">
-        <img :src="userInfos.avatarUrl">
-        <p>{{ userInfos.nickName }}</p>
+        <div class="userPhoto">
+          <open-data class="userImg" type="userAvatarUrl"></open-data>
+        </div>
+        <open-data class="userName" type="userNickName" lang="zh_CN"></open-data>
       </div>
     </div>
     <ul class="tabList">
@@ -55,7 +57,7 @@
     <div class="coupon bor-1px-b" @click="counponFunc">
       <span>我的优惠券</span>
       <i class="icon_right"></i> 
-    </div> 
+    </div>
   </div>
 </template>
 
@@ -67,18 +69,6 @@ export default {
     }
   },
   methods: {
-    getUserInfo () {
-      let self = this
-      wx.login({
-        success: () => {
-          wx.getUserInfo({
-            success: (res) => {
-              self.userInfos = res.userInfo
-            }
-          })
-        }
-      })
-    },
     counponFunc () {
       wx.navigateTo({
         url: '/pages/coupon/main'
@@ -94,9 +84,6 @@ export default {
     		url:'/pages/shopCart/main'
     	})
     }
-  },
-  created () {
-    this.getUserInfo()
   }
 }
 </script>
@@ -121,16 +108,33 @@ export default {
       right: 0;
       margin: auto auto;
       text-align: center;
-      img{
+      .userPhoto{
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
         width: 1.7rem;
         height: 1.7rem;
         border-radius: .85rem;
+        overflow: hidden;
         box-sizing: border-box;
         border: 2px solid #fff;
+        .userImg{
+          display: block;
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+        }
       }
-      p{
+      .userName{
         color: #222;
         font-size: .32rem;
+        width: 100%;
+        position: absolute;
+        bottom: .8rem;
+        left: 0;
+        text-align: center;
       }
     }
   }

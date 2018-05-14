@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="pageContent" :class="{fadeInUp: animalClassfadeIn,animated: animalClassfadeIn,animated: animalClassfadeOut,fadeOutDown: animalClassfadeOut}">
-      <scroll-view scroll-y bindscroll="scroll" class="mealContent">
+      <scroll-view scroll-y class="mealContent">
         <div class="product bor-1px-b">
           <image class="proImg" src="http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg"></image>
           <div class="proIntro">

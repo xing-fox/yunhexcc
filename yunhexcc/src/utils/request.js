@@ -7,10 +7,10 @@ fly.interceptors.request.use((config,promise)=>{
   return config
 })
 
-export function post (url, params) {
+export function request (url, params) {
   return new Promise((resolve, reject) => {
-    fly.post(url, params).then(response => {
-      wx.hideLoading()  
+    fly.request(url, params).then(response => {
+      wx.hideLoading() 
       resolve(response)
     }, err => {
       wx.hideLoading()
@@ -33,6 +33,26 @@ if (env === 'development') {
 export default {
     /* 微信授权登录 */
     Xcclogin (params) {
-      return post('/yunhe/business/login/wxminiLogin', params)
+      return request('/yunhe/wechat/login/wxminiLogin', params)
+    },
+    /* 潮机列表 */
+    CJJX (params) {
+      return request('/yunhe/wechat/goods/goodslist', params)
+    },
+    /* 所有商品列表 */
+    Allproduct (params) {
+      return request('/yunhe/wechat/goods/newgoods', params)
+    },
+    /* 所有商品详情 */
+    Goodsinfo (params) {
+      return request('/yunhe/wechat/good/goodinfo', params)
+    },
+    /* 商品详情图文介绍 */
+    Goodsdescribe (params) {
+      return request('/yunhe/wechat/good/goodsdescribe', params)
+    },
+    /* 商品详情参数描述 */
+    Goodsparameter (params) {
+      return request('/yunhe/wechat/good/goodsparameter', params)
     }
 }

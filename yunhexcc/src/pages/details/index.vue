@@ -1,26 +1,28 @@
 <template>
   <div class="page">
-    <swiper class="swiper" :indicator-dots="indicatorDots" :autoplay="autoplay" :interval="interval" :duration="duration" :circular="circular" @change="swiperChange" @animationfinish="animationfinish">
-      <div v-for="(item, index) in imgUrls" :key="index">
+    <swiper class="swiper" :indicator-dots="indicatorDots" :autoplay="autoplay" :interval="interval" :duration="duration" :circular="circular" @change="swiperChange">
+      <div v-for="(item, index) in dataList.goodPictures " :key="index">
       <swiper-item>
-        <image :src="item" class="slide-image" @click="previewFunc(index)"/>
+        <image :src="item.picture_url" class="slide-image" @click="previewFunc(index)"/>
       </swiper-item>
       </div>
     </swiper>
     <div class="proIntro">
-      <div class="price">¥23456<span>¥2345</span></div>
-      <div class="title">苹果Iphone7</div>
-      <div class="content">该片通过给孩子们一次互换身体的特别体验，告诉孩子正视、改变自己的缺点才是成长的意义</div>
+      <div class="price">¥{{ dataList.price_new }}<span>¥{{ dataList.price_old }}</span></div>
+      <div class="title">{{ dataList.product_name }}</div>
+      <!-- <div class="content">{{ dataList.supplier_desc }}</div> -->
     </div>
     <div class="protab">
         <div class='singleList bor-1px-b' @click="changeSpecFunc">
           <span class='title'>发送</span>
-          <span>红色 128G 移动版 套餐一</span>
+          <span>{{ dataList.color }} {{ dataList.memory_capacity }} {{ dataList.supplier_desc }} {{ dataList.contract_name }}</span>
           <div class='arrow_right'></div>
         </div>
         <div class='singleList bor-1px-b' @click="chooseFunc">
           <span class='title'>送至</span>
-          <span>{{ address }}</span>
+          <span class="addr">
+            <span>{{ address }}</span>
+          </span>
           <div class='arrow_right'></div>
         </div>
         <div class="double">
@@ -42,8 +44,7 @@
         </li>
       </ul>
       <div class='graphic'>
-        <img src="http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg" alt="">
-        <img src="http://img06.tooopen.com/images/20160818/tooopen_sy_175866434296.jpg" alt="">
+        <img v-for="(item, index) in urlData" :key="index" :src="item.picture_url" alt="">
       </div>
     </div>
     <div class="proBuy">
@@ -56,18 +57,20 @@
         <span>立即购买</span>
       </div>
     </div>
-    <SetMeal v-if="setMealState" @changeState="stateFunc"></SetMeal>
-    <TelSure v-if="telState" @phoneChangeFunc="sure"></TelSure>
+    <setMeal v-if="setMealState" @changeState="stateFunc"></setMeal>
+    <telSure v-if="telState" @phoneChangeFunc="sure"></telSure>
   </div>
 </template>
 
 <script>
-import SetMeal from '@/components/setMeal'
-import TelSure from '@/components/phoneSure'
+import setMeal from '@/components/setMeal'
+import telSure from '@/components/phoneSure'
+import Fly from 'flyio/dist/npm/wx'
 export default {
-  page () {},
   data () {
     return {
+      openId: '',
+      productId: '',
       telState: false,
       autoplay: true,
       interval: 5000,
@@ -76,35 +79,92 @@ export default {
       setMealState: false,
       indicatorDots: true,
       activeFlag: true, // 图文消息切换
-      address: '安徽省 合肥市 蜀山区 习友路与金桂路交口8#',
+      address: '',
       imgUrls: [
         'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
         'http://img06.tooopen.com/images/20160818/tooopen_sy_175866434296.jpg',
         'http://img06.tooopen.com/images/20160818/tooopen_sy_175833047715.jpg'
-      ]
+      ],
+      urlData: [],
+      dataList: []
     }
   },
-  created () {
+  onLoad (options) {
+    let fly = new Fly
+    let self = this
+    self.activeFlag = true
+    self.productId = options.id
+    wx.getStorage({
+      key: 'openId',
+      success: function(res) {
+        self.openId = res.data
+        self.$http.Goodsinfo({
+          'openid': res.data,
+          'product_id': self.productId
+        }).then(res => {
+          self.dataList = res.data.content
+          self.address = self.dataList.detail_address
+        })
+        self.Goodsdescribe()
+      } 
+    })
   },
   components: {
-    SetMeal,
-    TelSure
+    setMeal,
+    telSure
   },
   methods: {
+    Goodsdescribe () {
+      this.$http.Goodsdescribe({
+        'openid': this.openId,
+        'product_id': this.productId
+      }).then(res => {
+        if (!res.data.content[0]) {
+          return this.urlData = []
+        }
+        this.urlData = res.data.content
+      })
+    },
+    Goodsparameter (openId) {
+      this.$http.Goodsparameter({
+        'openid': this.openId,
+        'product_id': this.productId
+      }).then(res => {
+        if (!res.data.content[0]) {
+          return this.urlData = []
+        }
+        this.urlData = res.data.content
+      })
+    },
     graphicFunc (arg) {
       this.activeFlag = arg === 0 ? true : false
+      arg === 0 ? this.Goodsdescribe() : this.Goodsparameter()
     },
-    previewFunc (arg) {
-      wx.previewImage({  
-        current: this.imgUrls[arg], 
-        urls: this.imgUrls 
+    previewFunc (index) {
+      let imgList = []
+      this.dataList.goodPictures.map((item) => {
+        imgList.push(item.picture_url)
       })
+      wx.previewImage({  
+        current: this.dataList.goodPictures[index].picture_url, 
+        urls: imgList 
+      })
+    },
+    swiperChange(e) {
+      // console.log('第' + e.mp.detail.current + '张轮播图发生了滑动')
+    },
+    animationfinish(e) {
+      // console.log('第' + e.mp.detail.current + '张轮播图滑动结束')
     },
     chooseFunc () {
       let self = this
+      // wx.openSetting({
+      //   success: (res) => {
+      //   }
+      // })
       wx.chooseAddress({
         success: function (res) {
-          self.address = `${res.provinceName} ${res.cityName} ${res.countyName} ${res.detailInfo}`
+          self.address = `${res.provinceName}${res.cityName}${res.countyName} ${res.detailInfo}`
         }
       })
     },
@@ -121,9 +181,10 @@ export default {
       this.telState = false
     },
     confirmFunc () {
-      wx.navigateTo({
-    		url:'/pages/confirm/main'
-    	})
+      console.log(123)
+      // wx.navigateTo({
+    	// 	url:'/pages/confirm/main'
+    	// })
     }
   }
 }
@@ -152,6 +213,7 @@ export default {
         color: #999;
         font-size: .22rem;
         margin-left: .1rem;
+        text-decoration:line-through;
       }
     }
     .title{
@@ -192,6 +254,18 @@ export default {
         background-size: 30% 30%;
         background-position: center center;
         background-repeat: no-repeat;
+      }
+      .addr{
+        flex: 1;
+        margin: 0 2rem 0 0;
+        display: table;
+        height: 1rem;
+        span{
+          display: table-cell;
+          vertical-align: middle;
+          text-align: left;
+          line-height: .4rem;
+        }
       }
     }
     .double{
@@ -252,7 +326,7 @@ export default {
     width: 100%;
     background: #fff;
     margin: .24rem 0 0 0;
-    padding: 0 0 1rem 0;
+    padding: 0 0 1.14rem 0;
     ul{
       width: 100%;
       height: 1rem;
