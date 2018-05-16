@@ -26,14 +26,14 @@
         <i class="icon_right"></i>
       </div>
       <div class="content">
-        <span class="name">中环百联店</span>
+        <span class="name">{{ dataList.shop_name }}</span>
         <i class="icon_no"></i>
         <i class="icon_half"></i>
         <i class="icon_all"></i>
-        <span class="score">4.0</span>
+        <span class="score">{{ dataList.shop_grade }}</span>
         <div class="addr">
           <i class="icon_position"></i>
-          <span>迪信通怀宁路天鹅湖店8号</span>
+          <span>{{ dataList.shop_address }}</span>
         </div>
       </div>
     </div>
@@ -47,15 +47,15 @@
       </picker>
       <div class="proIntro bor-1px-b">
         <div class="proImg">
-          <img src="http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg" alt="">
+          <img :src="dataList.picture_url" alt="">
         </div>
         <div class="proNews">
           <div class="name">
-            <span>苹果 Iphone7</span>
-            <span>¥5677</span>
+            <span>{{ dataList.product_name }}</span>
+            <span>¥{{ dataList.product_price }}</span>
           </div>
           <div class="spec">
-            <span>红色 32G 移动版 套餐一</span>
+            <span>{{ dataList.color }} {{ dataList.memory_capacity }} {{ dataList.supplier_desc }} {{ dataList.contract_name }}</span>
             <span>x1</span>
           </div>
         </div>
@@ -63,26 +63,26 @@
       <div class="proPrice bor-1px-b">
         <div class="tab">
           <span>商品总价:</span>
-          <span>¥5600</span>
+          <span>¥{{ dataList.price_sum }}</span>
         </div>
         <div class="tab">
           <span>商品运费:</span>
-          <span>¥0</span>
+          <span>¥{{ dataList.pay_way}}</span>
         </div>
       </div>
       <div class="payType">
         <span class="title">商品抵用券:</span>
-        <span class="type typeColor">- ¥10</span>
+        <span class="type typeColor"> <span v-if="couponState">未使用</span><span v-else>- ¥10</span></span>
         <i class="icon_right"></i>
       </div>
       <div class="totalMoney bor-1px-t bor-1px-b">
         <span>小计:</span>
-        <span>¥5600</span>
+        <span>¥{{ dataList.price_sum}}</span>
       </div>
     </div>
     <div class="payMent">
-      <div class="totalMoney bor-1px-t">需支付:<span>¥5600</span></div>
-      <div class="submit"><span>提交订单</span></div>
+      <div class="totalMoney bor-1px-t">需支付:<span>¥{{ dataList.price_sum}}</span></div>
+      <div class="submit" @click="submitFunc"><span>提交订单</span></div>
     </div>
   </div>
 </template>
@@ -91,16 +91,22 @@
 export default {
   data () {
     return {
+      openId: '',
+      order_no: '',
+      couponState: true,
       addrFlag: false,
+      detailId: '',
+      proNum: '',
+      contractId: '',
       addrInfor: {},
+      dataList: Object,
       payTypeValue: '货到付款',
-      payType: ['货到付款', '在线付款'],
+      payTypeFlag: 0,
+      payType: ['在线付款', '货到付款'],
       dispatchValue: '到店自提',
+      dispatchFlag: 0,
       dispatchType: ['到店自提', '送货上门']
     }
-  },
-  mounted () {
-    wx.setNavigationBarTitle({ title: '确认订单'})
   },
   methods: {
     addrFunc () {
@@ -114,10 +120,86 @@ export default {
     },
     PickerChange(e) {
       this.payTypeValue = this.payType[e.mp.detail.value]
+      this.payTypeFlag = e.mp.detail.value
     },
     PickerChanges(e) {
-      this.dispatchValue = this.dispatchType[e.mp.detail.value]  
+      this.dispatchValue = this.dispatchType[e.mp.detail.value]
+      this.dispatchFlag = e.mp.detail.value 
+    },
+    submitFunc () {
+      this.$http.buildOrder({
+        data: JSON.stringify({
+          'product_detail_id': this.detailId,
+          'product_number': this.proNum,
+          'contract_id': this.contractId,
+          'pay_way': this.payTypeFlag,
+          'address_id': '',
+          'coupon_id': '',
+          'delivery_way': this.dispatchFlag,
+          'shop_id': this.dataList.shop_id
+        }),
+        'openid': this.openId
+      }).then(res => {
+        this.order_no = res.data.content.order_no
+      }).then(() => {
+        this.$http.paymyOrder({
+          data: JSON.stringify({
+            'order_no': this.order_no,
+            'pay_way': 1,
+            'type': 2,
+            'coupon_flag': 0
+          }),
+          'openid': this.openId
+        }).then(res => {
+          let data = res.data.content
+          console.log(res)
+          wx.requestPayment({
+            'timeStamp': data.timestamp,
+            'nonceStr': data.noncestr,
+            'package': data.wxpay_package,
+            'signType': 'MD5',
+            'paySign': data.sign,
+            'success':function(res){
+              console.log(res)
+              wx.showToast({
+                title: '支付成功',
+                icon: 'none',
+                duration: 2000,
+                mask: true
+              })
+            },
+            'fail':function(res){
+              wx.showToast({
+                title: '支付失败',
+                icon: 'none',
+                duration: 2000,
+                mask: true
+              })
+            }
+          })
+        })
+      })
     }
+  },
+  onLoad (options) {
+    let self = this
+    self.detailId = options.detailId
+    self.proNum = options.proNum
+    self.contractId = options.contractId
+    wx.getStorage({
+      key: 'openId',
+      success: function(res) {
+        self.openId = res.data
+        self.$http.purchaseNow({
+          'product_detail_id': self.detailId,
+          'product_number': self.proNum,
+          'contract_id': self.contractId,
+          'openid': self.openId
+        }).then(res => {
+          self.dataList = res.data.content
+        })
+      } 
+    })
   }
 }
 </script>

@@ -30,7 +30,7 @@
                 <span>说明</span>
             </div>
             <div class="right">
-                <span>下面是tex-decoration  的使用案例，代码可以直接复制到浏览器上面进行运行</span>
+                <span>正品保障 / 货到付款 / 自提 / 7天退换货 / 迪信通发货售后</span>
             </div>
         </div>
     </div>
@@ -48,16 +48,16 @@
       </div>
     </div>
     <div class="proBuy">
-      <div class="star bor-1px-t bor-1px-r">
+      <div class="star bor-1px-t">
       </div>
-      <div class="shoppingCart bor-1px-t" @click="shopCartFunc">
+      <!-- <div class="shoppingCart bor-1px-t" @click="shopCartFunc">
         <span>加入购物车</span>
-      </div>
-      <div class="buyNow" @click="confirmFunc">
+      </div> -->
+      <div class="buyNow" @click="changeSpecFunc">
         <span>立即购买</span>
       </div>
     </div>
-    <setMeal v-if="setMealState" @changeState="stateFunc"></setMeal>
+    <setMeal v-if="setMealState" :detailId="detailId" :dataList="specData" :proList="dataList" :contId="contractSureId" @changeSpec="specFunc" @changeState="stateFunc"></setMeal>
     <telSure v-if="telState" @phoneChangeFunc="sure"></telSure>
   </div>
 </template>
@@ -65,11 +65,11 @@
 <script>
 import setMeal from '@/components/setMeal'
 import telSure from '@/components/phoneSure'
-import Fly from 'flyio/dist/npm/wx'
 export default {
   data () {
     return {
       openId: '',
+      detailId: '',
       productId: '',
       telState: false,
       autoplay: true,
@@ -86,11 +86,16 @@ export default {
         'http://img06.tooopen.com/images/20160818/tooopen_sy_175833047715.jpg'
       ],
       urlData: [],
-      dataList: []
+      dataList: [],
+      colorId: '', // 颜色规格id
+      memoryId: '', // 内存规格id
+      supplierId: '', // 供应商规格id
+      contractId: '', // 套餐规格id
+      contractSureId: '', // 套餐id
+      specData: ''
     }
   },
   onLoad (options) {
-    let fly = new Fly
     let self = this
     self.activeFlag = true
     self.productId = options.id
@@ -104,8 +109,10 @@ export default {
         }).then(res => {
           self.dataList = res.data.content
           self.address = self.dataList.detail_address
+          self.detailId = res.data.content.product_detail_id
         })
         self.Goodsdescribe()
+        self.Selectparameter()
       } 
     })
   },
@@ -114,6 +121,55 @@ export default {
     telSure
   },
   methods: {
+    Selectparameter () {
+      this.$http.Selectparameter({
+        data: JSON.stringify({
+          product_id: this.productId,
+          color_id: this.colorId,
+          memory_id: this.memoryId,
+          supplier_id: this.supplierId,
+          contract_id: this.contractId
+        }),
+        'openid': this.openId
+      }).then(res => {
+        this.specData = res.data.content
+      })
+    },
+    specFunc (e) {
+      if (e.cate === 1) {
+        this.colorId = e.id
+      } 
+      if (e.cate === 2) {
+        this.memoryId = e.id
+      }
+      if (e.cate === 3) {
+        this.supplierId = e.id
+      }
+      if (e.cate === 4) {
+        this.contractId = e.id
+      }
+      this.$http.Selectparameter({
+        data: JSON.stringify({
+          product_id: this.productId,
+          color_id: this.colorId,
+          memory_id: this.memoryId,
+          supplier_id: this.supplierId,
+          contract_id: this.contractId
+        }),
+        'openid': this.openId
+      }).then(res => {
+        if (res.code == 'E00000') {
+          return wx.showToast({
+            title: '暂无此套餐商品',
+            icon: 'none',
+            duration: 2000,
+            mask: true
+          })
+        } else {
+          return false
+        }
+      })
+    },
     Goodsdescribe () {
       this.$http.Goodsdescribe({
         'openid': this.openId,
@@ -157,16 +213,20 @@ export default {
       // console.log('第' + e.mp.detail.current + '张轮播图滑动结束')
     },
     chooseFunc () {
-      let self = this
+      wx.navigateTo({
+    		url:'/pages/address/main'
+    	})
+      // let self = this
       // wx.openSetting({
       //   success: (res) => {
       //   }
       // })
-      wx.chooseAddress({
-        success: function (res) {
-          self.address = `${res.provinceName}${res.cityName}${res.countyName} ${res.detailInfo}`
-        }
-      })
+      // wx.chooseAddress({
+      //   success: function (res) {
+      //     console.log(res)
+      //     self.address = `${res.provinceName}${res.cityName}${res.countyName} ${res.detailInfo}`
+      //   }
+      // })
     },
     changeSpecFunc () {
       this.setMealState = true
@@ -179,12 +239,6 @@ export default {
     },
     sure () {
       this.telState = false
-    },
-    confirmFunc () {
-      console.log(123)
-      // wx.navigateTo({
-    	// 	url:'/pages/confirm/main'
-    	// })
     }
   }
 }
@@ -213,13 +267,12 @@ export default {
         color: #999;
         font-size: .22rem;
         margin-left: .1rem;
-        text-decoration:line-through;
+        text-decoration:line-through
       }
     }
     .title{
       color: #333;
       font-size: .34rem;
-      margin: 0 0 .1rem 0;
     }
     .content{
       color: #777;

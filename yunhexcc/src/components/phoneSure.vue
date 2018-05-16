@@ -6,7 +6,7 @@
     <input class="tel" type="tel" placeholder="请输入您的手机号" v-model="telephone">
     <div class="verfiCode">
       <input type="number" placeholder="请输入手机验证码" v-model="verfyCode">
-      <span v-if="phoneSure" @click="sendCodeFunc">发送验证码</span>
+      <span v-if="phoneSure" @click="sendCodesFunc">发送验证码</span>
       <span v-else>{{ timeLeave }}s后重新发送</span>
     </div>
     <div class="commit" @click="commitFunc">
@@ -20,12 +20,22 @@ export default {
   name: 'telSure',
   data () {
     return {
+      openId: '',
       timeLeave: 60,
       timeInter: '',
       phoneSure: true,
       telephone: '',
       verfyCode: ''
     }
+  },
+  onLoad () {
+    let self = this
+    wx.getStorage({
+      key: 'openId',
+      success: function(res) {
+        self.openId = res.data
+      } 
+    })
   },
   methods: {
     changeTime () {
@@ -41,13 +51,19 @@ export default {
     },
     commitFunc () {
       if (!this.telephone) {
-        return this.$toast('请输入手机号', {
-          durtaion: 200
+        return wx.showToast({
+          title: '请输入手机号',
+          icon: 'none',
+          duration: 2000,
+          mask: true
         })
       }
       if (!this.verfyCode) {
-        return this.$toast('请输入手机验证码', {
-          durtaion: 200
+        return wx.showToast({
+          title: '请输入手机验证码',
+          icon: 'none',
+          duration: 2000,
+          mask: true
         })
       }
       this.$http.bindPhone({
@@ -70,33 +86,45 @@ export default {
         }
       })
     },
-    sendCodeFunc () {
+    sendCodesFunc () {
       if (!this.telephone) {
-        return this.$toast('请输入手机号', {
-          durtaion: 200
+        return wx.showToast({
+          title: '请输入手机号',
+          icon: 'none',
+          duration: 2000,
+          mask: true
         })
       }
       if (!(/^1[3|4|5|7|8|9][0-9]\d{4,8}$/.test(this.telephone))) {
-        return this.$toast('手机号输入有误,请重新输入', {
-          durtaion: 200
+        return wx.showToast({
+          title: '手机号输入错误',
+          icon: 'none',
+          duration: 2000,
+          mask: true
         })
       }
       this.$http.getIdentifyCode({
         data: JSON.stringify({
           'phone': this.telephone
         }),
-        'openid': window.localStorage.getItem('openId')
+        'openid': this.openId
       }).then(res => {
+        console.log(res)
         if (res.code === 'E00000') {
-          this.$toast('发送成功', {
-            durtaion: 200
+          wx.showToast({
+            title: '发送成功',
+            icon: 'none',
+            duration: 2000,
+            mask: true
           })
           this.phoneSure = false
           this.changeTime()
         } else {
-          this.$alert({
-            title: ' ',
-            content: res.msg
+          wx.showToast({
+            title: res.msg,
+            icon: 'none',
+            duration: 2000,
+            mask: true
           })
         }
       })
@@ -177,6 +205,7 @@ export default {
         position: absolute;
         top: 0;
         right: 0;
+        z-index: 10;
       }
     }
     .commit{

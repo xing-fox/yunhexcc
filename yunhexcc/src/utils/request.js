@@ -51,8 +51,40 @@ export default {
     Goodsdescribe (params) {
       return request('/yunhe/wechat/good/goodsdescribe', params)
     },
+    /* 商品详情产品规格 */
+    Selectparameter (params) {
+      return request('/yunhe/wechat/good/selectparameter', params)
+    },
     /* 商品详情参数描述 */
     Goodsparameter (params) {
       return request('/yunhe/wechat/good/goodsparameter', params)
+    },
+    /* 我的优惠券 */
+    MyCoupon (params) {
+      return request('/yunhe/wechat/customer/mycoupon', params)
+    },
+    /* 微信手机号绑定 */
+    bindPhone (params) {
+      return request('/yunhe/wechat/login/registerwxpub', params)
+    },
+    /* 手机验证码 */
+    getIdentifyCode (params) {
+      return request('/yunhe/wechat/login/getIdentifyCode', params)
+    },
+    /* 商品确认付款页面 */
+    purchaseNow (params) {
+      return request('/yunhe/wechat/cart/purchaseNow', params)
+    },
+    /* 创建商品订单 */
+    buildOrder (params) {
+      return request('/yunhe/wechat/order/buildorder', params)
+    },
+    /* 支付订单接口 */
+    paymyOrder (params) {
+      return request('/yunhe/wechat/payment/paymyorder', params)
+    },
+    /* 商品选择收货地址 */
+    selectAddress (params) {
+      return request('/yunhe/wechat/cart/selectAddress', params)
     }
 }

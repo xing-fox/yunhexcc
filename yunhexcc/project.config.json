@@ -36,6 +36,42 @@
 					"name": "pages/index/main",
 					"pathName": "pages/index/main",
 					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "pages/coupon/main",
+					"pathName": "pages/coupon/main",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "pages/mine/main",
+					"pathName": "pages/mine/main",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "pages/details/main",
+					"pathName": "pages/details/main",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "pages/addrManager/main",
+					"pathName": "pages/addrManager/main",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "pages/address/main",
+					"pathName": "pages/address/main",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "pages/addrEdit/main",
+					"pathName": "pages/addrEdit/main",
+					"query": ""
 				}
 			]
 		}

@@ -3,59 +3,47 @@
     <div class="pageContent" :class="{fadeInUp: animalClassfadeIn,animated: animalClassfadeIn,animated: animalClassfadeOut,fadeOutDown: animalClassfadeOut}">
       <scroll-view scroll-y class="mealContent">
         <div class="product bor-1px-b">
-          <image class="proImg" src="http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg"></image>
+          <img class="proImg" :src="proList.goodPictures[0].picture_url">
           <div class="proIntro">
-            <div class="Name">苹果 Iphone7</div>
-            <div class="content">[现货]苹果版本果粉必备红色版果粉必备红色版果粉必备红色版果粉必备红色版</div>
-            <div class="price">¥5600 <span>6200</span> </div>
+            <div class="Name">{{ proList.product_name }}</div>
+            <div class="content"></div>
+            <div class="price">¥{{ proList.price_new }} <span>{{ proList.price_old }}</span> </div>
           </div>
         </div>
         <div class="specList">
           <div class="listTitle">颜色：</div>
           <div class="listCategory">
-            <div class="categoryList active">红色</div>
-            <div class="categoryList">黄色</div>
-            <div class="categoryList">绿色</div>
-            <div class="categoryList">红绿黄黑白蓝紫</div>
+            <div v-for="(item, index) in dataList.colorinfo" :key="index" class="categoryList" :class="{active: colorIndex === index}" @click="specFunc(1, index, item.color_id)">{{ item.color_name }}</div>
           </div>
         </div>
         <div class="specList">
           <div class="listTitle">容量：</div>
           <div class="listCategory">
-            <div class="categoryList active">43G</div>
-            <div class="categoryList">4G</div>
-            <div class="categoryList">433G</div>
-            <div class="categoryList">1G</div>
+            <div v-for="(item, index) in dataList.memoryinfo" :key="index" class="categoryList" :class="{active: memoryIndex === index}" @click="specFunc(2, index, item.memory_id)">{{ item.memory_name }}</div>
           </div>
         </div>
         <div class="specList">
-          <div class="listTitle">颜色：</div>
+          <div class="listTitle">供应商：</div>
           <div class="listCategory">
-            <div class="categoryList active">红色</div>
-            <div class="categoryList">黄色</div>
-            <div class="categoryList">绿色</div>
-            <div class="categoryList">红绿黄黑白蓝紫</div>
+            <div v-for="(item, index) in dataList.supplierinfo" :key="index" class="categoryList" :class="{active: supplierIndex === index}" @click="specFunc(3, index, item.supplier_id)">{{ item.supplier_name }}</div>
           </div>
         </div>
         <div class="specList">
-          <div class="listTitle">容量：</div>
+          <div class="listTitle">套餐：</div>
           <div class="listCategory">
-            <div class="categoryList active">43G</div>
-            <div class="categoryList">4G</div>
-            <div class="categoryList">433G</div>
-            <div class="categoryList">1G</div>
+            <div v-for="(item, index) in dataList.contractinfo" :key="index" class="categoryList" :class="{active: contractIndex === index}" @click="specFunc(4, index, item.contract_id)">{{ item.contract_name }}</div>
           </div>
         </div>
         <div class="choiseCount">
           <span class="countTitle">选择数量：</span>
           <div class="countContent">
-            <span class="contIcon iconMinus"></span>
-            <span class="contNum">23</span>
-            <span class="contIcon iconPlus"></span>
+            <span class="contIcon iconMinus" @click="minusFunc"></span>
+            <span class="contNum">{{ totalCount }}</span>
+            <span class="contIcon iconPlus" @click="plusFunc"></span>
           </div>
         </div>
       </scroll-view>
-      <div class="submit">
+      <div class="submit" @click="submitFunc">
         <span>确定</span>
       </div>
     </div>
@@ -65,13 +53,58 @@
 
 <script>
 export default {
+  props: {
+    dataList: {
+      type: Object,
+      default: {}
+    },
+    proList: {
+      type: Object,
+      default: {}
+    },
+    contId: {
+      type: [String, Number],
+      default: ''
+    },
+    detailId: {
+      type: String,
+      default: ''
+    }
+  },
   data () {
     return {
+      colorIndex: 0,
+      memoryIndex: 0,
+      supplierIndex: 0,
+      contractIndex: 0,
+      totalCount: 1,
+      contractId: '',
       animalClassfadeIn: true,
       animalClassfadeOut: false
     }
   },
+  onLoad () {
+    this.contractId = this.dataList.contractinfo[0].contract_id
+  },
   methods: {
+    specFunc (cate, index, id) {
+      if (cate === 1) {
+        this.colorIndex = index
+      }
+      if (cate === 2) {
+        this.memoryIndex = index
+      }
+      if (cate === 3) {
+        this.supplierIndex = index
+      }
+      if (cate === 4) {
+        this.contractIndex = index
+      }
+      this.$emit('changeSpec', {
+        id: id,
+        cate: cate
+      })
+    },
     pageFunc (e) {
       this.animalClassfadeIn = false
       setTimeout(() => {
@@ -79,7 +112,27 @@ export default {
       }, 0)
       setTimeout(() => {
         this.$emit('changeState')
-      }, 500)
+      }, 300)
+    },
+    minusFunc () {
+      if (this.totalCount === 1) {
+        return wx.showToast({
+          title: '商品数量不能小于1',
+          icon: 'none',
+          duration: 2000,
+          mask: true
+        })
+      } else {
+        this.totalCount--
+      }
+    },
+    plusFunc () {
+      this.totalCount++
+    },
+    submitFunc () {
+      wx.navigateTo({
+    		url:'/pages/confirm/main?proNum='+ this.totalCount + '&detailId=' + this.detailId + '&contractId=' + this.contractId
+    	})
     }
   }
 }
@@ -97,7 +150,7 @@ export default {
     z-index: 1000;
     .pageContent{
       width: 100%;
-      height: 9rem;
+      height: 8.4rem;
       position: absolute;
       bottom: 0;
       left: 0;
@@ -105,7 +158,7 @@ export default {
       z-index: 10;
       .mealContent{
         width: 100%;
-        height: 8rem;
+        height: 7.2rem;
         padding: 0 0 .2rem 0;
         background: #fff;
         position: absolute;
@@ -154,8 +207,9 @@ export default {
           .listTitle{
             color: #777;
             font-size: .26rem;
-            width: 1rem;
+            width: 1.1rem;
             line-height: .5rem;
+            text-align: center;
             margin: .4rem 0 0 0;
           }
           .listCategory{

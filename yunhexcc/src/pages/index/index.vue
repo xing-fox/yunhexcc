@@ -58,7 +58,6 @@ export default {
           }),
           'openid': self.openId
         }).then(res => {
-          console.log(res)
           self.dataList = res.data.content.data
         })
         self.allProduct()

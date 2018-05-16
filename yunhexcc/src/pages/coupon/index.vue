@@ -5,7 +5,7 @@
         <li v-for="(item, index) in tabList" :key="index" :class="{active: tabFlag === index}" @click="tabFlag = index">{{ item }}</li>
       </ul>
     </div>
-    <scroll-view scroll-y bindscroll="scroll" class="content">
+    <scroll-view scroll-y class="content">
       <ul>
         <li>  
           <div class="list_main">
@@ -123,14 +123,46 @@ export default {
       tabList: ["未使用", "已使用", "已过期"],
       tabFlag: 0,
       testPrice: 500,
-      noData: false
+      noData: false,
+      DataList: [], // 总数据
+      tabType: 0,
+      pageNum: 1,
+      pagCount: 8,
+      openId: ''
     }
   },
   components: {
     Nocoupon
   },
+  onLoad () {
+    let self = this
+    wx.getStorage({
+      key: 'openId',
+      success: function(res) {
+        self.openId = res.data
+        self.init()
+      } 
+    })
+  },
   methods: {
-    scroll () {
+    init () {
+      this.$http.MyCoupon({
+        data: JSON.stringify({
+          'status': this.tabType,
+          'pag_no': this.pageNum,
+          'pag_num': this.pagCount
+        }),
+        'openid': this.openId
+      }).then(res => {
+        console.log(res)
+        // self.DataList = res.content
+        // self.$nextTick(() => {
+        //   self.scrollDom = new IScroll(this.$refs.wrapper)
+        // })
+        // if (!res.content || !res.content.length) {
+        //   this.nodataState = true
+        // }
+      })
     }
   }
 }
@@ -180,7 +212,7 @@ export default {
     font-size: 0;
     width: 100%;
     background: #fff;
-    padding: 0.4rem 0 0 0;
+    padding: .2rem 0 0 0;
     position: absolute;
     top: 0.98rem;
     bottom: 0.6rem;

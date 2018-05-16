@@ -8,9 +8,14 @@ export default {
           self.$http.Xcclogin({
             'code': res.code
           }).then(res => {
+            console.log(res)
             wx.setStorage({
               key: 'openId',
               data: res.data.content.openid
+            })
+            wx.setStorage({
+              key: 'phoneRegister',
+              data: res.data.content.phone_register
             })
           })
         }
