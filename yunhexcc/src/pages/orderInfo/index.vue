@@ -152,7 +152,10 @@
 
 			}
 		},
-		methods: {},
+		onLoad (options){
+			this.$http.OrderMyOrder
+		},
+		getOrderListInfo: {},
 		created() {}
 	}
 </script>

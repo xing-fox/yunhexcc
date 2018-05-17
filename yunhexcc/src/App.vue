@@ -5,6 +5,7 @@ export default {
     wx.login({
       success: function(res) {
         if (res.code) {
+          console.log(res)
           self.$http.Xcclogin({
             'code': res.code
           }).then(res => {

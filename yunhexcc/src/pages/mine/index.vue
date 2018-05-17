@@ -26,21 +26,21 @@
         <div class="type">猿币数</div>
       </li>
     </ul>
-    <div class="order" @click="goToOrderList">
-      <div class="title bor-1px-b">
+    <div class="order">
+      <div class="title bor-1px-b"  @click="goToOrderList(0)">
         <span>我的订单</span>
         <i class="icon_right"></i> 
       </div>
       <ul class="orderList">
-        <li>
-          <i class="icon icon_order1"></i>
+        <li @click="goToOrderList(1)">
+          <i class="icon icon_order1" ></i>
           <p>待付款</p>
         </li>
-        <li>
+        <li @click="goToOrderList(2)">
           <i class="icon icon_order2"></i>
           <p>待发货</p>
         </li>
-        <li>
+        <li @click="goToOrderList(3)">
           <i class="icon icon_order3"></i>
           <p>待收货</p>
         </li>
@@ -94,9 +94,9 @@ export default {
         url: '/pages/coupon/main'
       })
     },
-    goToOrderList () {
+    goToOrderList (index) {
     	wx.navigateTo({
-    		url:'/pages/order/main'
+    		url:'/pages/order/main?currentIndex='+index
     	})
     },
     goToShopCart () {
