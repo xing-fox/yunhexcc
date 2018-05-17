@@ -15,7 +15,7 @@
 						<view class='storeName'>{{content.shop_name}}</view>
 						<view class='startDate'>{{content.created_at}}{{content.pay_way}}</view>
 					</view>
-					<div class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' :key="subIndex" @click='orderClick'>
+					<div class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' :key="subIndex" @click='orderClick(content.order_no)'>
 						<img class='goodsImg' :src="goodsData.picture_url" />
 						<view class='goodNameInfo'>
 							<view class='goodsName'>{{goodsData.product_name}}</view>
@@ -46,7 +46,7 @@
 							<view class='cancelOrderBtn' @click='remindOrderClick(content.order_no)'>提醒发货</view>
 						</view>
 						<view v-if="content.order_status == 3" class='opertionBtn'>
-							<view class='cancelOrderBtn' @click='sureOrderClick(content.order_no)'>确认收货</view>
+							<view class='cancelOrderBtn' @click='sureOrderClick(content.order_no,content.order_type,index)'>确认收货</view>
 						</view>
 					</view>
 				</div>
@@ -133,10 +133,10 @@
 				})
 			},
 			/* 跳转订单详情页 */
-			orderClick() {
-				//				wx.navigateTo({
-				//					url: '/pages/orderInfo/main'
-				//				})
+			orderClick(orderNumb) {
+				wx.navigateTo({
+					url: '/pages/orderInfo/main?orderNumb=' + orderNumb
+				})
 			},
 			/* 订单支付 */
 			payClick(orderNumb, type) {
@@ -217,8 +217,24 @@
 					mask: false
 				})
 			},
-			sureOrderClick(orderNumb) {
+			/* 确认收货 */
+			sureOrderClick(orderNumb, type, orderIndex) {
+				console.log(type + "确认收货请求" + orderNumb + "订单索引" + orderIndex);
+				this.$http.takenOrder({
+					'order_type': type,
+					'order_no': orderNumb
+				}).then(res => {
+					if(res.data.code == 'E00000') {
+						this.urlData.splice(orderIndex, 1);
+						wx.showToast({
+							title: "确认收货成功",
+							icon: 'none',
+							duration: 1000,
+							mask: false
+						})
+					}
 
+				})
 			}
 		},
 		computed: {

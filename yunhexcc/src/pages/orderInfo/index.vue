@@ -102,7 +102,7 @@
 			</span>
 		</div>
 		<div class="spaceBottom">
-			
+
 		</div>
 		<div class="orderOpertion">
 			<div class="orderOpertion-contact">
@@ -126,6 +126,7 @@
 	export default {
 		data() {
 			return {
+				
 				orderState: '已付款，待发货',
 				receivePerson: '小猴子',
 				receivePhoneNumb: '18888888888',
@@ -152,8 +153,16 @@
 
 			}
 		},
-		onLoad (options){
-			this.$http.OrderMyOrder
+		onLoad(options) {
+			console.log(options.orderNumb);
+			this.$http.OrderOrderDetail({
+				'order_no': options.orderNumb
+			}).then(res => {
+				console.log(JSON.stringify(res));
+				if(res.data.code == 'E00000') {
+					
+				}
+			})
 		},
 		getOrderListInfo: {},
 		created() {}
@@ -222,7 +231,6 @@
 			}
 		}
 		.middleView {
-			
 			height: 66px;
 			display: flex;
 			padding-left: 10px;
@@ -302,10 +310,12 @@
 			padding: 4px 6px;
 		}
 	}
-	.spaceBottom{
+	
+	.spaceBottom {
 		width: 100%;
 		height: 200px;
 	}
+	
 	.orderOpertion {
 		height: 50px;
 		width: 100%;
@@ -325,7 +335,6 @@
 					height: 20px;
 					background: gainsboro;
 					margin-top: 8px;
-
 				}
 				.orderOpertion-contacter {
 					font-size: 14px;
@@ -341,5 +350,4 @@
 			}
 		}
 	}
-	
 </style>

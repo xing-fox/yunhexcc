@@ -107,6 +107,10 @@ export default {
     CancelOrder (params) {
     	return  request('/yunhe/wechat/order/concelorder', params)
     },
+    /*确认收货*/
+    takenOrder (params) {
+    	return  request('/yunhe/wechat/order/ordertaken', params)
+    },
     /*提醒发货*/
     RemindeOrderPay (params) {
     	return  request('/yunhe/wechat/payment/paymyorder', params)
