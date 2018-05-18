@@ -13,7 +13,7 @@
 				<div v-for="(content, index) in urlData" :key="index" class="content-item" @click='contentClick' track-by="$numb">
 					<view class='topView'>
 						<view class='storeName'>{{content.shop_name}}</view>
-						<view class='startDate'>{{content.created_at}}{{content.pay_way}}</view>
+						<view class='startDate'>{{content.created_at}}</view>
 					</view>
 					<div class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' :key="subIndex" @click='orderClick(content.order_no)'>
 						<img class='goodsImg' :src="goodsData.picture_url" />
@@ -142,6 +142,7 @@
 						}
 					})
 					.then(res => {
+						console.log("调起订单"+JSON.stringify(res));
 						if(res.data.code == "E00000") {
 							var data = res.data.content;
 							wx.requestPayment({
@@ -151,7 +152,7 @@
 								signType: "MD5",
 								paySign: data.sign,
 								success: function(res) {
-									console.log(res)
+									console.log("支付状态"+res)
 									wx.showToast({
 										title: "支付成功",
 										icon: "none",
@@ -203,12 +204,21 @@
 			},
 			/* 提醒发货 */
 			remindOrderClick(orderNumb) {
-				wx.showToast({
-					title: "提醒商家发货成功",
-					icon: "none",
-					duration: 1000,
-					mask: false
-				});
+				this.$http
+					.RemindeOrderPay({
+						openid: this.openId,
+						order_no: orderNumb
+					})
+					.then(res => {
+						if(res.data.code == "E00000") {
+							wx.showToast({
+								title: "提醒商家发货成功",
+								icon: "none",
+								duration: 1000,
+								mask: false
+							});
+						}
+					});
 			},
 			/* 确认收货 */
 			sureOrderClick(orderNumb, type, orderIndex) {

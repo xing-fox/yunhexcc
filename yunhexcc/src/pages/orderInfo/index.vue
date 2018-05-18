@@ -2,8 +2,17 @@
 	<div class="page" style="background-color: #f7f7f7;">
 		<div class=" orderState ">
 			<image class="orderStateImg " />
-			<span id="orderStateText ">
-	 		 {{orderState}}
+			<span id="orderStateText" v-if="urlData.order_status == 1">
+	 		 等待付款
+			</span>
+			<span id="orderStateText" v-else-if="urlData.order_status == 2">
+	 		 已付款，待发货
+			</span>
+			<span id="orderStateText" v-else-if="urlData.order_status == 3">
+	 		 待收货
+			</span>
+			<span id="orderStateText" v-else-if="urlData.order_status == 4">
+	 		 待评价
 			</span>
 		</div>
 		<div class="orderAddress ">
@@ -12,29 +21,32 @@
 			<div class="addressInfo ">
 				<div class="receivePeopleInfo">
 					<span>
-						收货人：{{receivePerson}}
+						收货人：{{urlData.receiver_name}}
 					</span>
 					<span>
-						{{receivePhoneNumb}}
+						{{urlData.receiver_phone}}
 					</span>
 				</div>
 				<div class="receiveAddressInfo">
-					收货地址：{{detailAddress}}
+					收货地址：{{urlData.receiver_area}}{{urlData.detail_address}}
 				</div>
 			</div>
 		</div>
 		<div class="orderGoodsInfo">
 			<div class="orderGoods-ShopInfo">
 				<span id="orderGoods-StoreName">
-					{{goodsStore}}
+					{{urlData.shop_name}}
 				</span>
-				<span id="orderGoods-PayState">
-					{{data1}}
+				<span id="orderGoods-PayState" v-if="urlData.pay_way == 0">
+					{{urlData.created_at}} 在线支付
+				</span>
+				<span id="orderGoods-PayState" v-else-if="urlData.pay_way == 1">
+					{{urlData.created_at}} 货到付款
 				</span>
 			</div>
 			<div class="orderGoods-GoodsInfo">
-				<view class='middleView' v-for='(goodsData,subIndex) in goodsInfo' @tap='orderClick'>
-					<image class='goodsImg'></image>
+				<view class='middleView' v-for='(goodsData,subIndex) in urlData.goodsinfo' @tap='orderClick'>
+					<image class='goodsImg' src="goodsData.picture_url"></image>
 					<view class='goodNameInfo'>
 						<view class='goodsName'>{{goodsData.data2}}</view>
 						<view class='goodsPlans'>{{goodsData.data3}}</view>
@@ -126,8 +138,8 @@
 	export default {
 		data() {
 			return {
-				
-				orderState: '已付款，待发货',
+				urlData: {},
+				orderState: '已付款，待发货\等待付款（剩余。。）\待收货',
 				receivePerson: '小猴子',
 				receivePhoneNumb: '18888888888',
 				detailAddress: '收货地址：安徽省 合肥市 蜀山区 天鹅湖万达广场2号楼1702室',
@@ -154,13 +166,15 @@
 			}
 		},
 		onLoad(options) {
+			let self = this;
 			console.log(options.orderNumb);
 			this.$http.OrderOrderDetail({
 				'order_no': options.orderNumb
 			}).then(res => {
 				console.log(JSON.stringify(res));
 				if(res.data.code == 'E00000') {
-					
+					console.log(JSON.stringify(res));
+					self.urlData = res.data.content;
 				}
 			})
 		},
