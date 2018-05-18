@@ -128,19 +128,19 @@
 			},
 			/* 跳转订单详情页 */
 			orderClick(orderNumb) {
-				wx.navigateTo({
-					url: "/pages/orderInfo/main?orderNumb=" + orderNumb
-				})
+//				wx.navigateTo({
+//					url: "/pages/orderInfo/main?orderNumb=" + orderNumb
+//				})
 			},
 			/* 订单支付 */
 			payClick(orderNumb, type) {
 				let self = this
-				console.log(self.openId+"+"+self.orderNumb+"+"+type)
+				console.log(self.openId+"+"+orderNumb+"+"+type)
 				this.$http
 					.OrderOrderPay({
 						openid: self.openId,
 						data: {
-							order_no: self.orderNumb,
+							order_no: orderNumb,
 							type: type
 						}
 					})
