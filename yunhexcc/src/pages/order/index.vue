@@ -98,6 +98,7 @@
 			},
 			/* 订单列表 */
 			orderMyOrder(order_status) {
+				let self = this;
 				if(order_status == 0) {
 					order_status = ''
 				}
@@ -107,20 +108,20 @@
 						data: JSON.stringify({
 							order_status: order_status,
 							pag_num: 10,
-							pag_no: this.pag_no
+							pag_no: self.pag_no
 						})
 					})
 					.then(res => {
 						this.loadEndMore = false
 						console.log("订单数据成功")
 						if(res.data.code == "E00000") {
-							if(this.pag_no == 1) {
-								this.urlData = res.data.content.orderinfo
+							if(self.pag_no == 1) {
+								self.urlData = res.data.content.orderinfo
 							} else {
-								this.urlData = [...this.urlData, ...res.data.content.orderinfo]
+								self.urlData = [...self.urlData, ...res.data.content.orderinfo]
 							}
-							if(this.urlData.length < 10) {
-								this.loadEndMore = true
+							if(self.urlData.length < 10) {
+								self.loadEndMore = true
 							}
 						}
 					})
@@ -134,12 +135,12 @@
 			/* 订单支付 */
 			payClick(orderNumb, type) {
 				let self = this
-				console.log(self.openId+"+"+self.openId+"+"+type)
+				console.log(self.openId+"+"+self.orderNumb+"+"+type)
 				this.$http
 					.OrderOrderPay({
 						openid: self.openId,
 						data: {
-							order_no: self.openId,
+							order_no: self.orderNumb,
 							type: type
 						}
 					})
