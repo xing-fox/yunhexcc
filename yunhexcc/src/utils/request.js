@@ -114,6 +114,7 @@ export default {
     /* 门店选择 */
     selectShop (params) {
       return request('/yunhe/wechat/cart/selectShop', params)
+    },  
     /*我的订单*/
     OrderMyOrder (params) {
     	return  request('/yunhe/wechat/orderinfo/myorder', params)
