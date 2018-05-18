@@ -114,5 +114,34 @@ export default {
     /* 门店选择 */
     selectShop (params) {
       return request('/yunhe/wechat/cart/selectShop', params)
+    /*我的订单*/
+    OrderMyOrder (params) {
+    	return  request('/yunhe/wechat/orderinfo/myorder', params)
+    },
+    /*订单详情*/
+    OrderOrderDetail (params) {
+    	return  request('/yunhe/wechat/orderinfo/orderdetail', params)
+    },
+    /*订单物流*/
+    OrderOrderLogistics (params) {
+    	return  request('/yunhe/wechat/orderinfo/orderlogistics', params)
+    },
+    /*订单支付*/
+    OrderOrderPay (params) {
+    	return  request('/yunhe/wechat/payment/paymyorder', params)
+    },
+    /*取消订单*/
+    CancelOrder (params) {
+    	return  request('/yunhe/wechat/order/concelorder', params)
+    },
+    /*确认收货*/
+    takenOrder (params) {
+    	return  request('/yunhe/wechat/order/ordertaken', params)
+    },
+    /*提醒发货*/
+    RemindeOrderPay (params) {
+    	return  request('/yunhe/wechat/payment/paymyorder', params)
     }
+    
+   
 }

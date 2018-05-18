@@ -10,36 +10,52 @@
 		</div>
 		<div class="content-list">
 			<scroll-view class="content-scroller" scroll-y style='width: 100%'>
-				<div v-for="(content, index) in orderInfo" :key="index" class="content-item" @click='contentClick' track-by="$numb">
+				<div v-for="(content, index) in urlData" :key="index" class="content-item" @click='contentClick' track-by="$numb">
 					<view class='topView'>
-						<view class='storeName'>{{content.data0}}</view>
-						<view class='startDate'>{{content.data1}}</view>
+						<view class='storeName'>{{content.shop_name}}</view>
+						<view class='startDate'>{{content.created_at}}{{content.pay_way}}</view>
 					</view>
-					<div class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' :key="subIndex" @click='orderClick'>
-						<img class='goodsImg' src="../../../static/images/close.png" />
+					<div class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' :key="subIndex" @click='orderClick(content.order_no)'>
+						<img class='goodsImg' :src="goodsData.picture_url" />
 						<view class='goodNameInfo'>
-							<view class='goodsName'>{{goodsData.data2}}</view>
-							<view class='goodsPlans'>{{goodsData.data3}}</view>
+							<view class='goodsName'>{{goodsData.product_name}}</view>
+							<view class='goodsPlans'>{{goodsData.color}}{{goodsData.memory_capacity}} {{goodsData.supplier_name}} {{goodsData.contract_name}}</view>
 						</view>
 						<view class='goodsPriceInfo'>
-							<view class='goodsPrice'>{{goodsData.data4}}</view>
-							<view class='goodsCount'>{{goodsData.data5}}</view>
+							<view class='goodsPrice'>¥ {{goodsData.product_price}}</view>
+							<view class='goodsCount'>x {{goodsData.product_number}}</view>
 						</view>
 					</div>
 					<view class='footView'>
 						<view class='totalPrice'>
 							{{content.data7}}
-							<span class='goodsTotalPrice'>¥3998（含运费0.00）</span>
+							<span class="goodTotalNumb">
+								共{{content.goodsInfo.length}}件商品 合计： 
+							</span>
+							<span class='goodsTotalPrice'>¥ {{content.pay_amount}}</span>
+							<span class="goodsYunfei">
+								（含运费0.00）
+							</span>
 						</view>
 						<view class='sepertLine'></view>
-						<view class='opertionBtn'>
-							<view class='cancelOrderBtn'>取消订单</view>
-							<view class='delectOrderBtn'>删除</view>
+						<view v-if="content.order_status == 1" class='opertionBtn'>
+							<view class='cancelOrderBtn' @click='cancelClick(content.order_no,index)'>取消订单</view>
+							<view class='delectOrderBtn' @click='payClick(content.order_no,content.order_type)'>付款</view>
+						</view>
+						<view v-if="content.order_status == 2" class='opertionBtn'>
+							<view class='cancelOrderBtn' @click='remindOrderClick(content.order_no)'>提醒发货</view>
+						</view>
+						<view v-if="content.order_status == 3" class='opertionBtn'>
+							<view class='cancelOrderBtn' @click='sureOrderClick(content.order_no,content.order_type,index)'>确认收货</view>
 						</view>
 					</view>
 				</div>
 			</scroll-view>
 		</div>
+		<div v-if="urlData.length == 0" class="spaceDive">
+			<img class="spaceImg" src="../../../static/images/icon-NoOrder.png" />
+		</div>
+
 	</div>
 </template>
 
@@ -49,8 +65,12 @@
 		data() {
 
 			return {
-				selectTab: 0,
 
+				selectTab: 0,
+				openId: '',
+				urlData: [],
+				pag_no: 1,
+				loadEndMore: false,
 				titleData: [{
 						text: '全部',
 					},
@@ -65,69 +85,155 @@
 					}
 				],
 
-				orderInfo: [{
-						data0: '迪信通农工商店',
-						data1: '2017-12-13 在线支付',
-						data6: '付款',
-						goodsInfo: [{
-							data2: 'iPhone 8s',
-							data3: '亮黑64 电信版 套餐三 上海',
-							data4: '¥ 0.27',
-							data5: '2',
-						}, {
-							data2: 'iPhone 8s',
-							data3: '亮黑64 电信版 套餐三 上海',
-							data4: '¥ 0.27',
-							data5: '2',
-						}]
-
-					},
-					{
-						data0: '迪信通农工商店',
-						data1: '2017-12-13 在线支付',
-
-						goodsInfo: [{
-							data2: 'iPhone 8s',
-							data3: '亮黑64 电信版 套餐三 上海',
-							data4: '¥ 0.27',
-							data5: '2',
-							data6: '付款',
-							data7: '两件商品合计'
-						}]
-
-					},
-					{
-						data0: '迪信通农工商店',
-						data1: '2017-12-13 在线支付',
-						data2: 'iPhone 8s',
-						goodsInfo: [{
-							data2: 'iPhone 8s',
-							data3: '亮黑64 电信版 套餐三 上海',
-							data4: '¥ 0.27',
-							data5: '2',
-							data6: '付款',
-							data7: '两件商品合计'
-						}]
-
-					}
-				]
-
 			}
 
 		},
 		methods: {
+			/* tap切换 */
 			swichNav(e) {
 
+				if(e.target.dataset.current == this.selectTab) {
+					return;
+				}
+				this.urlData = [];
+				this.pag_no = 1;
+				this.loadEndMore = false;
 				this.selectTab = e.target.dataset.current;
-				console.log(this.selectTab)
+				console.log(this.selectTab);
+				this.orderMyOrder(this.selectTab)
 
 			},
-			swiperChange(e) {
+			/* 订单列表 */
+			orderMyOrder(order_status) {
 
+				if(order_status == 0) {
+					order_status = '';
+				}
+
+				this.$http.OrderMyOrder({
+					'openid': this.openId,
+					'data': {
+						'order_status': order_status,
+						'pag_num': 10,
+						'pag_no': this.pag_no,
+					}
+				}).then(res => {
+					this.loadEndMore = false;
+					if(res.data.code == 'E00000') {
+						if(this.pag_no == 1) {
+							this.urlData = res.data.content.orderinfo;
+						} else {
+							this.urlData = [...this.urlData, ...res.data.content.orderinfo];
+						}
+						if(this.urlData.length < 10) {
+							this.loadEndMore = true;
+						}
+						console.log('第几页==' + this.pag_no + '===结果长度' + this.urlData.length + "====" + JSON.stringify(this.urlData));
+					}
+				})
 			},
-			orderClick() {
+			/* 跳转订单详情页 */
+			orderClick(orderNumb) {
 				wx.navigateTo({
-					url: '/pages/orderInfo/main'
+					url: '/pages/orderInfo/main?orderNumb=' + orderNumb
+				})
+			},
+			/* 订单支付 */
+			payClick(orderNumb, type) {
+				this.$http.OrderOrderPay({
+					'openid': this.openId,
+					'data': {
+						'order_no': orderNumb,
+						'type': type
+					}
+				}).then(res => {
+					console.log(res.data.code);
+					if(res.data.code == 'E00000') {
+						var data = res.data.content;
+						wx.requestPayment({
+							'timeStamp': data.timestamp,
+							'nonceStr': data.noncestr,
+							'package': data.wxpay_package,
+							'signType': 'MD5',
+							'paySign': data.sign,
+							'success': function(res) {
+								console.log(res)
+								wx.showToast({
+									title: '支付成功',
+									icon: 'none',
+									duration: 2000,
+									mask: true
+								})
+								this.pag_no = 1;
+								self.orderMyOrder(this.selectTab)
+							},
+							'fail': function(res) {
+								wx.showToast({
+									title: '支付失败',
+									icon: 'none',
+									duration: 2000,
+									mask: true
+								})
+							}
+						})
+
+					} else {
+						wx.showToast({
+							title: data.msg,
+							icon: 'none',
+							duration: 1000,
+							mask: false
+						})
+					}
+
+				})
+			},
+			/* 取消订单 */
+			cancelClick(orderNumb, orderIndex) {
+
+				this.$http.CancelOrder({
+					'openid': this.openId,
+					'order_no': orderNumb
+				}).then(res => {
+					if(res.data.code == 'E00000') {
+						this.urlData.splice(orderIndex, 1);
+						wx.showToast({
+							title: "取消订单成功",
+							icon: 'none',
+							duration: 1000,
+							mask: false
+						})
+					}
+
+				})
+
+			},
+			/* 提醒发货 */
+			remindOrderClick(orderNumb) {
+				wx.showToast({
+					title: '提醒商家发货成功',
+					icon: 'none',
+					duration: 1000,
+					mask: false
+				})
+			},
+			/* 确认收货 */
+			sureOrderClick(orderNumb, type, orderIndex) {
+				console.log(type + "确认收货请求" + orderNumb + "订单索引" + orderIndex);
+				this.$http.takenOrder({
+					'order_type': type,
+					'order_no': orderNumb
+				}).then(res => {
+					if(res.data.code == 'E00000') {
+						this.urlData.splice(orderIndex, 1);
+						wx.showToast({
+							title: "确认收货成功",
+							icon: 'none',
+							duration: 1000,
+							mask: false
+						})
+					}
+
 				})
 			}
 		},
@@ -148,10 +254,28 @@
 		contentClick: {
 
 		},
+		/* 公共方法 */
+
 		onLoad(e) {
-			console.log(e.currentIndex);
-			this.selectTab = parseInt(e.currentIndex); 
-			console.log(this.selectTab)
+
+			this.selectTab = parseInt(e.currentIndex);
+			this.pag_no = 1;
+			console.log('tap' + this.selectTab)
+			let self = this
+			wx.getStorage({
+				key: 'openId',
+				success: function(res) {
+					self.openId = res.data;
+					self.orderMyOrder(this.selectTab)
+				}
+			})
+		},
+		onReachBottom() {
+			if(!this.loadEndMore) {
+				this.loadEndMore = !this.loadEndMore;
+				this.pag_no++;
+				this.orderMyOrder(this.selectTab)
+			}
 		}
 
 	}
@@ -165,6 +289,9 @@
 		white-space: nowrap;
 		position: relative;
 		background-color: white;
+		position: fixed;
+		top: 0;
+		z-index: 100;
 		.swiperTabItem {
 			transition: all 0.3s ease-out;
 			font-size: 16px;
@@ -185,10 +312,27 @@
 		}
 	}
 	
+	.content-list {
+		width: 100%;
+		margin-top: 58px;
+	}
+	
+	.spaceDive {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background-color: white;
+		.spaceImg {
+			margin-top: 200px;
+			width: 150px;
+			height: 150px;
+		}
+	}
+	
 	.content-item {
 		width: 100%;
 		position: relative;
-		margin-top: 18px;
+		margin-top: 16px;
 		.topView {
 			display: block;
 			width: 100%;
@@ -216,7 +360,7 @@
 			width: 100%;
 			height: 80px;
 			display: flex;
-			padding-left: 20px;
+			padding-left: 10px;
 			padding-top: 20px;
 			.goodsImg {
 				display: inline-block;
@@ -227,11 +371,14 @@
 			.goodNameInfo {
 				display: inline-block;
 				text-align: left;
-				margin-left: 20px;
-				width: 60%;
+				margin-left: 10px;
+				width: 55%;
 				.goodsName {
 					font-size: 16px;
 					height: 37px;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
 				}
 				.goodsPlans {
 					font-size: 12px;
@@ -241,6 +388,7 @@
 			.goodsPriceInfo {
 				display: inline-block;
 				text-align: right;
+				width: 21%;
 				.goodsPrice {
 					font-size: 16px;
 					height: 37px;
@@ -260,8 +408,17 @@
 				width: 100%;
 				text-align: right;
 				line-height: 45px;
-				font-size: 12px;
-				.goodsTotalPrice {}
+				.goodsTotalPrice {
+					color: red;
+					font-size: 16px;
+				}
+				.goodTotalNumb {
+					font-size: 11px;
+				}
+				.goodsYunfei {
+					font-size: 11px;
+					color: red;
+				}
 			}
 			.sepertLine {
 				height: 2px;
@@ -282,6 +439,7 @@
 					width: 60px;
 					color: #999;
 					border: 1px solid #f1f1f1;
+					border-radius: 3px;
 				}
 				.delectOrderBtn {
 					padding-top: 8px;
@@ -291,6 +449,7 @@
 					color: #222;
 					background-color: #fada63;
 					border: 1px solid #fada63;
+					border-radius: 3px;
 				}
 			}
 		}
