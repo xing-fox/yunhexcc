@@ -16,6 +16,9 @@
           </div>
         </li>
       </ul>
+      <div class="noData" v-if="noData">
+        <Nocoupon></Nocoupon>
+      </div>
       <div class="addManager" @click="managerFunc">
         <span>管理</span>
       </div>
@@ -24,13 +27,18 @@
 </template>
 
 <script>
+import Nocoupon from '@/components/noCoupon'
 export default {
   data () {
     return {
       openId: '',
+      noData: false,
       listFlag: 0,
       addrList: []
     }
+  },
+  components: {
+    Nocoupon
   },
   methods: {
     managerFunc () {
@@ -59,9 +67,10 @@ export default {
         self.$http.selectAddress({
           'openid': self.openId
         }).then(res => {
-          if (!res.data.content.length) {
-            return false
-          } else {
+          if (res.data.content === null) {
+            return self.noData = true
+          }
+          if (res.data.code == 'E00000' && res.data.content.length) {
             self.addrList = res.data.content
             self.addrList.map((item, index) => {
               if (item.address_flag == '1') {
@@ -130,6 +139,19 @@ export default {
         }
       }
     }
+  }
+  .noData{
+    font-size: 0;
+    width: 100%;
+    background: #fff;
+    padding: 0.4rem 0 0 0;
+    position: absolute;
+    top: 0;
+    bottom: 1.1rem;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    overflow: hidden;
   }
   .addManager{
     color: #fff;

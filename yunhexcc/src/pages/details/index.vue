@@ -86,6 +86,7 @@ export default {
     }
   },
   onLoad (options) {
+    this.setMealState = false
     this.productId = options.id
     wx.removeStorage({
       key: 'choiseAddr',
@@ -94,6 +95,7 @@ export default {
   },
   onShow () {
     let self = this
+    self.setMealState = false
     self.activeFlag = true
     wx.getStorage({
       key: 'openId',
@@ -104,7 +106,7 @@ export default {
           'product_id': self.productId
         }).then(res => {
           self.dataList = res.data.content
-          self.address = `${self.dataList.receiver_area}${self.dataList.detail_address}`
+          self.address = `${self.dataList.detail_address}`
           self.detailId = res.data.content.product_detail_id
         })
         self.Goodsdescribe()

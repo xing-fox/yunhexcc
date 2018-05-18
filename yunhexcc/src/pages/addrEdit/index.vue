@@ -89,16 +89,24 @@ export default {
           }),
           openid: this.openId
         }).then(res => {
-          wx.showToast({
-            title: res.data.content || '收货地址保存失败',
-            icon: 'none',
-            duration: 1000
-          })
-          setTimeout(() => {
-            wx.navigateBack({
-              delta: 2
+          if (res.data.code == 'E00000') {
+            wx.showToast({
+              title: res.data.msg,
+              icon: 'none',
+              duration: 1000
             })
-          }, 1000)
+            setTimeout(() => {
+              wx.navigateBack({
+                delta: 2
+              })
+            }, 1000)
+          } else {
+            wx.showToast({
+              title: '该收货地址不在服务区，请填写浙江嘉兴地区的收货地址!',
+              icon: 'none',
+              duration: 2000
+            })
+          }
         })
       }
     }

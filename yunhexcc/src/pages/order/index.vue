@@ -13,7 +13,8 @@
 				<div v-for="(content, index) in urlData" :key="index" class="content-item" @click='contentClick' track-by="$numb">
 					<view class='topView'>
 						<view class='storeName'>{{content.shop_name}}</view>
-						<view class='startDate'>{{content.created_at}}</view>
+						<view class='startDate' v-if = "content.pay_way == 0">在线支付</view>
+						<view class='startDate' v-if = "content.pay_way == 1">货到付款</view>
 					</view>
 					<div class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' :key="subIndex" @click='orderClick(content.order_no)'>
 						<img class='goodsImg' :src="goodsData.picture_url" />

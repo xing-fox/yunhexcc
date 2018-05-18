@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div class="addr_no" v-if="!addrFlag">
+    <div class="addr_no" @click="addrFunc" v-if="!addrInfor.addressId">
       <span>添加收货地址</span>
       <i class="icon_right"></i>
     </div>
@@ -93,7 +93,6 @@ export default {
     return {
       openId: '',
       order_no: '',
-      addrFlag: true,
       detailId: '',
       proNum: '',
       contractId: '',
@@ -102,7 +101,7 @@ export default {
       couponInfor: Object,
       scoreStar: '',
       dataList: Object,
-      payTypeValue: '货到付款',
+      payTypeValue: '在线付款',
       payTypeFlag: 0,
       payType: ['在线付款', '货到付款'],
       dispatchValue: '到店自提',
@@ -151,50 +150,64 @@ export default {
       }).then(res => {
         this.order_no = res.data.content.order_no
       }).then(() => {
-        this.$http.paymyOrder({
-          data: JSON.stringify({
-            'order_no': this.order_no,
-            'pay_way': 1,
-            'type': 2,
-            'coupon_flag': this.couponInfor.couponFlag
-          }),
-          'openid': this.openId
-        }).then(res => {
-          let data = res.data.content
-          wx.requestPayment({
-            'timeStamp': data.timestamp,
-            'nonceStr': data.noncestr,
-            'package': data.wxpay_package,
-            'signType': 'MD5',
-            'paySign': data.sign,
-            'success':function(res){
-              wx.showToast({
-                title: '支付成功',
-                icon: 'none',
-                duration: 2000,
-                mask: true
-              })
-              setTimeout(() => {
-                wx.switchTab({
-                  url: '/pages/mine/main'
-                })
-              }, 1000)
-            },
-            'fail':function(res){
-              wx.showToast({
-                title: '支付失败',
-                icon: 'none',
-                duration: 2000,
-                mask: true
-              })
-              setTimeout(() => {
-                wx.switchTab({
-                  url: '/pages/mine/main'
-                })
-              }, 1000)
-            }
+        if (this.payTypeFlag == 1) {
+          wx.showToast({
+            title: '订单成功!',
+            icon: 'none',
+            duration: 2000,
+            mask: true
           })
-        })
+          setTimeout(() => {
+            return wx.switchTab({
+              url: '/pages/mine/main'
+            })
+          }, 1000)
+        } else {
+          this.$http.paymyOrder({
+            data: JSON.stringify({
+              'order_no': this.order_no,
+              'pay_way': 1,
+              'type': 2,
+              'coupon_flag': this.couponInfor.couponFlag
+            }),
+            'openid': this.openId
+          }).then(res => {
+            let data = res.data.content
+            wx.requestPayment({
+              'timeStamp': data.timestamp,
+              'nonceStr': data.noncestr,
+              'package': data.wxpay_package,
+              'signType': 'MD5',
+              'paySign': data.sign,
+              'success':function(res){
+                wx.showToast({
+                  title: '支付成功',
+                  icon: 'none',
+                  duration: 2000,
+                  mask: true
+                })
+                setTimeout(() => {
+                  wx.switchTab({
+                    url: '/pages/mine/main'
+                  })
+                }, 1000)
+              },
+              'fail':function(res){
+                wx.showToast({
+                  title: '支付失败',
+                  icon: 'none',
+                  duration: 2000,
+                  mask: true
+                })
+                setTimeout(() => {
+                  wx.switchTab({
+                    url: '/pages/mine/main'
+                  })
+                }, 1000)
+              }
+            })
+          })
+        }
       })
     }
   },
@@ -228,7 +241,7 @@ export default {
             userName: self.dataList.receiver_name,
             telNumber: self.dataList.receiver_phone,
             addressId: self.dataList.address_id || '',
-            detailInfo: `${self.dataList.receiver_area}${self.dataList.shop_address}`
+            detailInfo: `${self.dataList.receiver_area}${self.dataList.detail_address}`
           }
           self.shopInfor = {
             shopId: self.dataList.shop_id,
@@ -278,11 +291,11 @@ export default {
           wx.getStorage({
             key: 'useCoupon',
             success: function(res) {
-              console.log(res)
+              let _sum = ((parseFloat(self.couponInfor.priceSum)*100 - parseFloat(res.data.coupon_amount)*100)/100)
               self.couponInfor = {
                 couponFlag: 1,
                 couponId: res.data.coupon_id,
-                priceSum: self.couponInfor.priceSum < parseFloat(res.data.coupon_amount) ? 0 : (1000*self.couponInfor.priceSum - 1000*parseFloat(res.data.coupon_amount) / 1000).toFixed(2),
+                priceSum: parseFloat(self.couponInfor.priceSum) < parseFloat(res.data.coupon_amount) ? 0 : _sum,
                 couponAmount: res.data.coupon_amount
               }
             }

@@ -142,7 +142,10 @@ export default {
     /*提醒发货*/
     RemindeOrderPay (params) {
     	return  request('/yunhe/wechat/order/remindorderdelivery', params)
+    },
+    /*我的页面*/
+    customerInfo (params) {
+    	return  request('/yunhe/wechat/customer/customerinfo', params)
+
     }
-    
-   
 }

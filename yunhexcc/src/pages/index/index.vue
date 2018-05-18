@@ -12,14 +12,14 @@
 
 <script>
 import templeList from '@/components/yhtempIntro'
-import Fly from 'flyio/dist/npm/wx'
 export default {
   data () {
     return {
       pag_no: 1,
       openId: '',
       newData: [],
-      dataList: []
+      dataList: [],
+      dataFlag: true
     }
   },
   components: {
@@ -41,11 +41,13 @@ export default {
         'openid': this.openId
       }).then(res => {
         this.newData = this.newData.concat(res.data.content.data)
+        if (res.data.content.data.length < 5) {
+          this.dataFlag = false
+        }
       })
     }
   },
   onLoad () {
-    let fly = new Fly
     let self = this
     wx.getStorage({
       key: 'openId',
@@ -65,8 +67,10 @@ export default {
     })
   },
   onReachBottom () {
-    this.pag_no++
-    this.allProduct()
+    if (this.dataFlag) {
+      this.pag_no++
+      this.allProduct()
+    }
   }
 }
 </script>

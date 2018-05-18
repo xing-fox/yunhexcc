@@ -14,15 +14,15 @@
         <div class="type">购物车</div>
       </li> -->
       <li>
-        <div class="count">0</div>
+        <div class="count">{{dataList.collection_total}}</div>
         <div class="type">收藏单</div>
       </li>
       <li>
-        <div class="count">0</div>
+        <div class="count">{{dataList.like_total}}</div>
         <div class="type">点赞数</div>
       </li>
       <li>
-        <div class="count">0</div>
+        <div class="count">{{ dataList.cur_bal }}</div>
         <div class="type">猿币数</div>
       </li>
     </ul>
@@ -35,14 +35,17 @@
         <li @click="goToOrderList(1)">
           <i class="icon icon_order1" ></i>
           <p>待付款</p>
+          <span v-if="dataList.order_waitpay != '0'" class="number">{{ dataList.order_waitpay }}</span>
         </li>
         <li @click="goToOrderList(2)">
           <i class="icon icon_order2"></i>
           <p>待发货</p>
+          <span v-if="dataList.order_waitsend != '0'" class="number">{{ dataList.order_waitsend }}</span>
         </li>
         <li @click="goToOrderList(3)">
           <i class="icon icon_order3"></i>
           <p>待收货</p>
+          <span v-if="dataList.order_waitreceive != '0'" class="number">{{ dataList.order_waitreceive }}</span>
         </li>
         <!-- <li>
           <i class="icon icon_order4"></i>
@@ -65,8 +68,19 @@
 export default {
   data () {
     return {
+      openId: '',
+      dataList: Object,
       userInfos: Object
     }
+  },
+  onLoad () {
+    let self = this
+    wx.getStorage({
+      key: 'openId',
+      success: function(res) {
+        self.openId = res.data
+      }
+    })
   },
   onShow () {
     let self = this
@@ -76,6 +90,12 @@ export default {
         if(res.data === '0') {
           wx.navigateTo({
             url: '/pages/login/main'
+          })
+        } else {
+          self.$http.customerInfo({
+            'openid': self.openId
+          }).then(res => {
+            self.dataList = res.data.content
           })
         }
       }
@@ -201,6 +221,7 @@ export default {
         flex: 1;
         padding: .2rem 0;
         text-align: center;
+        position: relative;
         .icon{
           display: inline-block;
           width: .4rem;
@@ -227,6 +248,20 @@ export default {
         p{
           color: #222;
           font-size: .28rem;
+        }
+        .number{
+          color: #fff;
+          font-size: .16rem;
+          width: .3rem;
+          height: .3rem;
+          border-radius: .18rem;
+          line-height: .3rem;
+          text-align: center;
+          box-sizing: border-box;
+          position: absolute;
+          top: .1rem;
+          right: .5rem;
+          background: red;
         }
       }
     }
