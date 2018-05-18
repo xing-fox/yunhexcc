@@ -90,7 +90,7 @@ export default {
           openid: this.openId
         }).then(res => {
           wx.showToast({
-            title: res.data.content || '收货地址保存失败',
+            title: res.data.content || '该地址不在服务区，请填写浙江嘉兴地区的收货地址!',
             icon: 'none',
             duration: 1000
           })

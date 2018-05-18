@@ -86,6 +86,7 @@ export default {
     }
   },
   onLoad (options) {
+    this.setMealState = false
     this.productId = options.id
     wx.removeStorage({
       key: 'choiseAddr',
@@ -94,6 +95,7 @@ export default {
   },
   onShow () {
     let self = this
+    self.setMealState = false
     self.activeFlag = true
     wx.getStorage({
       key: 'openId',
