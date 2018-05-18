@@ -139,10 +139,10 @@
 				this.$http
 					.OrderOrderPay({
 						openid: self.openId,
-						data: {
+						data:JSON.stringify({
 							order_no: orderNumb,
 							type: type
-						}
+						})
 					})
 					.then(res => {
 						console.log("调起订单"+JSON.stringify(res));
