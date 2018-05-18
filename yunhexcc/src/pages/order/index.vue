@@ -325,7 +325,7 @@
 			margin-top: 200px;
 			width: 150px;
 			height: 150px;
-			background-image: url("../../../static/images/icon-NoOrder.png");
+			background-image: url("../../../static/images/nodata.png");
 			background-size: 100% 100%;
 			background-repeat: no-repeat;
 		}
