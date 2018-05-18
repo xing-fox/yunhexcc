@@ -24,6 +24,9 @@
           </div>
         </li>
       </ul>
+      <div class="noData" v-if="noData">
+        <Nocoupon></Nocoupon>
+      </div>
       <div class="addManager" @click="addFunc">
         <span>添加</span>
       </div>
@@ -32,20 +35,25 @@
 </template>
 
 <script>
+import Nocoupon from '@/components/noCoupon'
 export default {
   data () {
     return {
       openId: '',
+      noData: false,
       addrList: []
     }
+  },
+  components: {
+    Nocoupon
   },
   methods: {
     init () {
       this.$http.selectAddress({
         'openid': this.openId
       }).then(res => {
-        if (!res.data.content.length) {
-          return false
+        if (res.data.content === null) {
+          return this.noData = true
         } else {
           this.addrList = res.data.content
         }
@@ -95,6 +103,7 @@ export default {
   },
   onShow () {
     let self = this
+    self.noData = false
     wx.getStorage({
       key: 'openId',
       success: function(res) {
@@ -181,6 +190,19 @@ export default {
         }
       }
     }
+  }
+  .noData{
+    font-size: 0;
+    width: 100%;
+    background: #fff;
+    padding: 0.4rem 0 0 0;
+    position: absolute;
+    top: 0;
+    bottom: 1.1rem;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    overflow: hidden;
   }
   .addManager{
     color: #fff;

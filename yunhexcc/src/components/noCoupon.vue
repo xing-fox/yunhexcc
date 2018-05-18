@@ -2,8 +2,8 @@
   <div class="page">
     <div class="page_empty">
       <div class="content">
-        <image src="../../../static/images/nodata.png"></image>
-        <p>暂无优惠券～</p>
+        <image src="../../../static/images/nodata.png" />
+        <!-- <p>暂无优惠券～</p> -->
       </div>
     </div>
   </div>

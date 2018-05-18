@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div class="addr_no" v-if="!addrFlag">
+    <div class="addr_no" @click="addrFunc" v-if="!addrInfor.addressId">
       <span>添加收货地址</span>
       <i class="icon_right"></i>
     </div>
@@ -93,7 +93,6 @@ export default {
     return {
       openId: '',
       order_no: '',
-      addrFlag: true,
       detailId: '',
       proNum: '',
       contractId: '',

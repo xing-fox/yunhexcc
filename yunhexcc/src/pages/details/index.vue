@@ -106,7 +106,7 @@ export default {
           'product_id': self.productId
         }).then(res => {
           self.dataList = res.data.content
-          self.address = `${self.dataList.receiver_area}${self.dataList.detail_address}`
+          self.address = `${self.dataList.detail_address}`
           self.detailId = res.data.content.product_detail_id
         })
         self.Goodsdescribe()
