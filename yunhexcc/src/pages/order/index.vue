@@ -134,11 +134,12 @@
 			/* 订单支付 */
 			payClick(orderNumb, type) {
 				let self = this
+				console.log(self.openId+"+"+self.openId+"+"+type)
 				this.$http
 					.OrderOrderPay({
-						openid: this.openId,
+						openid: self.openId,
 						data: {
-							order_no: orderNumb,
+							order_no: self.openId,
 							type: type
 						}
 					})
