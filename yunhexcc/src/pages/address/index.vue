@@ -32,7 +32,7 @@ export default {
   data () {
     return {
       openId: '',
-      noData: false,
+      noData: '',
       listFlag: 0,
       addrList: []
     }
@@ -60,6 +60,7 @@ export default {
   },
   onShow () {
     let self = this
+    self.noData = false
     wx.getStorage({
       key: 'openId',
       success: function(res) {

@@ -109,10 +109,10 @@ export default {
         'phone': this.telephone,
         'identifycode': this.verfyCode,
         'openid': this.openId,
-        'rawData': this.userInfo.rawData,
-        'signature': this.userInfo.signature,
-        'encryptedData': this.userInfo.encryptedData,
-        'iv': this.userInfo.iv
+        'rawData': this.userInfo.rawData || '',
+        'signature': this.userInfo.signature || '',
+        'encryptedData': this.userInfo.encryptedData || '',
+        'iv': this.userInfo.iv || ''
       }).then(res => {
         if (res.data.code == 'E00000') {
           wx.showToast({
