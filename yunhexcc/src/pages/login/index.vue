@@ -1,11 +1,16 @@
 <template>
-  <div id="tel" class="bor-1px-t fadeInUp animated">
+  <div id="tel" class="bor-1px-t">
     <div class="telTip">
-      <i></i><span>请先绑定手机号，便于领取优惠券和店员提供服务时进行验证</span>
+      <i></i><span>请先微信授权绑定手机号</span>
     </div>
-    <input class="tel" type="tel" placeholder="请输入您的手机号" v-model="telephone">
+    <div class="telePhone">
+      <label for="tel">手机号：</label>
+      <input class="tel bor-1px-b" type="number" placeholder="输入您的手机号" v-model="telephone">
+      <span v-if="wxInfoShow" class="bor-1px-b"><button open-type="getUserInfo">微信授权绑定手机号</button></span>
+    </div> 
     <div class="verfiCode">
-      <input type="number" placeholder="请输入手机验证码" v-model="verfyCode">
+      <label for="verficode">验证码：</label>
+      <input class="bor-1px-b" type="number" placeholder="输入短信验证码" v-model="verfyCode">
       <span v-if="phoneSure" @click="sendCodesFunc">发送验证码</span>
       <span v-else>{{ timeLeave }}s后重新发送</span>
     </div>
@@ -26,7 +31,8 @@ export default {
       phoneSure: true,
       telephone: '',
       verfyCode: '',
-      userInfo: ''
+      userInfo: '',
+      wxInfoShow: false
     }
   },
   onLoad () {
@@ -36,6 +42,22 @@ export default {
       success: function(res) {
         self.openId = res.data
       } 
+    })
+  },
+  onShow () {
+    let self = this
+    wx.getSetting({
+      success: function(res){
+        if (res.authSetting['scope.userInfo']) {
+          wx.getUserInfo({
+            success: function(res) {
+              self.userInfo = res
+            }
+          })
+        } else {
+          self.wxInfoShow = true
+        }
+      }
     })
   },
   methods: {
@@ -51,6 +73,7 @@ export default {
       }, 1000)
     },
     commitFunc () {
+      let self = this
       if (!this.telephone) {
         return wx.showToast({
           title: '请输入手机号',
@@ -67,22 +90,52 @@ export default {
           mask: true
         })
       }
+      if (self.wxInfoShow) {
+        wx.getUserInfo({
+          success: function(res) {
+            self.userInfo = res
+          }
+        })
+      }
+      if (!self.userInfo) {
+        wx.showToast({
+          title: '请先微信授权',
+          icon: 'none',
+          duration: 10000,
+          mask: true
+        })
+      }
       this.$http.bindPhone({
         'phone': this.telephone,
         'identifycode': this.verfyCode,
-        'openId': window.localStorage.getItem('openId')
+        'openid': this.openId,
+        'rawData': this.userInfo.rawData,
+        'signature': this.userInfo.signature,
+        'encryptedData': this.userInfo.encryptedData,
+        'iv': this.userInfo.iv
       }).then(res => {
-        if (res.success) {
-          this.$alert({
-            title: ' ',
-            content: res.msg
-          }).then(() => {
-            this.$emit('phoneChangeFunc')
+        if (res.data.code == 'E00000') {
+          wx.showToast({
+            title: res.data.msg,
+            icon: 'none',
+            duration: 2000,
+            mask: true
           })
+          wx.setStorage({
+            key: 'phoneRegister',
+            data: '1'
+          })
+          setTimeout(() => {
+            wx.navigateBack({
+              delta: 1
+            })  
+          }, 1000)
         } else {
-          this.$alert({
-            title: ' ',
-            content: res.msg
+          wx.showToast({
+            title: '绑定失败!',
+            icon: 'none',
+            duration: 2000,
+            mask: true
           })
         }
       })
@@ -111,7 +164,7 @@ export default {
         'openid': this.openId
       }).then(res => {
         console.log(res)
-        if (res.code === 'E00000') {
+        if (res.data.code === 'E00000') {
           wx.showToast({
             title: '发送成功',
             icon: 'none',
@@ -122,7 +175,7 @@ export default {
           this.changeTime()
         } else {
           wx.showToast({
-            title: res.msg,
+            title: res.data.msg,
             icon: 'none',
             duration: 2000,
             mask: true
@@ -150,7 +203,7 @@ export default {
       color: #999;
       font-size: .26rem;
       width: 6.7rem;
-      margin: .24rem auto .52rem;
+      margin: .24rem auto .4rem;
       text-align: left;
       display: flex;
       i{
@@ -158,59 +211,99 @@ export default {
         width: .4rem;
         height: .4rem;
         vertical-align: middle;
-        background-image: url('../../static/images/light.png');
+        background-image: url('../../../static/images/light.png');
         background-size: 100% 100%;
         background-repeat: no-repeat;
       }
       span{
         line-height: .36rem;
         vertical-align: middle;
-        margin: 0 0 0 .12rem;
+        margin: .04rem 0 0 .12rem;
+      }
+    }
+    .telePhone{
+      margin: 0 .4rem 0 0;
+      display: flex;
+      label{
+        color: #333;
+        font-size: .3rem;
+        height: .6rem;
+        margin: 0 0 0 .4rem;
+        text-align: center;
+        line-height: .6rem;
+        vertical-align: middle;
+      }
+      input{
+        margin: 0;
+      }
+      button{
+        border: none;
+        -webkit-appearance: none;
+        background: none;
+        color: #ffda44;
+        font-size: .28rem;
+        height: .6rem;
+        line-height: .6rem;
+        padding: 0;
+        &:after{
+          content: none;
+        }
+        &:before{
+          content: none;
+        }
       }
     }
     input{
+      flex: 1;
       border: none;
-      margin: 0;
+      margin: 0 .4rem 0 0;
       padding: 0 0 0 .2rem;
-      width: 6.7rem;
-      height: .9rem;
+      height: .6rem;
       text-align: left;
       box-sizing: border-box;
       -webkit-appearance: none;
+      vertical-align: middle;
       &.tel{
         color: #999;
         font-size: .3rem;
-        margin: 0 auto .4rem;
         border-radius: 3px;
-        border: 1px solid #ddd;
       } 
     }
     .verfiCode{
       border: none;
-      width: 6.7rem;
-      height: .9rem;
-      margin: 0 auto;
+      height: .6rem;
+      margin: .3rem auto;
+      display: flex;
       position: relative;
+      label{
+        color: #333;
+        font-size: .3rem;
+        height: .6rem;
+        margin: 0 0 0 .4rem;
+        text-align: center;
+        line-height: .6rem;
+        vertical-align: middle;
+      }
       input{
         color: #999;
         font-size: .3rem;
         border-radius: 3px;
-        border: 1px solid #ddd;
+        margin: 0;
       }
       span{
-        color: 222;
-        font-size: .3rem;
-        height: .9rem;
-        line-height: .9rem;
+        color: #ffda44;
+        font-size: .26rem;
+        height: .5rem;
+        line-height: .5rem;
         padding: 0 .2rem;
-        position: absolute;
-        top: 0;
-        right: 0;
-        z-index: 10;
+        margin: 0 .4rem 0 0;
+        border: 1px solid #ffda44;
+        border-radius: .25rem;
+        box-sizing: border-box;
       }
     }
     .commit{
-      color: #222;
+      color: #fff;
       font-size: .3rem;
       width: 6.7rem;
       height: .9rem;

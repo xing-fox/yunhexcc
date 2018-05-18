@@ -1,6 +1,6 @@
 <script>
 export default {
-  created () {
+  onShow () {
     let self  = this
     wx.login({
       success: function(res) {
@@ -8,7 +8,6 @@ export default {
           self.$http.Xcclogin({
             'code': res.code
           }).then(res => {
-            console.log(res)
             wx.setStorage({
               key: 'openId',
               data: res.data.content.openid
@@ -21,6 +20,17 @@ export default {
         }
       }
     })
+    // wx.authorize({
+    //   scope: 'scope.userInfo',
+    //   success() {
+    //     console.log(12)
+    //     wx.getUserInfo({
+    //       success: function(res) {
+    //         console(res.userInfo)
+    //       }
+    //     })
+    //   }
+    // })
   }
 }
 </script>

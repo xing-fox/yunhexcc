@@ -63,9 +63,17 @@ export default {
     MyCoupon (params) {
       return request('/yunhe/wechat/customer/mycoupon', params)
     },
+    /* 可用优惠券 */
+    UseCoupon (params) {
+      return request('/yunhe/wechat/cart/useCoupon', params)
+    },
+    /* 选择优惠券 */
+    SelectCoupon (params) {
+      return request('/yunhe/wechat/cart/selectCoupon', params)
+    },
     /* 微信手机号绑定 */
     bindPhone (params) {
-      return request('/yunhe/wechat/login/registerwxpub', params)
+      return request('/yunhe/wechat/login/registerWxminiUser', params)
     },
     /* 手机验证码 */
     getIdentifyCode (params) {
@@ -86,5 +94,25 @@ export default {
     /* 商品选择收货地址 */
     selectAddress (params) {
       return request('/yunhe/wechat/cart/selectAddress', params)
+    },
+    /* 收货地址修改默认接口 */
+    defaultAddress (params) {
+      return request('/yunhe/wechat/customer/defaultAddress', params)
+    },
+    /* 收货地址修改默认接口 */
+    deleteAddress (params) {
+      return request('/yunhe/wechat/customer/deleteAddress', params)
+    },
+    /* 编辑收货地址 */
+    modifyAddress (params) {
+      return request('/yunhe/wechat/customer/modifyAddress', params)
+    },
+    /* 新增收货地址 */
+    addAddress (params) {
+      return request('/yunhe/wechat/user/addaddress', params)
+    },
+    /* 门店选择 */
+    selectShop (params) {
+      return request('/yunhe/wechat/cart/selectShop', params)
     }
 }

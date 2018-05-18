@@ -2,114 +2,34 @@
   <div class="page">
     <div class="title">
       <ul>
-        <li v-for="(item, index) in tabList" :key="index" :class="{active: tabFlag === index}" @click="tabFlag = index">{{ item }}</li>
+        <li v-for="(item, index) in tabList" :key="index" @click="tabChangeFunc(index)" :class="{active: tabFlag === index}">{{ item }}</li>
       </ul>
     </div>
     <scroll-view scroll-y class="content">
       <ul>
-        <li>  
+        <li v-for="(item, index) in DataList" :key="index" :class="{'list_has': tabType ==2, 'list_pass': tabType == 1}">  
           <div class="list_main">
-            <div class="price">¥<span>50</span></div>
+            <div class="price">¥<span :class="{priceFont: item.coupon_amount >= 100}">{{ item.coupon_amount }}</span></div>
             <div class="intro">
               <div class="addr">
-                <span>仅适用于嘉兴门店商品</span>
+                <span>{{ item.remarks }}</span>
               </div>
               <div class="money">
-                <span>满100元可用</span>
+                <span>满{{ item.serve_amount }}元可用</span>
               </div>
             </div>
           </div>
           <div class="list_time">
-            <span>有效期：2017-08-19至2018-09-12</span>
+            <span>有效期：{{ item.effective_date }}至{{ item.expire_date }}</span>
           </div>
         </li>
-        <li class="list_has">  
-          <div class="list_main">
-            <div class="price">¥<span :class="{priceFont: testPrice >= 100}">{{ testPrice }}</span></div>
-            <div class="intro">
-              <div class="addr">
-                <span>仅适用于嘉兴门店商品</span>
-              </div>
-              <div class="money">
-                <span>满100元可用</span>
-              </div>
-            </div>
-          </div>
-          <div class="list_time">
-            <span>有效期：2017-08-19至2018-09-12</span>
-          </div>
-        </li>
-        <li class="list_pass">  
-          <div class="list_main">
-            <div class="price">¥<span>50</span></div>
-            <div class="intro">
-              <div class="addr">
-                <span>仅适用于嘉兴门店商品</span>
-              </div>
-              <div class="money">
-                <span>满100元可用</span>
-              </div>
-            </div>
-          </div>
-          <div class="list_time">
-            <span>有效期：2017-08-19至2018-09-12</span>
-          </div>
-        </li>
-        <li>  
-          <div class="list_main">
-            <div class="price">¥<span>50</span></div>
-            <div class="intro">
-              <div class="addr">
-                <span>仅适用于嘉兴门店商品</span>
-              </div>
-              <div class="money">
-                <span>满100元可用</span>
-              </div>
-            </div>
-          </div>
-          <div class="list_time">
-            <span>有效期：2017-08-19至2018-09-12</span>
-          </div>
-        </li>
-        <li class="list_has">  
-          <div class="list_main">
-            <div class="price">¥<span :class="{priceFont: testPrice >= 100}">{{ testPrice }}</span></div>
-            <div class="intro">
-              <div class="addr">
-                <span>仅适用于嘉兴门店商品</span>
-              </div>
-              <div class="money">
-                <span>满100元可用</span>
-              </div>
-            </div>
-          </div>
-          <div class="list_time">
-            <span>有效期：2017-08-19至2018-09-12</span>
-          </div>
-        </li>
-        <li class="list_pass">  
-          <div class="list_main">
-            <div class="price">¥<span>50</span></div>
-            <div class="intro">
-              <div class="addr">
-                <span>仅适用于嘉兴门店商品</span>
-              </div>
-              <div class="money">
-                <span>满100元可用</span>
-              </div>
-            </div>
-          </div>
-          <div class="list_time">
-            <span>有效期：2017-08-19至2018-09-12</span>
-          </div>
-        </li> 
       </ul>
     </scroll-view>
     <div class="noData" v-if="noData">
       <Nocoupon></Nocoupon>
     </div>
     <div class="footer">
-      <span>更多优惠 敬请期待</span>
+      <span>{{ moreMessage }}</span>
       <div class="line"></div>
     </div>
   </div>
@@ -121,6 +41,7 @@ export default {
   data() {
     return {
       tabList: ["未使用", "已使用", "已过期"],
+      moreMessage: '更多优惠 敬请期待',
       tabFlag: 0,
       testPrice: 500,
       noData: false,
@@ -134,7 +55,7 @@ export default {
   components: {
     Nocoupon
   },
-  onLoad () {
+  onShow () {
     let self = this
     wx.getStorage({
       key: 'openId',
@@ -154,15 +75,19 @@ export default {
         }),
         'openid': this.openId
       }).then(res => {
-        console.log(res)
-        // self.DataList = res.content
-        // self.$nextTick(() => {
-        //   self.scrollDom = new IScroll(this.$refs.wrapper)
-        // })
-        // if (!res.content || !res.content.length) {
-        //   this.nodataState = true
-        // }
+        this.DataList = res.data.content
+        if (!res.data.content) {
+          this.noData = true
+        }
       })
+    },
+    tabChangeFunc (index) {
+      this.pageNum = 1
+      this.DataList = []
+      this.tabType = index === 0 ? 0 : index === 1 ? 2 : 1
+      this.tabFlag = index
+      this.noData = false
+      this.init()
     }
   }
 }

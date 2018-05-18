@@ -39,15 +39,14 @@ export default {
       })
     },
     choiseFunc (index, id) {
+      let self = this
       this.listFlag = index
-      self.$http.selectAddress({
-        data: JSON.stringify({
-          pag_no: 1,
-          pag_num: 5
-        }),
-        'openid': self.openId
-      }).then(res => {
-        self.dataList = res.data.content.data
+      wx.setStorage({
+        key: 'choiseAddr',
+        data: self.addrList[index]
+      })
+      wx.navigateBack({
+        delta: 1
       })
     }
   },

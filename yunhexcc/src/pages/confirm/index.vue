@@ -1,15 +1,15 @@
 <template>
   <div class="page">
-    <div class="addr_no" @click="addrFunc" v-if="!addrFlag">
+    <div class="addr_no" v-if="!addrFlag">
       <span>添加收货地址</span>
       <i class="icon_right"></i>
     </div>
-    <div class="addr_yes" v-else>
+    <div class="addr_yes" @click="addrFunc" v-else>
       <div class="name">
         <span>{{ addrInfor.userName }}（{{ addrInfor.telNumber }}）</span>
       </div>
       <div class="addr">
-        <span>{{ addrInfor.provinceName }} {{ addrInfor.cityName }} {{ addrInfor.countyName }} {{ addrInfor.detailInfo }}</span>
+        <span>{{ addrInfor.detailInfo }}</span>
       </div>
       <i class="icon_right"></i>
     </div>
@@ -21,19 +21,19 @@
       </div>
     </picker>
     <div class="customerNews">
-      <div class="title bor-1px-b">
+      <div class="title bor-1px-b" @click="choiseShopFunc">
         <span>配送门店</span>
         <i class="icon_right"></i>
       </div>
       <div class="content">
-        <span class="name">{{ dataList.shop_name }}</span>
-        <i class="icon_no"></i>
-        <i class="icon_half"></i>
-        <i class="icon_all"></i>
-        <span class="score">{{ dataList.shop_grade }}</span>
+        <span class="name">{{ shopInfor.shopName }}</span>
+        <i class="icon_all" v-for="(item, index) in shopInfor.scoreStar" :key="index"></i>
+        <i v-if="shopInfor.shopGrade > shopInfor.scoreStar" class="icon_half"></i>
+        <!-- <i class="icon_no"></i> -->
+        <span class="score">{{ shopInfor.shopGrade }}</span>
         <div class="addr">
           <i class="icon_position"></i>
-          <span>{{ dataList.shop_address }}</span>
+          <span>{{ shopInfor.shopAddress }}</span>
         </div>
       </div>
     </div>
@@ -70,18 +70,18 @@
           <span>¥{{ dataList.pay_way}}</span>
         </div>
       </div>
-      <div class="payType">
+      <div class="payType" @click="couponFunc">
         <span class="title">商品抵用券:</span>
-        <span class="type typeColor"> <span v-if="couponState">未使用</span><span v-else>- ¥10</span></span>
+        <span class="type typeColor"> <span v-if="couponInfor.couponId == null || !couponInfor.couponId">未使用</span><span v-else>- ¥{{ couponInfor.couponAmount }}</span></span>
         <i class="icon_right"></i>
       </div>
       <div class="totalMoney bor-1px-t bor-1px-b">
         <span>小计:</span>
-        <span>¥{{ dataList.price_sum}}</span>
+        <span>¥{{ couponInfor.priceSum}}</span>
       </div>
     </div>
     <div class="payMent">
-      <div class="totalMoney bor-1px-t">需支付:<span>¥{{ dataList.price_sum}}</span></div>
+      <div class="totalMoney bor-1px-t">需支付:<span>¥{{ couponInfor.priceSum}}</span></div>
       <div class="submit" @click="submitFunc"><span>提交订单</span></div>
     </div>
   </div>
@@ -93,12 +93,14 @@ export default {
     return {
       openId: '',
       order_no: '',
-      couponState: true,
-      addrFlag: false,
+      addrFlag: true,
       detailId: '',
       proNum: '',
       contractId: '',
-      addrInfor: {},
+      addrInfor: Object,
+      shopInfor: Object,
+      couponInfor: Object,
+      scoreStar: '',
       dataList: Object,
       payTypeValue: '货到付款',
       payTypeFlag: 0,
@@ -110,13 +112,9 @@ export default {
   },
   methods: {
     addrFunc () {
-      let self = this
-      wx.chooseAddress({
-        success: function (res) {
-            self.addrFlag = true
-            self.addrInfor = res
-        }
-      })
+      wx.navigateTo({
+    		url:'/pages/address/main'
+    	})
     },
     PickerChange(e) {
       this.payTypeValue = this.payType[e.mp.detail.value]
@@ -126,6 +124,17 @@ export default {
       this.dispatchValue = this.dispatchType[e.mp.detail.value]
       this.dispatchFlag = e.mp.detail.value 
     },
+    choiseShopFunc () {
+      wx.navigateTo({
+        url:'/pages/choiseShop/main'
+      })
+    },
+    couponFunc () {
+      let self = this
+      wx.navigateTo({
+        url:'/pages/useCoupon/main?orderAmount=' + self.dataList.price_sum
+      })
+    },
     submitFunc () {
       this.$http.buildOrder({
         data: JSON.stringify({
@@ -133,10 +142,10 @@ export default {
           'product_number': this.proNum,
           'contract_id': this.contractId,
           'pay_way': this.payTypeFlag,
-          'address_id': '',
-          'coupon_id': '',
+          'address_id': this.addrInfor.addressId,
+          'coupon_id': this.couponInfor.couponId,
           'delivery_way': this.dispatchFlag,
-          'shop_id': this.dataList.shop_id
+          'shop_id': this.shopInfor.shopId
         }),
         'openid': this.openId
       }).then(res => {
@@ -147,12 +156,11 @@ export default {
             'order_no': this.order_no,
             'pay_way': 1,
             'type': 2,
-            'coupon_flag': 0
+            'coupon_flag': this.couponInfor.couponFlag
           }),
           'openid': this.openId
         }).then(res => {
           let data = res.data.content
-          console.log(res)
           wx.requestPayment({
             'timeStamp': data.timestamp,
             'nonceStr': data.noncestr,
@@ -160,13 +168,17 @@ export default {
             'signType': 'MD5',
             'paySign': data.sign,
             'success':function(res){
-              console.log(res)
               wx.showToast({
                 title: '支付成功',
                 icon: 'none',
                 duration: 2000,
                 mask: true
               })
+              setTimeout(() => {
+                wx.switchTab({
+                  url: '/pages/mine/main'
+                })
+              }, 1000)
             },
             'fail':function(res){
               wx.showToast({
@@ -175,6 +187,11 @@ export default {
                 duration: 2000,
                 mask: true
               })
+              setTimeout(() => {
+                wx.switchTab({
+                  url: '/pages/mine/main'
+                })
+              }, 1000)
             }
           })
         })
@@ -182,10 +199,20 @@ export default {
     }
   },
   onLoad (options) {
+    this.detailId = options.detailId
+    this.proNum = options.proNum
+    this.contractId = options.contractId
+    wx.removeStorage({
+      key: 'choiseShop',
+      success: function(res) {} 
+    })
+    wx.removeStorage({
+      key: 'useCoupon',
+      success: function(res) {} 
+    })
+  },
+  onShow () {
     let self = this
-    self.detailId = options.detailId
-    self.proNum = options.proNum
-    self.contractId = options.contractId
     wx.getStorage({
       key: 'openId',
       success: function(res) {
@@ -197,6 +224,69 @@ export default {
           'openid': self.openId
         }).then(res => {
           self.dataList = res.data.content
+          self.addrInfor = {
+            userName: self.dataList.receiver_name,
+            telNumber: self.dataList.receiver_phone,
+            addressId: self.dataList.address_id || '',
+            detailInfo: `${self.dataList.receiver_area}${self.dataList.shop_address}`
+          }
+          self.shopInfor = {
+            shopId: self.dataList.shop_id,
+            shopName: self.dataList.shop_name,
+            scoreStar: parseInt(self.dataList.shop_grade),
+            shopGrade: self.dataList.shop_grade,
+            shopAddress: self.dataList.shop_address
+          }
+          self.couponInfor = {
+            couponFlag: 0,
+            couponId: self.dataList.coupon_id || '',
+            priceSum: self.dataList.price_sum,
+            couponAmount: self.dataList.coupon_amount
+          }
+          /**
+           * 选择地址
+           */
+          wx.getStorage({
+            key: 'choiseAddr',
+            success: function(res) {
+              self.addrInfor = {
+                userName: res.data.receiver_name,
+                telNumber: res.data.receiver_phone,
+                addressId: res.data.address_id,
+                detailInfo: `${res.data.receiver_area}${res.data.detail_address}`
+              }
+            }
+          })
+          /**
+           * 选择门店
+           */
+          wx.getStorage({
+            key: 'choiseShop',
+            success: function(res) {
+              self.shopInfor = {
+                shopId: res.data.shop_id,
+                shopName: res.data.shop_name,
+                scoreStar: parseInt(res.data.shop_grade),
+                shopGrade: res.data.shop_grade,
+                shopAddress: res.data.shop_address
+              }
+            }
+          })
+          /**
+           * 选择优惠券
+           */
+          wx.getStorage({
+            key: 'useCoupon',
+            success: function(res) {
+              console.log(res)
+              self.couponInfor = {
+                couponFlag: 1,
+                couponId: res.data.coupon_id,
+                priceSum: self.couponInfor.priceSum < parseFloat(res.data.coupon_amount) ? 0 : (1000*self.couponInfor.priceSum - 1000*parseFloat(res.data.coupon_amount) / 1000).toFixed(2),
+                couponAmount: res.data.coupon_amount
+              }
+            }
+          })
         })
       } 
     })

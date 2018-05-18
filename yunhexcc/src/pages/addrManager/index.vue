@@ -10,12 +10,12 @@
             </div>
           </div>
           <div class="contIntro bor-1px-t">
-            <span class="default" @click="defaultFunc(index)">
-              <i v-if="listFlag == index" class="icon_default"></i>
+            <span class="default" @click="defaultFunc(index, item.address_id)">
+              <i v-if="item.address_flag == '1'" class="icon_default"></i>
               <i v-else class="icon_undefault"></i>
               <span class="introName">设为默认</span>  
             </span>
-            <span class="delete" @click="deleteFunc(index)">
+            <span class="delete" @click="deleteFunc(index, item.address_id)">
               <i class="icon_delete"></i><span class="introName">删除</span>  
             </span>
             <span class="edit" @click="editFunc(index)">
@@ -24,7 +24,7 @@
           </div>
         </li>
       </ul>
-      <div class="addManager">
+      <div class="addManager" @click="addFunc">
         <span>添加</span>
       </div>
     </div>
@@ -36,14 +36,62 @@ export default {
   data () {
     return {
       openId: '',
-      addrList: [],
-      listFlag: 0
+      addrList: []
     }
   },
   methods: {
-    defaultFunc (index) {},
-    deleteFunc (index) {},
-    editFunc (index) {}
+    init () {
+      this.$http.selectAddress({
+        'openid': this.openId
+      }).then(res => {
+        if (!res.data.content.length) {
+          return false
+        } else {
+          this.addrList = res.data.content
+        }
+      })
+    },
+    defaultFunc (index, id) {
+      this.$http.defaultAddress({
+        data: JSON.stringify({
+          address_id: id
+        }),
+        'openid': this.openId
+      }).then(res => {
+        this.init()
+      })
+    },
+    deleteFunc (index, id) {
+      let self = this
+      wx.showModal({
+        title: '小猿提示',
+        content: '确定删除该收货地址吗?',
+        success: function(res) {
+          if (res.confirm) {
+            self.$http.deleteAddress({
+              data: JSON.stringify({
+                address_id: id
+              }),
+              'openid': self.openId
+            }).then(res => {
+              self.init()  
+            })
+          } else if (res.cancel) {
+            return false
+          }
+        }
+      })
+    },
+    editFunc (index) {
+      wx.navigateTo({
+        url:'/pages/addrEdit/main?index=' + index
+      })
+    },
+    addFunc () {
+      wx.navigateTo({
+        url:'/pages/addrEdit/main'
+      })
+    }
   },
   onShow () {
     let self = this
@@ -51,20 +99,7 @@ export default {
       key: 'openId',
       success: function(res) {
         self.openId = res.data
-        self.$http.selectAddress({
-          'openid': self.openId
-        }).then(res => {
-          if (!res.data.content.length) {
-            return false
-          } else {
-            self.addrList = res.data.content
-            self.addrList.map((item, index) => {
-              if (item.address_flag == '1') {
-                self.listFlag = index
-              }
-            })
-          }
-        })
+        self.init()
       } 
     })
   }

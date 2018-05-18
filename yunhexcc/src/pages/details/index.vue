@@ -10,7 +10,6 @@
     <div class="proIntro">
       <div class="price">¥{{ dataList.price_new }}<span>¥{{ dataList.price_old }}</span></div>
       <div class="title">{{ dataList.product_name }}</div>
-      <!-- <div class="content">{{ dataList.supplier_desc }}</div> -->
     </div>
     <div class="protab">
         <div class='singleList bor-1px-b' @click="changeSpecFunc">
@@ -48,9 +47,8 @@
       </div>
     </div>
     <div class="proBuy">
-      <div class="star bor-1px-t">
-      </div>
-      <!-- <div class="shoppingCart bor-1px-t" @click="shopCartFunc">
+      <!-- <div class="star bor-1px-t"></div>
+      <div class="shoppingCart bor-1px-t" @click="shopCartFunc">
         <span>加入购物车</span>
       </div> -->
       <div class="buyNow" @click="changeSpecFunc">
@@ -58,20 +56,17 @@
       </div>
     </div>
     <setMeal v-if="setMealState" :detailId="detailId" :dataList="specData" :proList="dataList" :contId="contractSureId" @changeSpec="specFunc" @changeState="stateFunc"></setMeal>
-    <telSure v-if="telState" @phoneChangeFunc="sure"></telSure>
   </div>
 </template>
 
 <script>
 import setMeal from '@/components/setMeal'
-import telSure from '@/components/phoneSure'
 export default {
   data () {
     return {
       openId: '',
       detailId: '',
       productId: '',
-      telState: false,
       autoplay: true,
       interval: 5000,
       duration: 900,
@@ -80,11 +75,6 @@ export default {
       indicatorDots: true,
       activeFlag: true, // 图文消息切换
       address: '',
-      imgUrls: [
-        'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
-        'http://img06.tooopen.com/images/20160818/tooopen_sy_175866434296.jpg',
-        'http://img06.tooopen.com/images/20160818/tooopen_sy_175833047715.jpg'
-      ],
       urlData: [],
       dataList: [],
       colorId: '', // 颜色规格id
@@ -96,9 +86,15 @@ export default {
     }
   },
   onLoad (options) {
+    this.productId = options.id
+    wx.removeStorage({
+      key: 'choiseAddr',
+      success: function(res) {} 
+    })
+  },
+  onShow () {
     let self = this
     self.activeFlag = true
-    self.productId = options.id
     wx.getStorage({
       key: 'openId',
       success: function(res) {
@@ -108,17 +104,22 @@ export default {
           'product_id': self.productId
         }).then(res => {
           self.dataList = res.data.content
-          self.address = self.dataList.detail_address
+          self.address = `${self.dataList.receiver_area}${self.dataList.detail_address}`
           self.detailId = res.data.content.product_detail_id
         })
         self.Goodsdescribe()
         self.Selectparameter()
+        wx.getStorage({
+          key: 'choiseAddr',
+          success: function(res) {
+            self.address = `${res.data.receiver_area}${res.data.detail_address}`
+          }
+        })
       } 
     })
   },
   components: {
-    setMeal,
-    telSure
+    setMeal
   },
   methods: {
     Selectparameter () {
@@ -216,29 +217,12 @@ export default {
       wx.navigateTo({
     		url:'/pages/address/main'
     	})
-      // let self = this
-      // wx.openSetting({
-      //   success: (res) => {
-      //   }
-      // })
-      // wx.chooseAddress({
-      //   success: function (res) {
-      //     console.log(res)
-      //     self.address = `${res.provinceName}${res.cityName}${res.countyName} ${res.detailInfo}`
-      //   }
-      // })
     },
     changeSpecFunc () {
       this.setMealState = true
     },
     stateFunc () {
       this.setMealState = false
-    },
-    shopCartFunc () {
-      this.telState = true
-    },
-    sure () {
-      this.telState = false
     }
   }
 }
@@ -273,11 +257,6 @@ export default {
     .title{
       color: #333;
       font-size: .34rem;
-    }
-    .content{
-      color: #777;
-      font-size: .3rem;
-      line-height: .36rem;
     }
   }
   .protab{
@@ -338,11 +317,6 @@ export default {
       }
     }
   }
-  /* .userShow{
-    width: 100%;
-    margin: .24rem 0 0 0;
-    background:#fff;
-  } */
   .proBuy{
     width: 100%;
     height: 1rem;

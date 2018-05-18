@@ -58,37 +58,30 @@
       <span>我的优惠券</span>
       <i class="icon_right"></i> 
     </div>
-    <telSure v-if="telState" @phoneChangeFunc="sure"></telSure>
   </div>
 </template>
 
 <script>
-import telSure from '@/components/phoneSure'
 export default {
   data () {
     return {
-      telState: false,
       userInfos: Object
     }
   },
-  components: {
-    telSure
-  },
-  onLoad () {
+  onShow () {
     let self = this
     wx.getStorage({
       key: 'phoneRegister',
       success: function(res) {
         if(res.data === '0') {
-          self.telState = true
+          wx.navigateTo({
+            url: '/pages/login/main'
+          })
         }
       }
     })
   },
   methods: {
-    sure () {
-      this.telState = false
-    },
     counponFunc () {
       wx.navigateTo({
         url: '/pages/coupon/main'

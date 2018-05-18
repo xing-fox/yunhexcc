@@ -10,25 +10,25 @@
             <div class="price">¥{{ proList.price_new }} <span>{{ proList.price_old }}</span> </div>
           </div>
         </div>
-        <div class="specList">
+        <div class="specList" v-if="dataList.colorinfo[0]">
           <div class="listTitle">颜色：</div>
           <div class="listCategory">
             <div v-for="(item, index) in dataList.colorinfo" :key="index" class="categoryList" :class="{active: colorIndex === index}" @click="specFunc(1, index, item.color_id)">{{ item.color_name }}</div>
           </div>
         </div>
-        <div class="specList">
+        <div class="specList" v-if="dataList.memoryinfo[0]">
           <div class="listTitle">容量：</div>
           <div class="listCategory">
             <div v-for="(item, index) in dataList.memoryinfo" :key="index" class="categoryList" :class="{active: memoryIndex === index}" @click="specFunc(2, index, item.memory_id)">{{ item.memory_name }}</div>
           </div>
         </div>
-        <div class="specList">
+        <div class="specList" v-if="dataList.supplierinfo[0]">
           <div class="listTitle">供应商：</div>
           <div class="listCategory">
             <div v-for="(item, index) in dataList.supplierinfo" :key="index" class="categoryList" :class="{active: supplierIndex === index}" @click="specFunc(3, index, item.supplier_id)">{{ item.supplier_name }}</div>
           </div>
         </div>
-        <div class="specList">
+        <div class="specList" v-if="dataList.contractinfo[0]">
           <div class="listTitle">套餐：</div>
           <div class="listCategory">
             <div v-for="(item, index) in dataList.contractinfo" :key="index" class="categoryList" :class="{active: contractIndex === index}" @click="specFunc(4, index, item.contract_id)">{{ item.contract_name }}</div>
@@ -130,9 +130,21 @@ export default {
       this.totalCount++
     },
     submitFunc () {
-      wx.navigateTo({
-    		url:'/pages/confirm/main?proNum='+ this.totalCount + '&detailId=' + this.detailId + '&contractId=' + this.contractId
-    	})
+      let self = this
+      wx.getStorage({
+        key: 'phoneRegister',
+        success: function(res) {
+          if(res.data === '0') {
+            wx.navigateTo({
+              url: '/pages/login/main'
+            })
+          } else {
+            wx.navigateTo({
+              url:'/pages/confirm/main?proNum='+ self.totalCount + '&detailId=' + self.detailId + '&contractId=' + self.contractId
+            })
+          }
+        }
+      })
     }
   }
 }
