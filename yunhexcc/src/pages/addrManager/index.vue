@@ -103,6 +103,7 @@ export default {
   },
   onShow () {
     let self = this
+    self.addrList = []
     self.noData = false
     wx.getStorage({
       key: 'openId',

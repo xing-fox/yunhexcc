@@ -95,6 +95,7 @@ export default {
           self.$http.customerInfo({
             'openid': self.openId
           }).then(res => {
+            console.log(res)
             self.dataList = res.data.content
           })
         }
