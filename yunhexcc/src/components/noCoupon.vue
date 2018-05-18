@@ -2,7 +2,8 @@
   <div class="page">
     <div class="page_empty">
       <div class="content">
-        <image src="../../../static/images/nodata.png" />
+        <i></i>
+        <!-- <image src="../../../static/images/nodata.png" /> -->
         <!-- <p>暂无优惠券～</p> -->
       </div>
     </div>
@@ -30,10 +31,13 @@ export default {}
       right: 0;
       margin: auto auto;
       text-align: center;
-      image {
+      i {
         display: inline-block;
         width: 3rem;
         height: 3rem;
+        background-image: url('../../static/images/nodata.png');
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
       }
       p {
         color: #ccc;
