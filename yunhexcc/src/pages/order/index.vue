@@ -16,7 +16,7 @@
 						<view class='startDate' v-if = "content.pay_way == 0">在线支付</view>
 						<view class='startDate' v-if = "content.pay_way == 1">货到付款</view>
 					</view>
-					<div class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' :key="subIndex" @click='orderClick(content.order_no)'>
+					<div class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' :key="subIndex" @click='orderClick(content.order_no,content.order_type)'>
 						<img class='goodsImg' :src="goodsData.picture_url" />
 						<view class='goodNameInfo'>
 							<view class='goodsName'>{{goodsData.product_name}}</view>
@@ -127,10 +127,14 @@
 					})
 			},
 			/* 跳转订单详情页 */
-			orderClick(orderNumb) {
-//				wx.navigateTo({
-//					url: "/pages/orderInfo/main?orderNumb=" + orderNumb
-//				})
+			orderClick(orderNumb,orderType) {
+				console.log(orderType);
+				if(orderType !=2){
+					return
+				}
+				wx.navigateTo({
+					url: "/pages/orderInfo/main?orderNumb=" + orderNumb
+				})
 			},
 			/* 订单支付 */
 			payClick(orderNumb, type) {

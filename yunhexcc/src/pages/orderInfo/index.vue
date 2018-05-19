@@ -1,18 +1,21 @@
 <template>
 	<div class="page" style="background-color: #f7f7f7;">
-		<div class=" orderState ">
-			<image class="orderStateImg " />
-			<span id="orderStateText" v-if="urlData.order_status == 1">
+		<div class=" orderState " v-if="urlData.order_status == 1">
+			<image class="orderStateImg" style="background-image: url(../../../static/images/icon_unpaied.png);" />
+			<span id="orderStateText">
 	 		 等待付款
 			</span>
-			<span id="orderStateText" v-else-if="urlData.order_status == 2">
+		</div>
+		<div class=" orderState " v-else-if="urlData.order_status == 2">
+			<image class="orderStateImg" style="background-image: url(../../../static/images/icon_received.png);" />
+			<span id="orderStateText">
 	 		 已付款，待发货
 			</span>
-			<span id="orderStateText" v-else-if="urlData.order_status == 3">
+		</div>
+		<div class=" orderState " v-else-if="urlData.order_status == 2">
+			<image class="orderStateImg" style="background-image: url(../../../static/images/icon_waitForReceived.png);" />
+			<span id="orderStateText">
 	 		 待收货
-			</span>
-			<span id="orderStateText" v-else-if="urlData.order_status == 4">
-	 		 待评价
 			</span>
 		</div>
 		<div class="orderAddress ">
@@ -38,22 +41,22 @@
 					{{urlData.shop_name}}
 				</span>
 				<span id="orderGoods-PayState" v-if="urlData.pay_way == 0">
-					{{urlData.created_at}} 在线支付
+					 在线支付
 				</span>
 				<span id="orderGoods-PayState" v-else-if="urlData.pay_way == 1">
-					{{urlData.created_at}} 货到付款
+					 货到付款
 				</span>
 			</div>
 			<div class="orderGoods-GoodsInfo">
-				<view class='middleView' v-for='(goodsData,subIndex) in urlData.goodsinfo' @tap='orderClick'>
-					<image class='goodsImg' src="goodsData.picture_url"></image>
+				<view class='middleView' v-for='(goodsData,subIndex) in urlData.goodsInfo' @tap='orderClick'>
+					<image class='goodsImg' :src="goodsData.picture_url"></image>
 					<view class='goodNameInfo'>
-						<view class='goodsName'>{{goodsData.data2}}</view>
-						<view class='goodsPlans'>{{goodsData.data3}}</view>
+						<view class='goodsName'>{{goodsData.product_name}}</view>
+						<view class='goodsPlans'>{{goodsData.color}} {{goodsData.memory_capacity}} {{goodsData.supplier_name}} {{goodsData.contract_name}}</view>
 					</view>
 					<view class='goodsPriceInfo'>
-						<view class='goodsPrice'>{{goodsData.data4}}</view>
-						<view class='goodsCount'>{{goodsData.data5}}</view>
+						<view class='goodsPrice'>¥ {{goodsData.product_price}}</view>
+						<view class='goodsCount'>{{goodsData.product_number}}</view>
 					</view>
 				</view>
 			</div>
@@ -65,7 +68,7 @@
 						商品总价
 					</span>
 				<span>
-						¥{{totlePrice}}
+						¥ {{urlData.pay_amount}}
 					</span>
 			</div>
 			<div class="priceInfo-TotalPrice">
@@ -73,15 +76,15 @@
 					运费（快递）
 					</span>
 				<span>
-						¥{{totlePrice}}
+						¥ {{0.00}}
 					</span>
 			</div>
 			<div class="priceInfo-TotalPrice">
 				<span>
 						优惠券
-					</span>
+				</span>
 				<span>
-						无
+				     	无
 					</span>
 			</div>
 			<div class="sepertLine">
@@ -92,25 +95,19 @@
 						需付款
 					</span>
 				<span>
-						¥{{playTotal}}
+						¥{{urlData.pay_amount}}
 					</span>
 			</div>
 		</div>
 		<div class="orderTimeInfo">
 			<span class="orderNumbInfo">
-			订单编号：1510000000
+			订单编号：{{urlData.order_no}}
 			</span>
 			<span class="orderNumbInfo">
-			创建时间：2018-02-24 08:21:21
+			交易编号：{{urlData.serial_no}}
 			</span>
 			<span class="orderNumbInfo">
-			付款时间：2018-02-24 08:21:21
-			</span>
-			<span class="orderNumbInfo">
-			发货时间：2018-02-24 08:21:21
-			</span>
-			<span class="orderNumbInfo">
-			成交时间：2018-02-24 08:21:21
+			创建时间：{{urlData.created_at}}
 			</span>
 		</div>
 		<div class="spaceBottom">
@@ -118,17 +115,22 @@
 		</div>
 		<div class="orderOpertion">
 			<div class="orderOpertion-contact">
-				<div class="left-opertion">
-
+				<div class="left-opertion" @click="callDelivery(urlData.delivery_phone)">
 					<image class="orderOpertion-phoneImg" />
 					<div class="orderOpertion-contacter">
 						联系商家
 					</div>
 				</div>
-				<div class="right-opertion">
-					提醒发货
-				</div>
-
+				<view v-if="urlData.order_status == 1" class='opertionBtn'>
+					<view class='cancelOrderBtn' @click='cancelClick(urlData.order_no)'>取消订单</view>
+					<view class='delectOrderBtn' @click='payClick(urlData.order_no,urlData.order_type)'>付款</view>
+				</view>
+				<view v-if="urlData.order_status == 2" class='opertionBtn'>
+					<view class='cancelOrderBtn' @click='remindOrderClick(urlData.order_no)'>提醒发货</view>
+				</view>
+				<view v-if="urlData.order_status == 3" class='opertionBtn'>
+					<view class='cancelOrderBtn' @click='sureOrderClick(urlData.order_no,urlData.order_type)'>确认收货</view>
+				</view>
 			</div>
 		</div>
 	</div>
@@ -139,37 +141,38 @@
 		data() {
 			return {
 				urlData: {},
-				orderState: '已付款，待发货\等待付款（剩余。。）\待收货',
-				receivePerson: '小猴子',
-				receivePhoneNumb: '18888888888',
-				detailAddress: '收货地址：安徽省 合肥市 蜀山区 天鹅湖万达广场2号楼1702室',
-
-				goodsStore: '嘉善主厅',
-
-				data1: '2017-12-13 在线支付',
-
-				goodsInfo: [{
-					data2: 'iPhone 8s',
-					data3: '亮黑64 电信版 套餐三 上海',
-					data4: '¥ 0.27',
-					data5: '2',
-				}, {
-					data2: 'iPhone 8s',
-					data3: '亮黑64 电信版 套餐三 上海',
-					data4: '¥ 0.27',
-					data5: '2',
-				}],
-				totlePrice: '1000',
-				discount: '200',
-				playTotal: '800'
-
+				orderNumb: '',
+				openId: ''
 			}
 		},
 		onLoad(options) {
 			let self = this;
+			this.orderNumb = options.orderNumb;
+			this.urlData = {};
 			console.log(options.orderNumb);
 			this.$http.OrderOrderDetail({
-				'order_no': options.orderNumb
+				'order_no': self.orderNumb
+			}).then(res => {
+				if(res.data.code == 'E00000') {
+					console.log(JSON.stringify(res));
+					self.urlData = res.data.content;
+				}
+			})
+		},
+		onShow() {
+			let self = this
+			wx.getStorage({
+				key: "openId",
+				success: function(res) {
+					self.openId = res.data
+				}
+			})
+		},
+		reloadData() {
+			let self = this;
+			this.urlData = {};
+			this.$http.OrderOrderDetail({
+				'order_no': self.orderNumb
 			}).then(res => {
 				console.log(JSON.stringify(res));
 				if(res.data.code == 'E00000') {
@@ -178,8 +181,131 @@
 				}
 			})
 		},
-		getOrderListInfo: {},
-		created() {}
+		methods: {
+			/*拨打电话*/
+			callDelivery(numb) {
+				wx.makePhoneCall({
+					phoneNumber: numb,
+					success: function() {
+						console.log("拨打电话成功！")
+					},
+					fail: function() {
+						console.log("拨打电话失败！")
+					}
+				})
+			},
+			/* 订单支付 */
+			payClick(orderNumb, type) {
+				let self = this
+				this.$http
+					.OrderOrderPay({
+						openid: self.openId,
+						data: JSON.stringify({
+							order_no: orderNumb,
+							type: 2
+						})
+					})
+					.then(res => {
+						console.log("调起订单" + JSON.stringify(res));
+						if(res.data.code == "E00000") {
+							var data = res.data.content;
+							wx.requestPayment({
+								timeStamp: data.timestamp,
+								nonceStr: data.noncestr,
+								package: data.wxpay_package,
+								signType: "MD5",
+								paySign: data.sign,
+								success: function(res) {
+									console.log("支付状态" + res)
+									wx.showToast({
+										title: "支付成功",
+										icon: "none",
+										duration: 2000,
+										mask: true
+									})
+									wx.navigateBack();
+								},
+								fail: function(res) {
+									wx.showToast({
+										title: "支付失败",
+										icon: "none",
+										duration: 2000,
+										mask: true
+									});
+								}
+							});
+						} else {
+							wx.showToast({
+								title: data.msg,
+								icon: "none",
+								duration: 1000,
+								mask: false
+							});
+						}
+					});
+			},
+			/* 取消订单 */
+			cancelClick(orderNumb) {
+				let self = this;
+				this.$http
+					.CancelOrder({
+						openid: this.openId,
+						order_no: orderNumb
+					})
+					.then(res => {
+						if(res.data.code == "E00000") {
+							console.log("取消订单成功" + JSON.stringify(res));
+
+							wx.showToast({
+								title: "取消订单成功",
+								icon: "none",
+								duration: 1000,
+								mask: false
+							});
+							wx.navigateBack()
+						}
+					});
+			},
+			/* 提醒发货 */
+			remindOrderClick(orderNumb) {
+				console.log("订单号" + orderNumb + "opendi" + this.openId);
+				this.$http
+					.RemindeOrderPay({
+						openid: this.openId,
+						order_no: orderNumb
+					})
+					.then(res => {
+						if(res.data.code == "E00000") {
+							wx.showToast({
+								title: "提醒商家发货成功",
+								icon: "none",
+								duration: 1000,
+								mask: false
+							});
+						}
+					});
+			},
+			/* 确认收货 */
+			sureOrderClick(orderNumb, type) {
+				console.log(type + "确认收货请求" + orderNumb + "订单索引" + orderIndex);
+				this.$http
+					.takenOrder({
+						order_type: type,
+						order_no: orderNumb
+					})
+					.then(res => {
+						if(res.data.code == "E00000") {
+							wx.showToast({
+								title: "确认收货成功",
+								icon: "none",
+								duration: 1000,
+								mask: false
+							});
+							wx.navigateBack();
+						}
+					});
+			}
+		}
 	}
 </script>
 
@@ -193,9 +319,10 @@
 		.orderStateImg {
 			height: 25px;
 			width: 25px;
-			background: antiquewhite;
 			vertical-align: middle;
 			margin-left: 10px;
+			background-size: 100% 100%;
+			background-repeat: no-repeat;
 		}
 		#orderStateText {
 			margin-left: 6px;
@@ -209,18 +336,22 @@
 		color: #666;
 		line-height: 20px;
 		display: flex;
-		padding: 10px;
+		padding: 9px;
 		box-sizing: border-box;
 		margin-top: 8px;
 		background: white;
 		.addressImg {
-			height: 40px;
-			width: 60px;
-			background: antiquewhite;
+			display: inline-block;
+			width: 30px;
+			height: 30px;
 			margin-top: 9px;
+			background-image: url(../../../static/images/icon_location.png);
+			background-size: 100% 100%;
+			background-repeat: no-repeat;
 		}
 		.addressInfo {
-			margin: auto 15px;
+			margin: auto 0px auto 10px;
+			width: 90%;
 			.receivePeopleInfo {
 				display: flex;
 				justify-content: space-between;
@@ -236,7 +367,7 @@
 			display: flex;
 			justify-content: space-between;
 			font-size: 14px;
-			padding: 6px 10px;
+			padding: 6px 10px 6px 6px;
 			#orderGoods-StoreName {
 				color: #333333;
 			}
@@ -261,8 +392,11 @@
 				text-align: left;
 				margin-left: 20px;
 				margin-top: 10px;
-				width: 245px;
+				width: 60%;
 				.goodsName {
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
 					font-size: 16px;
 					height: 25px;
 				}
@@ -275,6 +409,7 @@
 				display: inline-block;
 				text-align: right;
 				margin-top: 10px;
+				width: 20%;
 				.goodsPrice {
 					font-size: 16px;
 					height: 25px;
@@ -305,7 +440,7 @@
 		.needPlayPrice-view {
 			display: flex;
 			justify-content: space-between;
-			color: #333333;
+			color: red;
 			font-size: 14px;
 			height: 25px;
 			padding: 6px;
@@ -337,18 +472,20 @@
 		bottom: 0;
 		z-index: 100;
 		.orderOpertion-contact {
-			padding: 6px;
 			background: white;
 			display: flex;
 			justify-content: space-between;
 			color: #999999;
 			.left-opertion {
 				display: flex;
+				padding: 6px;
 				.orderOpertion-phoneImg {
 					width: 20px;
 					height: 20px;
-					background: gainsboro;
 					margin-top: 8px;
+					background-size: 100% 100%;
+					background-repeat: no-repeat;
+					background-image: url(../../../static/images/icon_callup.png);
 				}
 				.orderOpertion-contacter {
 					font-size: 14px;
@@ -356,11 +493,32 @@
 					margin-top: 8px;
 				}
 			}
-			.right-opertion {
-				border: 1px solid #999;
-				border-radius: 3px;
-				font-size: 14px;
-				padding: 5px;
+			.opertionBtn {
+				height: 50px;
+				width: 50%;
+				display: inline-flex;
+				font-size: 12px;
+				text-align: center;
+				justify-content: flex-end;
+				.cancelOrderBtn {
+					padding-top: 8px;
+					margin: 8px 8px;
+					height: 24px;
+					width: 60px;
+					color: #999;
+					border: 1px solid #f1f1f1;
+					border-radius: 3px;
+				}
+				.delectOrderBtn {
+					padding-top: 8px;
+					margin: 8px 8px;
+					height: 24px;
+					width: 60px;
+					color: #222;
+					background-color: #fada63;
+					border: 1px solid #fada63;
+					border-radius: 3px;
+				}
 			}
 		}
 	}
