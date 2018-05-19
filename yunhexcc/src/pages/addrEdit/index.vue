@@ -56,14 +56,46 @@ export default {
       this.region = e.mp.detail.value
     },
     submitFunc () {
-      let _region = this.region.join(',').replace(/,/g, '')
+      this.region = this.region.constructor == Array ? this.region.join(',').replace(/,/g, '') : this.region
+      if (!this.dataName) {
+        return wx.showToast({
+          title: '请输入姓名',
+          icon: 'none',
+          duration: 2000,
+          mask: true
+        })
+      }
+      if (!(/^1[3|4|5|7|8|9][0-9]\d{4,8}$/.test(this.dataPhone))) {
+        return wx.showToast({
+          title: '手机号输入有误',
+          icon: 'none',
+          duration: 2000,
+          mask: true
+        })
+      }
+      if (!this.region) {
+        return wx.showToast({
+          title: '请选择所在区域',
+          icon: 'none',
+          duration: 2000,
+          mask: true
+        })
+      }
+      if (!this.dataArea) {
+        return wx.showToast({
+          title: '请填写详细地址',
+          icon: 'none',
+          duration: 2000,
+          mask: true
+        })
+      }
       if (this.listIndex) {
         this.$http.modifyAddress({
           data: JSON.stringify({
             address_id: this.dataList.address_id,
             receiver_name: this.dataName,
             receiver_phone: this.dataPhone,
-            receiver_area: _region,
+            receiver_area: this.region,
             detail_address: this.dataArea
           }),
           openid: this.openId
@@ -84,7 +116,7 @@ export default {
           data: JSON.stringify({
             receiver_name: this.dataName,
             receiver_phone: this.dataPhone,
-            receiver_area: _region,
+            receiver_area: this.region,
             detail_address: this.dataArea
           }),
           openid: this.openId
@@ -120,16 +152,16 @@ export default {
       key: "openId",
       success: function(res) {
         self.openId = res.data
+        if (self.listIndex) {
+          self.init()
+        } else {
+          self.dataName = ''
+          self.dataPhone = ''
+          self.region = ''
+          self.dataArea = ''
+        }
       }
     })
-    if (this.listIndex) {
-      this.init()
-    } else {
-      this.dataName = ''
-      this.dataPhone = ''
-      this.region = ''
-      this.dataArea = ''
-    }
   }
 };
 </script>
@@ -206,7 +238,7 @@ export default {
     width: 100%;
     height: 1rem;
     line-height: 1rem;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;

@@ -94,9 +94,8 @@ export default {
     })
   },
   onShow () {
+    [this.colorId, this.memoryId, this.supplierId, this.contractId, this.contractSureId, this.setMealState, this.activeFlag] = ['', '', '', '', '', false, true]
     let self = this
-    self.setMealState = false
-    self.activeFlag = true
     wx.getStorage({
       key: 'openId',
       success: function(res) {
@@ -106,17 +105,17 @@ export default {
           'product_id': self.productId
         }).then(res => {
           self.dataList = res.data.content
-          self.address = `${self.dataList.detail_address}`
+          self.address = `${res.data.content.receiver_area || ''}${self.dataList.detail_address}`
           self.detailId = res.data.content.product_detail_id
+          wx.getStorage({
+            key: 'choiseAddr',
+            success: function(res) {
+              self.address = `${res.data.receiver_area}${res.data.detail_address}`
+            }
+          })
         })
         self.Goodsdescribe()
         self.Selectparameter()
-        wx.getStorage({
-          key: 'choiseAddr',
-          success: function(res) {
-            self.address = `${res.data.receiver_area}${res.data.detail_address}`
-          }
-        })
       } 
     })
   },

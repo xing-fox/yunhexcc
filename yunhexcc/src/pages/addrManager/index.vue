@@ -192,6 +192,9 @@ export default {
       }
     }
   }
+  ul{
+    padding: 0 0 1.2rem 0; 
+  }
   .noData{
     font-size: 0;
     width: 100%;
@@ -212,7 +215,7 @@ export default {
     height: 1.1rem;
     line-height: 1.1rem;
     text-align: center;
-    position: absolute;
+    position: fixed;
     left: 0;
     right: 0;
     bottom: 0;

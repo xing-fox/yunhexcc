@@ -84,6 +84,6 @@ export default {
   font-size: 0.34rem;
   color: #ff2e2e;
   line-height: 0.48rem;
-  margin: 0.24rem 0 0 0;
+  margin: 0.48rem 0 0 0;
 }
 </style>

@@ -7,17 +7,17 @@
          <i class="icon_all" v-for="(item, ind) in 5" :key="ind"></i>
         </div>
         <div class="shopCommit">
-          <span>商品5</span>
-          <span>配送5</span>
-          <span>服务5</span>
-          <span>满意度5</span>
+          <span>商品{{ item.shop_goods }}</span>
+          <span>配送{{ item.shop_delivery }}</span>
+          <span>服务{{ item.shop_service }}</span>
+          <span>满意度{{ item.shop_satisfaction }}</span>
         </div>
         <div class="shopAddr">
           <i class="icon_position"></i>
           <span>{{ item.shop_address }}</span>
         </div>
         <div class="shopDistance">
-          <span>距离{{ item.distance }}米</span>
+          <span>距离{{ item.distance }}公里</span>
         </div>
       </li>
     </ul>
@@ -39,10 +39,13 @@ export default {
   methods: {
     init () {
       this.$http.selectShop({
-        pay_no: this.pagNo,
+        pag_no: this.pagNo,
         pag_num: this.pagNumber,
         openid: this.openId
       }).then(res => {
+        res.data.content.map((item) => {
+          item.distance = (item.distance/1000).toFixed(1)
+        })
         this.dataList = this.dataList.concat(res.data.content)
         if (res.data.content.length < 8) {
           this.sendFlag = false

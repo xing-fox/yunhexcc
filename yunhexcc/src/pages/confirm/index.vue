@@ -72,7 +72,7 @@
       </div>
       <div class="payType" @click="couponFunc">
         <span class="title">商品抵用券:</span>
-        <span class="type typeColor"> <span v-if="couponInfor.couponId == null || !couponInfor.couponId">未使用</span><span v-else>- ¥{{ couponInfor.couponAmount }}</span></span>
+        <span class="type typeColor"> <span v-if="couponInfor.couponId == null || !couponInfor.couponId">{{ couponMessage }}</span><span v-else>- ¥{{ couponInfor.couponAmount }}</span></span>
         <i class="icon_right"></i>
       </div>
       <div class="totalMoney bor-1px-t bor-1px-b">
@@ -101,6 +101,7 @@ export default {
       couponInfor: Object,
       scoreStar: '',
       dataList: Object,
+      couponMessage: '',
       payTypeValue: '在线付款',
       payTypeFlag: 0,
       payType: ['在线付款', '货到付款'],
@@ -221,7 +222,7 @@ export default {
     })
     wx.removeStorage({
       key: 'useCoupon',
-      success: function(res) {} 
+      success: function(res) {}
     })
   },
   onShow () {
@@ -256,6 +257,19 @@ export default {
             priceSum: self.dataList.price_sum,
             couponAmount: self.dataList.coupon_amount
           }
+          self.$http.SelectCoupon({
+            'order_amount': self.dataList.price_sum,
+            'pag_no': 1,
+            'pag_num': 8,
+            'openid': self.openId
+          }).then(res => {
+            if (res.data.content == null || res.data.content == '') {
+              self.couponMessage = '暂无可用优惠券'
+            }
+            if (res.data.content.length) {
+              self.couponMessage = '未使用'
+            }
+          })
           /**
            * 选择地址
            */
