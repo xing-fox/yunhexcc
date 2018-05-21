@@ -178,7 +178,7 @@ export default {
     background: #fff;
     display: flex;
     li{
-      width: 25%;
+      flex: 1;
       text-align: center;
       .count{
         color: #222;
@@ -225,8 +225,8 @@ export default {
         position: relative;
         .icon{
           display: inline-block;
-          width: .4rem;
-          height: .4rem;
+          width: .5rem;
+          height: .5rem;
           background-size: 100% 100%;
           background-repeat: no-repeat;
           background-position: center center;
@@ -252,11 +252,11 @@ export default {
         }
         .number{
           color: #fff;
-          font-size: .16rem;
-          width: .3rem;
-          height: .3rem;
-          border-radius: .18rem;
-          line-height: .3rem;
+          font-size: .22rem;
+          width: .4rem;
+          height: .4rem;
+          border-radius: .24rem;
+          line-height: .4rem;
           text-align: center;
           box-sizing: border-box;
           position: absolute;
