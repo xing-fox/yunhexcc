@@ -136,6 +136,14 @@ export default {
       })
     },
     submitFunc () {
+      if (this.addrInfor.addressId == '') {
+        return wx.showToast({
+          title: '请填写收货地址',
+          icon: 'none',
+          duration: 2000,
+          mask: true
+        })
+      }
       this.$http.buildOrder({
         data: JSON.stringify({
           'product_detail_id': this.detailId,
@@ -254,8 +262,8 @@ export default {
           self.couponInfor = {
             couponFlag: 0,
             couponId: self.dataList.coupon_id || '',
-            priceSum: self.dataList.price_sum,
-            couponAmount: self.dataList.coupon_amount
+            priceSum: parseFloat(self.dataList.price_sum).toFixed(1),
+            couponAmount: self.dataList.coupon_amount2
           }
           self.$http.SelectCoupon({
             'order_amount': self.dataList.price_sum,
@@ -305,7 +313,7 @@ export default {
           wx.getStorage({
             key: 'useCoupon',
             success: function(res) {
-              let _sum = ((parseFloat(self.couponInfor.priceSum)*100 - parseFloat(res.data.coupon_amount)*100)/100)
+              let _sum = ((parseFloat(self.couponInfor.priceSum)*100 - parseFloat(res.data.coupon_amount)*100)/100).toFixed(1)
               self.couponInfor = {
                 couponFlag: 1,
                 couponId: res.data.coupon_id,

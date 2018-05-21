@@ -204,8 +204,8 @@ export default {
           display: flex;
           .price {
             color: #e2330b;
-            font-size: .36rem;
-            width: 1.5rem;
+            font-size: .3rem;
+            width: 1.7rem;
             height: 1.12rem;
             line-height: 1.12rem;
             span {

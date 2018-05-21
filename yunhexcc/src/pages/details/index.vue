@@ -14,16 +14,16 @@
     <div class="protab">
         <div class='singleList bor-1px-b' @click="changeSpecFunc">
           <span class='title'>发送</span>
-          <span>{{ dataList.color }} {{ dataList.memory_capacity }} {{ dataList.supplier_desc }} {{ dataList.contract_name }}</span>
+          <span><span v-if="dataList.color">{{ dataList.color }} </span><span v-if="dataList.memory_capacity">{{ dataList.memory_capacity }} </span><span v-if="dataList.supplier_desc">{{ dataList.supplier_desc }} </span><span v-if="dataList.contract_name">{{ dataList.contract_name }}</span></span>
           <div class='arrow_right'></div>
         </div>
-        <div class='singleList bor-1px-b' @click="chooseFunc">
+        <!-- <div class='singleList bor-1px-b' @click="chooseFunc">
           <span class='title'>送至</span>
           <span class="addr">
             <span>{{ address }}</span>
           </span>
           <div class='arrow_right'></div>
-        </div>
+        </div> -->
         <div class="double">
             <div class="left">
                 <span>说明</span>
@@ -43,7 +43,7 @@
         </li>
       </ul>
       <div class='graphic'>
-        <img v-for="(item, index) in urlData" :key="index" :src="item.picture_url" alt="">
+        <img mode="widthFix" v-for="(item, index) in urlData" :key="index" :src="item.picture_url" alt="">
       </div>
     </div>
     <div class="proBuy">
