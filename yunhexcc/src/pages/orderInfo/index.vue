@@ -1,19 +1,19 @@
 <template>
 	<div class="page" style="background-color: #f7f7f7;">
 		<div class=" orderState " v-if="urlData.order_status == 1">
-			<image class="orderStateImg" style="background-image: url(../../../static/images/icon_unpaied.png);" />
+			<i class="orderStateImg" style="background-image: url(../../../static/images/icon_unpaied.png);" /></i>
 			<span id="orderStateText">
 	 		 等待付款
 			</span>
 		</div>
 		<div class=" orderState " v-else-if="urlData.order_status == 2">
-			<image class="orderStateImg" style="background-image: url(../../../static/images/icon_received.png);" />
+			<i class="orderStateImg" style="background-image: url(../../../static/images/icon_received.png);" /></i>
 			<span id="orderStateText">
 	 		 已付款，待发货
 			</span>
 		</div>
-		<div class=" orderState " v-else-if="urlData.order_status == 2">
-			<image class="orderStateImg" style="background-image: url(../../../static/images/icon_waitForReceived.png);" />
+		<div class=" orderState " v-else-if="urlData.order_status == 3">
+			<i class="orderStateImg" style="background-image: url(../../../static/images/icon_waitForReceived.png);" /></i>
 			<span id="orderStateText">
 	 		 待收货
 			</span>
@@ -21,7 +21,11 @@
 		<div class="orderAddress ">
 			<div class="addressImg ">
 			</div>
-			<div class="addressInfo ">
+			<div class="addressInfo" v-if="urlData.delivery_way == 0">
+				到店自提
+			</div>
+			<div class="addressInfo " v-else="urlData.delivery_way == 1">
+
 				<div class="receivePeopleInfo">
 					<span>
 						收货人：{{urlData.receiver_name}}
@@ -115,7 +119,7 @@
 		</div>
 		<div class="orderOpertion">
 			<div class="orderOpertion-contact">
-				<div class="left-opertion" @click="callDelivery(urlData.delivery_phone)">
+				<div class="left-opertion" @click="callDelivery(urlData.shop_mobile)">
 					<image class="orderOpertion-phoneImg" />
 					<div class="orderOpertion-contacter">
 						联系商家
@@ -184,6 +188,7 @@
 		methods: {
 			/*拨打电话*/
 			callDelivery(numb) {
+
 				wx.makePhoneCall({
 					phoneNumber: numb,
 					success: function() {
@@ -317,6 +322,7 @@
 		color: #fff;
 		background-color: #37495f;
 		.orderStateImg {
+			display: inline-block;
 			height: 25px;
 			width: 25px;
 			vertical-align: middle;
@@ -325,6 +331,7 @@
 			background-repeat: no-repeat;
 		}
 		#orderStateText {
+			display: inline-block;
 			margin-left: 6px;
 		}
 	}
@@ -342,9 +349,9 @@
 		background: white;
 		.addressImg {
 			display: inline-block;
-			width: 30px;
-			height: 30px;
-			margin-top: 9px;
+			width: 20px;
+			height: 20px;
+			margin-top: 12px;
 			background-image: url(../../../static/images/icon_location.png);
 			background-size: 100% 100%;
 			background-repeat: no-repeat;
