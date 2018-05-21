@@ -21,7 +21,7 @@
 		<div class="orderAddress ">
 			<div class="addressImg ">
 			</div>
-			<div class="addressInfo" v-if="urlData.delivery_way == 0">
+			<div class="noaddress" v-if="urlData.delivery_way == 0">
 				到店自提
 			</div>
 			<div class="addressInfo " v-else="urlData.delivery_way == 1">
@@ -355,6 +355,10 @@
 			background-image: url(../../../static/images/icon_location.png);
 			background-size: 100% 100%;
 			background-repeat: no-repeat;
+		}
+		.noaddress{
+			margin: 14px 0px auto 10px;
+			width: 90%;
 		}
 		.addressInfo {
 			margin: auto 0px auto 10px;

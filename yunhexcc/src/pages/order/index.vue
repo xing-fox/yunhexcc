@@ -3,7 +3,7 @@
 		<div class="nav-list">
 			<scroll-view class="swiper-tab" scroll-x style="width: 100%">
 
-				<view :style="menuStyle" v-for="(title,index) in titleData" :key="index" :class="{swiperSelectTabItem:index === selectTab, swiperTabItem:index !== selectTab}" :data-current="index" @tap="swichNav">{{title.text}}
+				<view :style="menuStyle" v-for="(title,index) in titleData" :key="index" :class="{swiperSelectTabItem:index == selectTab, swiperTabItem:index != selectTab}" :data-current="index" @tap="swichNav">{{title.text}}
 				</view>
 
 			</scroll-view>
@@ -132,9 +132,9 @@
 				if(orderType !=2){
 					return
 				}
-//				wx.navigateTo({
-//					url: "/pages/orderInfo/main?orderNumb=" + orderNumb
-//				})
+				wx.navigateTo({
+					url: "/pages/orderInfo/main?orderNumb=" + orderNumb
+				})
 			},
 			/* 订单支付 */
 			payClick(orderNumb, type) {
