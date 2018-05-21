@@ -132,9 +132,9 @@
 				if(orderType !=2){
 					return
 				}
-				wx.navigateTo({
-					url: "/pages/orderInfo/main?orderNumb=" + orderNumb
-				})
+//				wx.navigateTo({
+//					url: "/pages/orderInfo/main?orderNumb=" + orderNumb
+//				})
 			},
 			/* 订单支付 */
 			payClick(orderNumb, type) {
