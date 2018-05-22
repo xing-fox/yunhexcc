@@ -1,19 +1,19 @@
 <template>
 	<div class="page" style="background-color: #f7f7f7;">
 		<div class=" orderState " v-if="urlData.order_status == 1">
-			<i class="orderStateImg" style="background-image: url(../../../static/images/icon_unpaied.png);" /></i>
+			<i class="orderStateImg_unpaied" /></i>
 			<span id="orderStateText">
 	 		 等待付款
 			</span>
 		</div>
 		<div class=" orderState " v-else-if="urlData.order_status == 2">
-			<i class="orderStateImg" style="background-image: url(../../../static/images/icon_received.png);" /></i>
+			<i class="orderStateImg_received" /></i>
 			<span id="orderStateText">
 	 		 已付款，待发货
 			</span>
 		</div>
 		<div class=" orderState " v-else-if="urlData.order_status == 3">
-			<i class="orderStateImg" style="background-image: url(../../../static/images/icon_waitForReceived.png);" /></i>
+			<i class="orderStateImg_waitForReceived" /></i>
 			<span id="orderStateText">
 	 		 待收货
 			</span>
@@ -21,7 +21,7 @@
 		<div class="orderAddress ">
 			<div class="addressImg ">
 			</div>
-			<div class="addressInfo" v-if="urlData.delivery_way == 0">
+			<div class="noaddress" v-if="urlData.delivery_way == 0">
 				到店自提
 			</div>
 			<div class="addressInfo " v-else="urlData.delivery_way == 1">
@@ -87,7 +87,10 @@
 				<span>
 						优惠券
 				</span>
-				<span>
+				<span v-if="serve_amount>0">
+				     - ¥{{serve_amount}}
+					</span>
+				<span v-else="serve_amount==0">
 				     	无
 					</span>
 			</div>
@@ -99,7 +102,7 @@
 						需付款
 					</span>
 				<span>
-						¥{{urlData.pay_amount}}
+						¥{{pay_amount}}
 					</span>
 			</div>
 		</div>
@@ -145,24 +148,16 @@
 		data() {
 			return {
 				urlData: {},
-				orderNumb: '',
-				openId: ''
+				openId: '',
+				orderNumb: '', //订单编号
+				serve_amount: 0, //优惠券充当金额
+				pay_amount: 0, //付款金额
+				voucher_flag: 0, //用于判断是否有优惠券的标识（0没有，1有）
+				coupon_id: "", //优惠券id
+				order_create_time: "" // 订单创建时间
 			}
 		},
-		onLoad(options) {
-			let self = this;
-			this.orderNumb = options.orderNumb;
-			this.urlData = {};
-			console.log(options.orderNumb);
-			this.$http.OrderOrderDetail({
-				'order_no': self.orderNumb
-			}).then(res => {
-				if(res.data.code == 'E00000') {
-					console.log(JSON.stringify(res));
-					self.urlData = res.data.content;
-				}
-			})
-		},
+
 		onShow() {
 			let self = this
 			wx.getStorage({
@@ -172,41 +167,69 @@
 				}
 			})
 		},
-		reloadData() {
+
+		onLoad(options) {
 			let self = this;
+			this.orderNumb = options.orderNumb;
 			this.urlData = {};
+			console.log(options.orderNumb);
 			this.$http.OrderOrderDetail({
 				'order_no': self.orderNumb
 			}).then(res => {
-				console.log(JSON.stringify(res));
 				if(res.data.code == 'E00000') {
-					console.log(JSON.stringify(res));
+					//					console.log(JSON.stringify(res));
 					self.urlData = res.data.content;
+					self.serve_amount = parseFloat(res.data.content.serve_amount);
+					self.coupon_id = res.data.content.coupon_id;
+					if(self.serve_amount > 0) {
+						self.pay_amount = parseFloat(res.data.content.pay_amount) - self.serve_amount;
+						self.voucher_flag = 1;
+						console.log("有优惠券")
+
+					} else {
+						self.pay_amount = res.data.content.pay_amount;
+						self.voucher_flag = 0;
+						console.log("无优惠券")
+					}
 				}
 			})
 		},
 		methods: {
-			/*拨打电话*/
-			callDelivery(numb) {
-
-				wx.makePhoneCall({
-					phoneNumber: numb,
-					success: function() {
-						console.log("拨打电话成功！")
-					},
-					fail: function() {
-						console.log("拨打电话失败！")
-					}
-				})
-			},
 			/* 订单支付 */
 			payClick(orderNumb, type) {
-				let self = this
+				let self = this;
+				console.log("订单信息" + orderNumb + type + this.voucher_flag);
+				if(this.voucher_flag == 1) {
+					//验证优惠券是否过期
+					this.$http.couponAvaliable({
+							openid: self.openId,
+							coupon_id: self.coupon_id
+						})
+						.then(res => {
+							console.log("优惠券是否过期" + JSON.stringify(res));
+
+							if(res.data.code == "E00000") {} else {
+								wx.showToast({
+									title: "所选优惠券已过期，订单恢复原价",
+									icon: "none",
+									duration: 1000,
+									mask: false
+								});
+								self.pay_amount = self.urlData.pay_amount;
+								self.serve_amount = 0;
+								self.voucher_flag == 0;
+
+								return
+							}
+						});
+				}
+				console.log(self.openId + "  " + self.orderNumb)
+				//继续支付
 				this.$http
 					.OrderOrderPay({
 						openid: self.openId,
 						data: JSON.stringify({
-							order_no: orderNumb,
+							order_no: self.orderNumb,
 							type: 2
 						})
 					})
@@ -249,27 +272,37 @@
 						}
 					});
 			},
+
 			/* 取消订单 */
 			cancelClick(orderNumb) {
 				let self = this;
-				this.$http
-					.CancelOrder({
-						openid: this.openId,
-						order_no: orderNumb
-					})
-					.then(res => {
-						if(res.data.code == "E00000") {
-							console.log("取消订单成功" + JSON.stringify(res));
-
-							wx.showToast({
-								title: "取消订单成功",
-								icon: "none",
-								duration: 1000,
-								mask: false
-							});
-							wx.navigateBack()
+				wx.showModal({
+					title: '小猿提示',
+					content: '确定取消订单吗?',
+					success: function(res) {
+						if(res.confirm) {
+							self.$http
+								.CancelOrder({
+									openid: self.openId,
+									order_no: orderNumb
+								})
+								.then(res => {
+									if(res.data.code == "E00000") {
+										self.urlData.splice(orderIndex, 1);
+										wx.showToast({
+											title: "取消订单成功",
+											icon: "none",
+											duration: 1000,
+											mask: false
+										});
+									}
+								});
+						} else if(res.cancel) {
+							return false
 						}
-					});
+					}
+				})
+
 			},
 			/* 提醒发货 */
 			remindOrderClick(orderNumb) {
@@ -309,7 +342,20 @@
 							wx.navigateBack();
 						}
 					});
-			}
+			},
+			/*拨打电话*/
+			callDelivery(numb) {
+
+				wx.makePhoneCall({
+					phoneNumber: numb,
+					success: function() {
+						console.log("拨打电话成功！")
+					},
+					fail: function() {
+						console.log("拨打电话失败！")
+					}
+				})
+			},
 		}
 	}
 </script>
@@ -321,23 +367,44 @@
 		font-size: 14px;
 		color: #fff;
 		background-color: #37495f;
-		.orderStateImg {
+		.orderStateImg_unpaied {
 			display: inline-block;
 			height: 25px;
 			width: 25px;
 			vertical-align: middle;
-			margin-left: 10px;
+			margin-left: 16px;
 			background-size: 100% 100%;
 			background-repeat: no-repeat;
+			background-image: url(../../../static/images/icon_unpaied.png)
+		}
+		.orderStateImg_received {
+			display: inline-block;
+			height: 25px;
+			width: 25px;
+			vertical-align: middle;
+			margin-left: 16px;
+			background-size: 100% 100%;
+			background-repeat: no-repeat;
+			background-image: url(../../../static/images/icon_received.png)
+		}
+		.orderStateImg_waitForReceived {
+			display: inline-block;
+			height: 25px;
+			width: 25px;
+			vertical-align: middle;
+			margin-left: 16px;
+			background-size: 100% 100%;
+			background-repeat: no-repeat;
+			background-image: url(../../../static/images/icon_waitForReceived.png)
 		}
 		#orderStateText {
 			display: inline-block;
-			margin-left: 6px;
+			margin-left: 10px;
 		}
 	}
 	
 	.orderAddress {
-		height: 78px;
+		height: 68px;
 		width: 100%;
 		font-size: 13px;
 		color: #666;
@@ -355,6 +422,10 @@
 			background-image: url(../../../static/images/icon_location.png);
 			background-size: 100% 100%;
 			background-repeat: no-repeat;
+		}
+		.noaddress {
+			margin: 14px 0px auto 10px;
+			width: 90%;
 		}
 		.addressInfo {
 			margin: auto 0px auto 10px;
@@ -374,7 +445,7 @@
 			display: flex;
 			justify-content: space-between;
 			font-size: 14px;
-			padding: 6px 10px 6px 6px;
+			padding: 6px 10px 6px 16px;
 			#orderGoods-StoreName {
 				color: #333333;
 			}
@@ -385,7 +456,7 @@
 		.middleView {
 			height: 66px;
 			display: flex;
-			padding-left: 10px;
+			padding-left: 16px;
 			background-color: #f7f7f7;
 			.goodsImg {
 				display: inline-block;
@@ -399,7 +470,7 @@
 				text-align: left;
 				margin-left: 20px;
 				margin-top: 10px;
-				width: 60%;
+				width: 57%;
 				.goodsName {
 					white-space: nowrap;
 					overflow: hidden;
@@ -437,7 +508,7 @@
 			color: #999999;
 			font-size: 12px;
 			height: 16px;
-			padding: 6px;
+			padding: 6px 16px;
 		}
 		.sepertLine {
 			height: 2px;
@@ -450,7 +521,7 @@
 			color: red;
 			font-size: 14px;
 			height: 25px;
-			padding: 6px;
+			padding: 6px 16px;
 		}
 	}
 	
@@ -462,8 +533,8 @@
 			display: block;
 			color: #999999;
 			font-size: 12px;
-			height: 12px;
-			padding: 4px 6px;
+			height: 15px;
+			padding: 6px 16px;
 		}
 	}
 	
@@ -485,11 +556,11 @@
 			color: #999999;
 			.left-opertion {
 				display: flex;
-				padding: 6px;
+				padding: 6px 16px;
 				.orderOpertion-phoneImg {
-					width: 20px;
-					height: 20px;
-					margin-top: 8px;
+					width: 16px;
+					height: 16px;
+					margin-top: 12px;
 					background-size: 100% 100%;
 					background-repeat: no-repeat;
 					background-image: url(../../../static/images/icon_callup.png);
@@ -507,6 +578,7 @@
 				font-size: 12px;
 				text-align: center;
 				justify-content: flex-end;
+				margin-right: 10px;
 				.cancelOrderBtn {
 					padding-top: 8px;
 					margin: 8px 8px;
