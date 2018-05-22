@@ -253,10 +253,10 @@ export default {
         .number{
           color: #fff;
           font-size: .22rem;
-          width: .4rem;
-          height: .4rem;
-          border-radius: .24rem;
-          line-height: .4rem;
+          width: .34rem;
+          height: .34rem;
+          border-radius: .2rem;
+          line-height: .34rem;
           text-align: center;
           box-sizing: border-box;
           position: absolute;

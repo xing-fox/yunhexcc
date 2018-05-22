@@ -67,6 +67,11 @@ export default {
         'openid': this.openId
       }).then(res => {
         this.init()
+        setTimeout(() => {
+          wx.navigateBack({
+            delta: 1
+          })
+        }, 1000)
       })
     },
     deleteFunc (index, id) {

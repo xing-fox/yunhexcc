@@ -2,7 +2,7 @@
 <div class="page">
   <div class="page__bd page__bd_spacing">
     <div class="newProduct" v-for="(item, index) in dataList" :key="index" @click="changeDetails(item.product_id)">
-      <img :src="item.new_picture">
+      <img :src="item.new_picture" mode="widthFix">
       <div class="proInduce">{{ item.new_name }}</div>
     </div>
     <templeList :data="newData"></templeList>
@@ -49,21 +49,34 @@ export default {
   },
   onLoad () {
     let self = this
-    wx.getStorage({
-      key: 'openId',
+    wx.login({
       success: function(res) {
-        self.openId = res.data
-        self.$http.Allproduct({
-          data: JSON.stringify({
-            pag_no: 1,
-            pag_num: 5
-          }),
-          'openid': self.openId
-        }).then(res => {
-          self.dataList = res.data.content.data
-        })
-        self.allProduct()
-      } 
+        if (res.code) {
+          self.$http.Xcclogin({
+            'code': res.code
+          }).then(res => {
+            wx.setStorage({
+              key: 'openId',
+              data: res.data.content.openid
+            })
+            wx.setStorage({
+              key: 'phoneRegister',
+              data: res.data.content.phone_register
+            })
+            self.openId = res.data.content.openid
+            self.$http.Allproduct({
+              data: JSON.stringify({
+                pag_no: 1,
+                pag_num: 5
+              }),
+              'openid': self.openId
+            }).then(res => {
+              self.dataList = res.data.content.data
+            })
+            self.allProduct()
+          })
+        }
+      }
     })
   },
   onReachBottom () {

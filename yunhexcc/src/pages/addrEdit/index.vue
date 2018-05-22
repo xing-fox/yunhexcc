@@ -10,11 +10,11 @@
         <input type="tel" v-model="dataPhone">
       </div>
       <picker mode="region" :value="region" @change="CityChange">
-        <div class="area bor-1px-b">
-            <label for="name">所在区域</label>
-            <span class="areaAddr">{{ region }}</span>
-            <span class="areaChoise">请选择</span>
-        </div>
+      <div class="area bor-1px-b">
+          <label for="name">所在区域</label>
+          <span class="areaAddr">{{ region }}</span>
+          <span class="areaChoise">请选择</span>
+      </div>
       </picker>
       <div class="ditailAddr">
         <textarea placeholder="请填写详细地址，不少于5个字" v-model="dataArea"></textarea>
@@ -32,7 +32,7 @@ export default {
     return {
       openId: '',
       listIndex: '',
-      region: '',
+      region: '暂时只支持浙江省嘉兴市嘉善区',
       dataList: Object,
       dataName: '',
       dataPhone: '',

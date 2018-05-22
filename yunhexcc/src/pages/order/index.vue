@@ -10,7 +10,7 @@
 		</div>
 		<div class="content-list">
 			<scroll-view class="content-scroller" scroll-y style='width: 100%'>
-				<div v-for="(content, index) in urlData" :key="index" class="content-item" @click='contentClick' track-by="$numb">
+				<div v-for="(content, index) in urlData" :key="index" class="content-item" track-by="$numb">
 					<view class='topView'>
 						<view class='storeName'>{{content.shop_name}}</view>
 						<view class='startDate' v-if="content.pay_way == 0">在线支付</view>

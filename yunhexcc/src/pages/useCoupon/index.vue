@@ -121,7 +121,6 @@ page{
           .price {
             color: #e2330b;
             font-size: .36rem;
-            width: 1.5rem;
             height: 1.12rem;
             line-height: 1.12rem;
             span {
