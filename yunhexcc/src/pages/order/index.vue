@@ -13,8 +13,8 @@
 				<div v-for="(content, index) in urlData" :key="index" class="content-item" @click='contentClick' track-by="$numb">
 					<view class='topView'>
 						<view class='storeName'>{{content.shop_name}}</view>
-						<view class='startDate' v-if = "content.pay_way == 0">在线支付</view>
-						<view class='startDate' v-if = "content.pay_way == 1">货到付款</view>
+						<view class='startDate' v-if="content.pay_way == 0">在线支付</view>
+						<view class='startDate' v-if="content.pay_way == 1">货到付款</view>
 					</view>
 					<div class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' :key="subIndex" @click='orderClick(content.order_no,content.order_type)'>
 						<img class='goodsImg' :src="goodsData.picture_url" />
@@ -127,9 +127,15 @@
 					})
 			},
 			/* 跳转订单详情页 */
-			orderClick(orderNumb,orderType) {
+			orderClick(orderNumb, orderType) {
 				console.log(orderType);
-				if(orderType !=2){
+				if(orderType != 2) {
+					wx.showToast({
+						title: "该订单不可查看",
+						icon: "none",
+						duration: 1000,
+						mask: false
+					});
 					return
 				}
 				wx.navigateTo({
@@ -139,17 +145,17 @@
 			/* 订单支付 */
 			payClick(orderNumb, type) {
 				let self = this
-				console.log(self.openId+"+"+orderNumb+"+"+type)
+				console.log(self.openId + "+" + orderNumb + "+" + type)
 				this.$http
 					.OrderOrderPay({
 						openid: self.openId,
-						data:JSON.stringify({
+						data: JSON.stringify({
 							order_no: orderNumb,
 							type: type
 						})
 					})
 					.then(res => {
-						console.log("调起订单"+JSON.stringify(res));
+						console.log("调起订单" + JSON.stringify(res));
 						if(res.data.code == "E00000") {
 							var data = res.data.content;
 							wx.requestPayment({
@@ -159,7 +165,7 @@
 								signType: "MD5",
 								paySign: data.sign,
 								success: function(res) {
-									console.log("支付状态"+res)
+									console.log("支付状态" + res)
 									wx.showToast({
 										title: "支付成功",
 										icon: "none",
@@ -192,22 +198,34 @@
 			},
 			/* 取消订单 */
 			cancelClick(orderNumb, orderIndex) {
-				this.$http
-					.CancelOrder({
-						openid: this.openId,
-						order_no: orderNumb
-					})
-					.then(res => {
-						if(res.data.code == "E00000") {
-							this.urlData.splice(orderIndex, 1);
-							wx.showToast({
-								title: "取消订单成功",
-								icon: "none",
-								duration: 1000,
-								mask: false
-							});
+				let self = this;
+				wx.showModal({
+					title: '小猿提示',
+					content: '确定取消订单吗?',
+					success: function(res) {
+						if(res.confirm) {
+							self.$http
+								.CancelOrder({
+									openid: self.openId,
+									order_no: orderNumb
+								})
+								.then(res => {
+									if(res.data.code == "E00000") {
+										self.urlData.splice(orderIndex, 1);
+										wx.showToast({
+											title: "取消订单成功",
+											icon: "none",
+											duration: 1000,
+											mask: false
+										});
+									}
+								});
+						} else if(res.cancel) {
+							return false
 						}
-					});
+					}
+				})
+
 			},
 			/* 提醒发货 */
 			remindOrderClick(orderNumb) {

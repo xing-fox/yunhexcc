@@ -147,5 +147,9 @@ export default {
     customerInfo (params) {
     	return request('/yunhe/wechat/customer/customerinfo', params)
 
-    }
+    },
+    /*优惠券期是否过期*/
+    couponAvaliable (params) {
+    	return request('/yunhe/wechat/order/couponAvaliable', params)
+    },
 }
