@@ -21,7 +21,7 @@ export default {
     pages: ['^pages/index/main', 'pages/details/main'],
     window: {
       backgroundTextStyle: 'light',
-      navigationBarBackgroundColor: '#fff',
+      navigationBarBackgroundColor: '#ffda44',
       navigationBarTitleText: '潮机店猿',
       navigationBarTextStyle: 'black'
     },

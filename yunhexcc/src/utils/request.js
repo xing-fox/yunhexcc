@@ -146,6 +146,5 @@ export default {
     /*我的页面*/
     customerInfo (params) {
     	return request('https://www.xclerk.com/yunhe/wechat/customer/customerinfo', params)
-
     }
 }

@@ -291,7 +291,7 @@ export default {
         }
       }
       .submit{
-        color: #fff;
+        color: #222;
         font-size: .32rem;
         width: 100%;
         height: 1rem;

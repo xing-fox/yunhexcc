@@ -2,8 +2,8 @@
   <div class="page">
     <div class="pageIndex">
       <ul>
-        <li v-for="(item, index) in addrList" :key="index">
-          <div class="choise" @click="choiseFunc(index, item.address_id)">
+        <li v-for="(item, index) in addrList" :class="{active: fromId == 1}" :key="index">
+          <div v-if="fromId != 1" class="choise" @click="choiseFunc(index, item.address_id)">
             <i v-if="listFlag == index" class="icon_select"></i>
             <i v-else class="icon_unselect"></i>
           </div>
@@ -20,7 +20,7 @@
         <Nocoupon></Nocoupon>
       </div>
       <div class="addManager" @click="managerFunc">
-        <span>管理</span>
+        <span>管理地址</span>
       </div>
     </div>
   </div>
@@ -31,9 +31,10 @@ import Nocoupon from '@/components/noCoupon'
 export default {
   data () {
     return {
+      fromId: 0,
       openId: '',
       noData: '',
-      listFlag: 0,
+      listFlag: -1,
       addrList: []
     }
   },
@@ -57,6 +58,9 @@ export default {
         delta: 1
       })
     }
+  },
+  onLoad (options) {
+    this.fromId = options.from
   },
   onShow () {
     let self = this
@@ -140,6 +144,9 @@ export default {
           }
         }
       }
+      &.active{
+        padding: .2rem 0 .2rem .3rem;
+      }
     }
   }
   ul{
@@ -159,7 +166,7 @@ export default {
     overflow: hidden;
   }
   .addManager{
-    color: #fff;
+    color: #222;
     font-size: .32rem;
     width: 100%;
     height: 1.1rem;

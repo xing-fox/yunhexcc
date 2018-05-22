@@ -9,10 +9,10 @@
       </div>
     </div>
     <ul class="tabList">
-      <!-- <li @click="goToShopCart">
-        <div class="count">0</div>
+      <li @click="goToShopCart">
+        <div class="count">{{dataList.cart_total}}</div>
         <div class="type">购物车</div>
-      </li> -->
+      </li>
       <li>
         <div class="count">{{dataList.collection_total}}</div>
         <div class="type">收藏单</div>
@@ -56,6 +56,10 @@
           <p>退货售后</p>
         </li>
       </ul>
+    </div>
+    <div class="coupon" @click="addressFunc">
+      <span>收货地址</span>
+      <i class="icon_right"></i> 
     </div>
     <div class="coupon bor-1px-b" @click="counponFunc">
       <span>我的优惠券</span>
@@ -103,6 +107,11 @@ export default {
     })
   },
   methods: {
+    addressFunc () {
+      wx.navigateTo({
+    		url:'/pages/address/main?from=1'
+    	})
+    },
     counponFunc () {
       wx.navigateTo({
         url: '/pages/coupon/main'

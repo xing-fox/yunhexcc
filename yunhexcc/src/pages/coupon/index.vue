@@ -205,7 +205,6 @@ export default {
           .price {
             color: #e2330b;
             font-size: .3rem;
-            width: 1.7rem;
             height: 1.12rem;
             line-height: 1.12rem;
             span {
@@ -214,12 +213,12 @@ export default {
             }
           }
           .priceFont {
-            font-size: 0.6rem !important;
+            font-size: .6rem !important;
           }
           .intro {
             font-size: 0.26rem;
             color: #954f1c;
-            margin: 0.22rem 0 0 0.1rem;
+            margin: .22rem 0 0 .2rem;
           }
         }
         .list_time {

@@ -36,7 +36,7 @@ export default {
       this.$http.CJJX({
         data: JSON.stringify({
           pag_no: this.pag_no,
-          pag_num: 5
+          pag_num: 6
         }),
         'openid': this.openId
       }).then(res => {

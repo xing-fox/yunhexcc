@@ -28,7 +28,7 @@
         <Nocoupon></Nocoupon>
       </div>
       <div class="addManager" @click="addFunc">
-        <span>添加</span>
+        <span>新增收货地址</span>
       </div>
     </div>
   </div>
@@ -214,7 +214,7 @@ export default {
     overflow: hidden;
   }
   .addManager{
-    color: #fff;
+    color: #222;
     font-size: .32rem;
     width: 100%;
     height: 1.1rem;

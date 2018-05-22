@@ -132,7 +132,7 @@ export default {
           }, 1000)
         } else {
           wx.showToast({
-            title: '绑定失败!',
+            title: res.data.msg,
             icon: 'none',
             duration: 2000,
             mask: true
@@ -303,7 +303,7 @@ export default {
       }
     }
     .commit{
-      color: #fff;
+      color: #222;
       font-size: .3rem;
       width: 6.7rem;
       height: .9rem;

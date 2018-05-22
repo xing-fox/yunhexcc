@@ -8,12 +8,12 @@
       </div>
     </swiper>
     <div class="proIntro">
-      <div class="price">¥{{ dataList.price_new }}<span>¥{{ dataList.price_old }}</span></div>
+      <div class="price">¥{{ dataList.price_new }}<span v-if="dataList.price_new != dataList.price_old">¥{{ dataList.price_old }}</span></div>
       <div class="title">{{ dataList.product_name }}</div>
     </div>
     <div class="protab">
         <div class='singleList bor-1px-b' @click="changeSpecFunc">
-          <span class='title'>发送</span>
+          <span class='title'>已选</span>
           <span><span v-if="dataList.color">{{ dataList.color }} </span><span v-if="dataList.memory_capacity">{{ dataList.memory_capacity }} </span><span v-if="dataList.supplier_desc">{{ dataList.supplier_desc }} </span><span v-if="dataList.contract_name">{{ dataList.contract_name }}</span></span>
           <div class='arrow_right'></div>
         </div>
@@ -47,10 +47,10 @@
       </div>
     </div>
     <div class="proBuy">
-      <!-- <div class="star bor-1px-t"></div>
+      <!-- <div class="star bor-1px-t"></div> -->
       <div class="shoppingCart bor-1px-t" @click="shopCartFunc">
         <span>加入购物车</span>
-      </div> -->
+      </div>
       <div class="buyNow" @click="changeSpecFunc">
         <span>立即购买</span>
       </div>
@@ -123,6 +123,7 @@ export default {
     setMeal
   },
   methods: {
+    shopCartFunc () {},
     Selectparameter () {
       this.$http.Selectparameter({
         data: JSON.stringify({
@@ -347,7 +348,7 @@ export default {
     color: #333;
   }
   .proBuy .buyNow{
-    color: #fff;
+    color: #222;
     background: #ffda44;
   }
   .proGraphic{
