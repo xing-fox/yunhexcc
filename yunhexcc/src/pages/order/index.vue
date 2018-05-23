@@ -31,7 +31,7 @@
 						<view class='totalPrice'>
 							{{content.data7}}
 							<span class="goodTotalNumb">
-								共{{content.goodsInfo.length}}件商品 合计： 
+								共{{content.totalCount}}件商品 合计： 
 							</span>
 							<span class='goodsTotalPrice'>¥ {{content.pay_amount}}</span>
 							<span class="goodsYunfei">
@@ -113,7 +113,7 @@
 					})
 					.then(res => {
 						this.loadEndMore = false
-						console.log("订单数据成功")
+						console.log("订单数据成功"+ JSON.stringify(res.data.content.orderinfo))
 						if(res.data.code == "E00000") {
 							if(self.pag_no == 1) {
 								self.urlData = res.data.content.orderinfo
@@ -123,6 +123,13 @@
 							if(self.urlData.length < 10) {
 								self.loadEndMore = true
 							}
+							/* 商品数量计算 */
+							self.urlData.map((item)=>{
+								item.totalCount = 0
+								item.goodsInfo.map((items) => {
+									item.totalCount += parseInt(items.product_number) 
+								})
+							})
 						}
 					})
 			},
