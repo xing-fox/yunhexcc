@@ -288,13 +288,14 @@
 								})
 								.then(res => {
 									if(res.data.code == "E00000") {
-										self.urlData.splice(orderIndex, 1);
+										wx.navigateBack();
 										wx.showToast({
 											title: "取消订单成功",
 											icon: "none",
 											duration: 1000,
 											mask: false
 										});
+										
 									}
 								});
 						} else if(res.cancel) {
