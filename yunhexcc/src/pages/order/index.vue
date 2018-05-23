@@ -113,7 +113,7 @@
 					})
 					.then(res => {
 						this.loadEndMore = false
-						console.log("订单数据成功"+ JSON.stringify(res.data.content.orderinfo))
+						console.log("订单数据成功" + JSON.stringify(res.data.content.orderinfo))
 						if(res.data.code == "E00000") {
 							if(self.pag_no == 1) {
 								self.urlData = res.data.content.orderinfo
@@ -124,10 +124,10 @@
 								self.loadEndMore = true
 							}
 							/* 商品数量计算 */
-							self.urlData.map((item)=>{
+							self.urlData.map((item) => {
 								item.totalCount = 0
 								item.goodsInfo.map((items) => {
-									item.totalCount += parseInt(items.product_number) 
+									item.totalCount += parseInt(items.product_number)
 								})
 							})
 						}
@@ -295,6 +295,9 @@
 				key: "openId",
 				success: function(res) {
 					self.openId = res.data
+					self.urlData = []
+					self.pag_no = 1
+					self.loadEndMore = false
 					self.orderMyOrder(self.selectTab)
 				}
 			})
