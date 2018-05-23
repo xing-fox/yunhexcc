@@ -1,32 +1,32 @@
 <template>
   <div class="pages">
-    <scroll-view scroll-y bindscroll="scroll" class="scrollList">
+    <scroll-view v-show="!noData" scroll-y class="scrollList">
       <div class="proList" v-for="(item, index) in testShopName" :key="index">
         <div class="shopName">
           <i :class="{unselect: !item.flag,select: item.flag}" @click="allSelect(index)"></i>
-          <span>{{ item.name }}</span>
+          <span>{{ item.shop_name }}</span>
         </div>
-        <div class="shopProduct bor-1px-t" v-for="(items, indexList) in item.list" :key="indexList">
+        <div class="shopProduct bor-1px-t" v-for="(items, indexList) in item.goodsPOList" :key="indexList">
           <i :class="{unselect: !items.flag,select: items.flag}" @click="singleSelect(index, indexList)"></i>
           <div class="productIntro">
             <div class="proImg">
-              <img :src="items.img">
+              <img :src="items.picture_url" mode="widthFix">
             </div>
             <div class="proIntro">
-              <div class="name">{{ items.proName }}</div>
-              <div class="price">¥{{ items.price }}</div>
+              <div class="name">{{ items.product_name }}</div>
+              <div class="price">¥{{ items.product_price }}</div>
               <div class="proNum">
-                <i class="icon_minus"></i>
-                <span class="count">{{ items.num }}</span>
-                <i class="icon_plus"></i>
+                <i class="icon_minus" @click="changeNumFunc(items.cart_id, -1, index, indexList)"></i>
+                <span class="count">{{ items.product_number }}</span>
+                <i class="icon_plus" @click="changeNumFunc(items.cart_id, 1, index, indexList)"></i>
               </div>
-              <div class="delete" @click="delFunc(index, indexList)"></div>
+              <div class="delete" @click="delFunc(index, indexList, items.cart_id)"></div>
             </div>
           </div>
         </div>
       </div>
     </scroll-view>
-    <div class="payMoney">
+    <div class="payMoney" v-show="!noData">
       <div class="selectAll bor-1px-t">
         <i :class="{unselect: !totalFlag, select: totalFlag}" @click="totalSelect"></i>
         <span>全选</span>
@@ -34,98 +34,91 @@
       <div class="payAll bor-1px-t">
         需支付：<span>¥{{ totalMoney }}</span>
       </div>
-      <div class="payBut">
+      <div class="payBut" @click="submitCart">
         <span>结算</span>
       </div>
+    </div>
+    <div class="noData" v-show="noData">
+      <Nocoupon></Nocoupon>
     </div>
   </div>
 </template>
 
 <script>
+import Nocoupon from '@/components/noCoupon'
 export default {
   data () {
     return {
-      testShopName: [{
-        name: '百联中环店',
-        flag: false,
-        list: [{
-          img: 'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
-          proName: 'Iphone7 plusIphone7 plusIphone7 plusIphone7 plus',
-          price: 20.05,
-          flag: false,
-          num: 10
-        },{
-          img: 'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
-          proName: 'Iphone8 plus',
-          price: 9688,
-          flag: false,
-          num: 2
-        }]
-      },{
-        name: '百联中环店',
-        flag: false,
-        list: [{
-          img: 'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
-          proName: 'Iphone7 plusIphone7 plusIphone7 plusIphone7 plus',
-          price: 20.05,
-          flag: false,
-          num: 10
-        },{
-          img: 'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
-          proName: 'Iphone8 plus',
-          price: 9688,
-          flag: false,
-          num: 2
-        }]
-      },{
-        name: '百联中环店',
-        flag: false,
-        list: [{
-          img: 'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
-          proName: 'Iphone7 plusIphone7 plusIphone7 plusIphone7 plus',
-          price: 20.05,
-          flag: false,
-          num: 10
-        },{
-          img: 'http://img02.tooopen.com/images/20150928/tooopen_sy_143912755726.jpg',
-          proName: 'Iphone8 plus',
-          price: 9688,
-          flag: false,
-          num: 2
-        }]
-      }],
+      openId: '',
+      testShopName: [],
       totalFlag: false,
-      totalMoney: 0
+      totalMoney: 0,
+      noData: false
     }
   },
+  components: {
+    Nocoupon
+  },
+  onShow () {
+    this.totalMoney = 0
+    this.noData = false
+    this.totalFlag = false
+    this.testShopName = []
+    let self = this
+    wx.getStorage({
+      key: 'openId',
+      success: function(res) {
+        self.openId = res.data
+        self.init()
+      }
+    })
+  },
   methods: {
+    init () {
+      this.$http.showCart({
+        'openid': this.openId
+      }).then(res => {
+        console.log(res)
+        if (res.data.content === null) {
+          this.noData = true
+        } else {
+          res.data.content.map((item) => {
+            item.flag = false
+            item.goodsPOList.map((items) => {
+                items.flag = false
+            })
+          })
+          this.testShopName = res.data.content
+        }
+      })
+    },
     TotalMoney () {
       this.totalMoney = 0
       this.testShopName.map((item) => {
-        item.list.map((items) => {
+        item.goodsPOList.map((items) => {
           if (items.flag) {
-            this.totalMoney += items.num*parseFloat(items.price)
+            this.totalMoney += parseInt(items.product_number)*parseFloat(items.product_price)
           }
         })
       })
     },
     allSelect (index) {
       this.testShopName[index].flag = !this.testShopName[index].flag
-      this.testShopName[index].list.map((item) => {
+      this.testShopName[index].goodsPOList.map((item) => {
         item.flag = this.testShopName[index].flag
       })
       this.totalAction(index)
       this.TotalMoney()
     },
     singleSelect (index, eq) {
-      this.testShopName[index].list[eq].flag = !this.testShopName[index].list[eq].flag
+      this.testShopName[index].goodsPOList[eq].flag = !this.testShopName[index].goodsPOList[eq].flag
       let singFlag = 0
-      this.testShopName[index].list.map((item) => {
-        if (item.flag != this.testShopName[index].list[eq].flag) {
+      this.testShopName[index].goodsPOList.map((item) => {
+        if (item.flag != this.testShopName[index].goodsPOList[eq].flag) {
           singFlag = 1
         }
       }) // 同商店的商品是否状态相同
-      if (this.testShopName[index].list[eq].flag && singFlag === 0) {
+      if (this.testShopName[index].goodsPOList[eq].flag && singFlag === 0) {
         this.testShopName[index].flag = true
       } else {
         this.testShopName[index].flag = false
@@ -150,30 +143,85 @@ export default {
       this.totalFlag = !this.totalFlag
       this.testShopName.map((item) => {
         item.flag = this.totalFlag
-        item.list.map((items) => {
+        item.goodsPOList.map((items) => {
             items.flag = this.totalFlag
         })
       })
       this.TotalMoney()
     },
-    delFunc (index, eq) {
+    delFunc (index, eq, id) {
       let self = this
       wx.showModal({
         title: '小猿友情提示',
         content: '确定删除该商品吗？',
         success: function(res) {
           if (res.confirm) {
-            self.testShopName[index].list.splice(eq, 1)
-            if (!self.testShopName[index].list.length) {
-              self.testShopName.splice(index, 1)
-            }
-            self.TotalMoney()
+            self.$http.deleteGoods({
+              'cartId': id,
+              'openid': self.openId
+            }).then(res => {
+              if (res.data.code === 'E00000') {
+                wx.showToast({
+                  title: res.data.content,
+                  icon: 'none',
+                  duration: 1000,
+                  mask: true
+                })
+                self.testShopName[index].goodsPOList.splice(eq, 1)
+                if (!self.testShopName[index].goodsPOList.length) {
+                  self.testShopName.splice(index, 1)
+                }
+                self.TotalMoney()  
+              }
+            })
           } else if (res.cancel) {
             return false
           }
         }
       })
     },
+    changeNumFunc (id, type, index, indexList) {
+      if (type === -1 && parseInt(this.testShopName[index].goodsPOList[indexList].product_number) === 1) {
+        return wx.showToast({
+          title: '商品数量不能低于1',
+          icon: 'none',
+          duration: 1000,
+          mask: true
+        })
+      } else {
+        this.$http.modifyNumber({
+          'cart_id': id,
+          'type': type,
+          'openid': this.openId
+        }).then(res => {
+          if (res.data.code === 'E00000') {
+            this.testShopName[index].goodsPOList[indexList].product_number = res.data.content.product_number
+          }
+        })
+      }
+    }, // 增减商品数量
+    submitCart () {
+      let cart_ids = []
+      this.testShopName.map((item) => {
+        item.goodsPOList.map((items) => {
+          if (items.flag) {
+            cart_ids.push(items.cart_id)
+          }
+        })
+      })
+      if (cart_ids.length) {
+        wx.navigateTo({
+          url:'/pages/cartConfirm/main?cartIds='+ cart_ids.join(';')
+        })
+      } else {
+        return wx.showToast({
+          title: '请先选择商品',
+          icon: 'none',
+          duration: 1000,
+          mask: true
+        })
+      }
+    } // 提交购物车
   }
 }
 </script>
@@ -376,6 +424,19 @@ export default {
         text-align: center;
         background: #ffda44;
       }
+    }
+    .noData{
+      font-size: 0;
+      width: 100%;
+      padding: 0.4rem 0 0 0;
+      background: #fff;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1;
+      overflow: hidden;
     }
   }
 </style>

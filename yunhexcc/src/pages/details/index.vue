@@ -55,7 +55,7 @@
         <span>立即购买</span>
       </div>
     </div>
-    <setMeal v-if="setMealState" :detailId="detailId" :dataList="specData" :proList="dataList" :contId="contractSureId" @changeSpec="specFunc" @changeState="stateFunc"></setMeal>
+    <setMeal v-if="setMealState" :typeIndex="dataType" :detailId="detailId" :dataList="specData" :proList="dataList" :contId="contractSureId" @changeSpec="specFunc" @changeState="stateFunc"></setMeal>
   </div>
 </template>
 
@@ -67,6 +67,7 @@ export default {
       openId: '',
       detailId: '',
       productId: '',
+      dataType: 0, // 0购买,1购物车
       autoplay: true,
       interval: 5000,
       duration: 900,
@@ -123,7 +124,10 @@ export default {
     setMeal
   },
   methods: {
-    shopCartFunc () {},
+    shopCartFunc () {
+      this.dataType = 1
+      this.setMealState = true
+    },
     Selectparameter () {
       this.$http.Selectparameter({
         data: JSON.stringify({
@@ -141,7 +145,7 @@ export default {
     specFunc (e) {
       if (e.cate === 1) {
         this.colorId = e.id
-      } 
+      }
       if (e.cate === 2) {
         this.memoryId = e.id
       }
@@ -221,6 +225,7 @@ export default {
     	})
     },
     changeSpecFunc () {
+      this.dataType = 0
       this.setMealState = true
     },
     stateFunc () {

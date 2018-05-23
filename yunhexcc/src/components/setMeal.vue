@@ -54,6 +54,10 @@
 <script>
 export default {
   props: {
+    typeIndex: {
+      type: [Number, String],
+      default: 0
+    },
     dataList: {
       type: Object,
       default: {}
@@ -73,6 +77,7 @@ export default {
   },
   data () {
     return {
+      openId: '',
       colorIndex: 0,
       memoryIndex: 0,
       supplierIndex: 0,
@@ -84,6 +89,13 @@ export default {
     }
   },
   onLoad () {
+    let self = this
+    wx.getStorage({
+      key: 'openId',
+      success: function(res) {
+        self.openId = res.data
+      }
+    })  
     this.contractId = this.dataList.contractinfo[0].contract_id
   },
   methods: {
@@ -139,9 +151,32 @@ export default {
               url: '/pages/login/main'
             })
           } else {
-            wx.navigateTo({
-              url:'/pages/confirm/main?proNum='+ self.totalCount + '&detailId=' + self.detailId + '&contractId=' + self.contractId
-            })
+            if (self.typeIndex === 0) {
+              wx.navigateTo({
+                url:'/pages/confirm/main?proNum='+ self.totalCount + '&detailId=' + self.detailId + '&contractId=' + self.contractId
+              })
+            }
+            if (self.typeIndex === 1) {
+              self.$http.addCart({
+                data: JSON.stringify({
+                  product_detail_id: self.detailId,
+                  product_number: self.totalCount,
+                  product_price: self.proList.price_new,
+                  contract_id: self.contractId
+                }),
+                'openid': self.openId
+              }).then(res => {
+                if (res.data.code === 'E00000') {
+                  self.pageFunc()
+                  return wx.showToast({
+                    title: res.data.content,
+                    icon: 'none',
+                    duration: 1000,
+                    mask: true
+                  })
+                }
+              })
+            }
           }
         }
       })
