@@ -18,6 +18,12 @@
 	 		 待收货
 			</span>
 		</div>
+		<div class=" orderState " v-else-if="urlData.order_status == 4">
+			<i class="orderStateImg_finished" /></i>
+			<span id="orderStateText">
+	 		 订单完成
+			</span>
+		</div>
 		<div class="orderAddress ">
 			<div class="addressImg ">
 			</div>
@@ -98,8 +104,11 @@
 
 			</div>
 			<div class="needPlayPrice-view">
-				<span>
+				<span v-if="urlData.order_status == 1">
 						需付款
+					</span>
+				<span v-else="urlData.order_status != 1">
+						已付款
 					</span>
 				<span>
 						¥{{pay_amount}}
@@ -136,7 +145,10 @@
 					<view class='cancelOrderBtn' @click='remindOrderClick(urlData.order_no)'>提醒发货</view>
 				</view>
 				<view v-if="urlData.order_status == 3" class='opertionBtn'>
-					<view class='cancelOrderBtn' @click='sureOrderClick(urlData.order_no,urlData.order_type)'>确认收货</view>
+					<view class='cancelOrderBtn' @click='sureOrderClick(urlData.order_no)'>确认收货</view>
+				</view>
+				<view v-if="urlData.order_status == 4" class='opertionBtn'>
+					<view class='cancelOrderBtn' style = "border: 0px solid #FFFFFF;"></view>
 				</view>
 			</div>
 		</div>
@@ -251,7 +263,9 @@
 										duration: 2000,
 										mask: true
 									})
-									wx.navigateBack();
+									setTimeout(() => {
+										wx.navigateBack()
+									}, 1000)
 								},
 								fail: function(res) {
 									wx.showToast({
@@ -288,14 +302,18 @@
 								})
 								.then(res => {
 									if(res.data.code == "E00000") {
-										wx.navigateBack();
+
 										wx.showToast({
 											title: "取消订单成功",
 											icon: "none",
 											duration: 1000,
 											mask: false
 										});
-										
+
+										setTimeout(() => {
+											wx.navigateBack()
+										}, 1000)
+
 									}
 								});
 						} else if(res.cancel) {
@@ -325,11 +343,11 @@
 					});
 			},
 			/* 确认收货 */
-			sureOrderClick(orderNumb, type) {
-				console.log(type + "确认收货请求" + orderNumb + "订单索引" + orderIndex);
+			sureOrderClick(orderNumb) {
+				console.log(+orderNumb + "订单索引");
 				this.$http
 					.takenOrder({
-						order_type: type,
+						order_type: 2,
 						order_no: orderNumb
 					})
 					.then(res => {
@@ -340,7 +358,9 @@
 								duration: 1000,
 								mask: false
 							});
-							wx.navigateBack();
+							setTimeout(() => {
+								wx.navigateBack();
+							}, 1000)
 						}
 					});
 			},
@@ -397,6 +417,16 @@
 			background-size: 100% 100%;
 			background-repeat: no-repeat;
 			background-image: url(../../../static/images/icon_waitForReceived.png)
+		}
+		.orderStateImg_finished {
+			display: inline-block;
+			height: 25px;
+			width: 25px;
+			vertical-align: middle;
+			margin-left: 16px;
+			background-size: 100% 100%;
+			background-repeat: no-repeat;
+			background-image: url(../../../static/images/icon_finished.png)
 		}
 		#orderStateText {
 			display: inline-block;
@@ -455,7 +485,7 @@
 			}
 		}
 		.middleView {
-			height: 66px;
+			height: 80px;
 			display: flex;
 			padding-left: 16px;
 			background-color: #f7f7f7;
@@ -464,14 +494,14 @@
 				width: 46px;
 				height: 46px;
 				background-color: lightgray;
-				margin-top: 10px;
+				margin-top: 17px;
 			}
 			.goodNameInfo {
 				display: inline-block;
 				text-align: left;
 				margin-left: 20px;
 				margin-top: 10px;
-				width: 57%;
+				width: 54%;
 				.goodsName {
 					white-space: nowrap;
 					overflow: hidden;
@@ -488,7 +518,7 @@
 				display: inline-block;
 				text-align: right;
 				margin-top: 10px;
-				width: 20%;
+				width: 23%;
 				.goodsPrice {
 					font-size: 16px;
 					height: 25px;
