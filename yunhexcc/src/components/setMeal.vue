@@ -110,6 +110,7 @@ export default {
         this.supplierIndex = index
       }
       if (cate === 4) {
+        this.contractId = id
         this.contractIndex = index
       }
       this.$emit('changeSpec', {

@@ -418,7 +418,7 @@ export default {
       }
       .payBut{
         flex: 1;
-        color: #fff;
+        color: #222;
         font-size: .32rem;
         line-height: .96rem;
         text-align: center;
@@ -430,7 +430,7 @@ export default {
       width: 100%;
       padding: 0.4rem 0 0 0;
       background: #fff;
-      position: absolute;
+      position: fixed;
       top: 0;
       bottom: 0;
       left: 0;

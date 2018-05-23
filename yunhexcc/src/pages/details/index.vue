@@ -48,7 +48,7 @@
     </div>
     <div class="proBuy">
       <!-- <div class="star bor-1px-t"></div> -->
-      <div class="shoppingCart bor-1px-t" @click="shopCartFunc">
+      <div class="shoppingCart" @click="shopCartFunc">
         <span>加入购物车</span>
       </div>
       <div class="buyNow" @click="changeSpecFunc">
@@ -350,7 +350,8 @@ export default {
     text-align: center;
   }
   .proBuy .shoppingCart{
-    color: #333;
+    color: #fff;
+    background: #333;
   }
   .proBuy .buyNow{
     color: #222;
