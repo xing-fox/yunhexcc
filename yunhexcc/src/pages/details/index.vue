@@ -95,7 +95,7 @@ export default {
     })
   },
   onShow () {
-    [this.colorId, this.memoryId, this.supplierId, this.contractId, this.contractSureId, this.setMealState, this.activeFlag] = ['', '', '', '', '', false, true]
+    [this.colorId, this.memoryId, this.supplierId, this.contractId, this.contractSureId, this.setMealState, this.activeFlag, this.dataList, this.urlData] = ['', '', '', '', '', false, true, [], []]
     let self = this
     wx.getStorage({
       key: 'openId',
@@ -344,7 +344,7 @@ export default {
     background-position: center center;
   }
   .proBuy .shoppingCart,.proBuy .buyNow{
-    font-size: .28rem;
+    font-size: .32rem;
     flex: 1;
     -webkit-flex: 1;
     text-align: center;

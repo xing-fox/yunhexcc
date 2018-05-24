@@ -268,13 +268,13 @@ export default {
               font-size: .26rem;
               padding: 0 .36rem;
               margin: .4rem 0 0 .4rem;
-              border: 1px solid #ccc;
+              background: #eee;
               border-radius: 4px;
               height: .5rem;
               line-height: .5rem;
               &.active{
-                color: #ffda44;
-                border: 1px solid #ffda44;
+                color: #333;
+                background: #ffda44;
               }
             }
           }

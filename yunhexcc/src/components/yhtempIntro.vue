@@ -83,8 +83,4 @@ export default {
   line-height: 0.48rem;
   text-align: center;
 }
-.boxRight .boxPrice span{
-  font-size: .26rem;
-  vertical-align: middle;
-}
 </style>

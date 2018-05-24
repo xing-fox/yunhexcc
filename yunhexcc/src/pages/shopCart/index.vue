@@ -172,7 +172,10 @@ export default {
                 if (!self.testShopName[index].goodsPOList.length) {
                   self.testShopName.splice(index, 1)
                 }
-                self.TotalMoney()  
+                if (!self.testShopName.length) {
+                  self.noData = true
+                }
+                self.TotalMoney()
               }
             })
           } else if (res.cancel) {
