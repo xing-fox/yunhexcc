@@ -56,7 +56,7 @@
           </div>
           <div class="spec">
             <span>{{ item.color }} {{ item.memory_capacity }} {{ item.supplier_desc }} {{ item.contract_name }}</span>
-            <span>x1</span>
+            <span>x{{ item.product_number }}</span>
           </div>
         </div>
       </div>
@@ -134,7 +134,7 @@ export default {
       })
     },
     submitFunc () {
-      if (this.addrInfor.addressId == '') {
+      if (this.dispatchFlag == 1 && this.addrInfor.addressId == '') {
         return wx.showToast({
           title: '请填写收货地址',
           icon: 'none',
@@ -153,7 +153,6 @@ export default {
         }),
         'openid': this.openId
       }).then(res => {
-        console.log(res)
         this.order_no = res.data.content.order_no
       }).then(() => {
         if (this.payTypeFlag == 1) {
@@ -391,6 +390,7 @@ export default {
       .title{
         flex: 1;
         color: #333;
+        font-size: .3rem;
       }
       .type{
         flex: 2rem;
@@ -415,6 +415,7 @@ export default {
       .title{
         line-height: 1rem;
         display: flex;
+        font-size: .3rem;
         span{
           flex: 1;
           margin: 0 0 0 .3rem;
@@ -624,9 +625,9 @@ export default {
       }
       .submit{
         flex: 2;
-        color: #fff;
+        color: #222;
         font-size: .32rem;
-        background: #ff9008;
+        background: #ffda44;
         text-align: center;
       }
     }

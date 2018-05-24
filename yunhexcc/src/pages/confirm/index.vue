@@ -56,7 +56,7 @@
           </div>
           <div class="spec">
             <span>{{ dataList.color }} {{ dataList.memory_capacity }} {{ dataList.supplier_desc }} {{ dataList.contract_name }}</span>
-            <span>x1</span>
+            <span>x{{ proNum }}</span>
           </div>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default {
     },
     PickerChanges(e) {
       this.dispatchValue = this.dispatchType[e.mp.detail.value]
-      this.dispatchFlag = e.mp.detail.value 
+      this.dispatchFlag = e.mp.detail.value
     },
     choiseShopFunc () {
       wx.navigateTo({
@@ -136,7 +136,7 @@ export default {
       })
     },
     submitFunc () {
-      if (this.addrInfor.addressId == '') {
+      if (this.dispatchFlag == 1 && this.addrInfor.addressId == '') {
         return wx.showToast({
           title: '请填写收货地址',
           icon: 'none',
@@ -262,7 +262,7 @@ export default {
           self.couponInfor = {
             couponFlag: 0,
             couponId: self.dataList.coupon_id || '',
-            priceSum: parseFloat(self.dataList.price_sum).toFixed(1),
+            priceSum: parseFloat(self.dataList.price_sum).toFixed(2),
             couponAmount: self.dataList.coupon_amount2
           }
           self.$http.SelectCoupon({
@@ -394,6 +394,7 @@ export default {
       .title{
         flex: 1;
         color: #333;
+        font-size: .3rem;
       }
       .type{
         flex: 2rem;
@@ -418,6 +419,7 @@ export default {
       .title{
         line-height: 1rem;
         display: flex;
+        font-size: .3rem;
         span{
           flex: 1;
           margin: 0 0 0 .3rem;
@@ -627,9 +629,9 @@ export default {
       }
       .submit{
         flex: 2;
-        color: #fff;
+        color: #222;
         font-size: .32rem;
-        background: #ff9008;
+        background: #ffda44;
         text-align: center;
       }
     }
