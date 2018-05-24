@@ -184,12 +184,10 @@
 			let self = this;
 			this.orderNumb = options.orderNumb;
 			this.urlData = {};
-			console.log(options.orderNumb);
 			this.$http.OrderOrderDetail({
 				'order_no': self.orderNumb
 			}).then(res => {
 				if(res.data.code == 'E00000') {
-					//					console.log(JSON.stringify(res));
 					self.urlData = res.data.content;
 					self.serve_amount = parseFloat(res.data.content.serve_amount);
 					self.coupon_id = res.data.content.coupon_id;
@@ -210,7 +208,6 @@
 			/* 订单支付 */
 			payClick(orderNumb, type) {
 				let self = this;
-				console.log("订单信息" + orderNumb + type + this.voucher_flag);
 				if(this.voucher_flag == 1) {
 					//验证优惠券是否过期
 					this.$http.couponAvaliable({
@@ -218,7 +215,6 @@
 							coupon_id: self.coupon_id
 						})
 						.then(res => {
-							console.log("优惠券是否过期" + JSON.stringify(res));
 
 							if(res.data.code == "E00000") {} else {
 								wx.showToast({
@@ -235,7 +231,6 @@
 							}
 						});
 				}
-				console.log(self.openId + "  " + self.orderNumb)
 				//继续支付
 				this.$http
 					.OrderOrderPay({
@@ -246,7 +241,6 @@
 						})
 					})
 					.then(res => {
-						console.log("调起订单" + JSON.stringify(res));
 						if(res.data.code == "E00000") {
 							var data = res.data.content;
 							wx.requestPayment({
@@ -256,7 +250,7 @@
 								signType: "MD5",
 								paySign: data.sign,
 								success: function(res) {
-									console.log("支付状态" + res)
+								
 									wx.showToast({
 										title: "支付成功",
 										icon: "none",
@@ -325,7 +319,6 @@
 			},
 			/* 提醒发货 */
 			remindOrderClick(orderNumb) {
-				console.log("订单号" + orderNumb + "opendi" + this.openId);
 				this.$http
 					.RemindeOrderPay({
 						openid: this.openId,
@@ -344,7 +337,6 @@
 			},
 			/* 确认收货 */
 			sureOrderClick(orderNumb) {
-				console.log(+orderNumb + "订单索引");
 				this.$http
 					.takenOrder({
 						order_type: 2,
@@ -370,10 +362,8 @@
 				wx.makePhoneCall({
 					phoneNumber: numb,
 					success: function() {
-						console.log("拨打电话成功！")
 					},
 					fail: function() {
-						console.log("拨打电话失败！")
 					}
 				})
 			},

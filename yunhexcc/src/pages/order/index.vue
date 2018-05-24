@@ -93,7 +93,6 @@
 				this.pag_no = 1
 				this.loadEndMore = false
 				this.selectTab = e.target.dataset.current
-				console.log(this.selectTab)
 				this.orderMyOrder(this.selectTab)
 			},
 			/* 订单列表 */
@@ -113,7 +112,6 @@
 					})
 					.then(res => {
 						this.loadEndMore = false
-						console.log("订单数据成功" + JSON.stringify(res.data.content.orderinfo))
 						if(res.data.code == "E00000") {
 							if(self.pag_no == 1) {
 								self.urlData = res.data.content.orderinfo
@@ -135,7 +133,7 @@
 			},
 			/* 跳转订单详情页 */
 			orderClick(orderNumb, orderType) {
-				console.log(orderType);
+
 				if(orderType != 2) {
 					wx.showToast({
 						title: "该订单不可查看",
@@ -152,7 +150,7 @@
 			/* 订单支付 */
 			payClick(orderNumb, type) {
 				let self = this
-				console.log(self.openId + "+" + orderNumb + "+" + type)
+
 				this.$http
 					.OrderOrderPay({
 						openid: self.openId,
@@ -162,7 +160,7 @@
 						})
 					})
 					.then(res => {
-						console.log("调起订单" + JSON.stringify(res));
+	
 						if(res.data.code == "E00000") {
 							var data = res.data.content;
 							wx.requestPayment({
@@ -172,7 +170,7 @@
 								signType: "MD5",
 								paySign: data.sign,
 								success: function(res) {
-									console.log("支付状态" + res)
+
 									wx.showToast({
 										title: "支付成功",
 										icon: "none",
@@ -254,7 +252,7 @@
 			},
 			/* 确认收货 */
 			sureOrderClick(orderNumb, type, orderIndex) {
-				console.log(type + "确认收货请求" + orderNumb + "订单索引" + orderIndex);
+
 				this.$http
 					.takenOrder({
 						order_type: type,
