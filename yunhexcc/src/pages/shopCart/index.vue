@@ -97,10 +97,11 @@ export default {
       this.testShopName.map((item) => {
         item.goodsPOList.map((items) => {
           if (items.flag) {
-            this.totalMoney += parseInt(items.product_number)*parseFloat(items.product_price)
+            this.totalMoney += (parseInt(items.product_number)*(parseFloat(items.product_price)*100)/100)
           }
         })
       })
+      this.totalMoney = this.totalMoney.toFixed(2)
     },
     allSelect (index) {
       this.testShopName[index].flag = !this.testShopName[index].flag
@@ -199,6 +200,7 @@ export default {
         }).then(res => {
           if (res.data.code === 'E00000') {
             this.testShopName[index].goodsPOList[indexList].product_number = res.data.content.product_number
+            this.TotalMoney()
           }
         })
       }

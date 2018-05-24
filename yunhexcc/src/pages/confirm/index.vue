@@ -55,7 +55,7 @@
             <span>¥{{ dataList.product_price }}</span>
           </div>
           <div class="spec">
-            <span>{{ dataList.color }} {{ dataList.memory_capacity }} {{ dataList.supplier_desc }} {{ dataList.contract_name }}</span>
+            <span class="spec_span"><span v-if="dataList.color">{{ dataList.color }}</span><span v-if="dataList.memory_capacity"> {{ dataList.memory_capacity }}</span><span v-if="dataList.supplier_desc"> {{ dataList.supplier_desc }}</span><span v-if="dataList.contract_name"> {{ dataList.contract_name }}</span></span>
             <span>x{{ proNum }}</span>
           </div>
         </div>
@@ -313,7 +313,7 @@ export default {
           wx.getStorage({
             key: 'useCoupon',
             success: function(res) {
-              let _sum = ((parseFloat(self.couponInfor.priceSum)*100 - parseFloat(res.data.coupon_amount)*100)/100).toFixed(1)
+              let _sum = ((parseFloat(self.couponInfor.priceSum)*100 - parseFloat(res.data.coupon_amount)*100)/100).toFixed(2)
               self.couponInfor = {
                 couponFlag: 1,
                 couponId: res.data.coupon_id,
@@ -570,7 +570,7 @@ export default {
             font-size: .26rem;
             margin: .2rem 0 0 0;
             display: flex;
-            span:nth-child(1){
+            .spec_span{
               flex: 1;
             }
           }

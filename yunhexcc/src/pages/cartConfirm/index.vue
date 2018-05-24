@@ -55,7 +55,7 @@
             <span>¥{{ item.product_price }}</span>
           </div>
           <div class="spec">
-            <span>{{ item.color }} {{ item.memory_capacity }} {{ item.supplier_desc }} {{ item.contract_name }}</span>
+            <span class="spec_span"><span v-if="dataList.color">{{ dataList.color }}</span><span v-if="dataList.memory_capacity"> {{ dataList.memory_capacity }}</span><span v-if="dataList.supplier_desc"> {{ dataList.supplier_desc }}</span><span v-if="dataList.contract_name"> {{ dataList.contract_name }}</span></span>
             <span>x{{ item.product_number }}</span>
           </div>
         </div>
@@ -566,7 +566,7 @@ export default {
             font-size: .26rem;
             margin: .2rem 0 0 0;
             display: flex;
-            span:nth-child(1){
+            .spec_span:nth-child(1){
               flex: 1;
             }
           }
