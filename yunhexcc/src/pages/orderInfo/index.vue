@@ -62,7 +62,7 @@
 					<image class='goodsImg' :src="goodsData.picture_url"></image>
 					<view class='goodNameInfo'>
 						<view class='goodsName'>{{goodsData.product_name}}</view>
-						<view class='goodsPlans'>{{goodsData.color}} {{goodsData.memory_capacity}} {{goodsData.supplier_name}} {{goodsData.contract_name}}</view>
+						<view class='goodsPlans'>{{goodsData.color?goodsData.color:''}}{{goodsData.memory_capacity?goodsData.memory_capacity:''}} {{goodsData.supplier_name?goodsData.supplier_name:''}} {{goodsData.contract_name?goodsData.contract_name:''}}</view>
 					</view>
 					<view class='goodsPriceInfo'>
 						<view class='goodsPrice'>¥ {{goodsData.product_price}}</view>
