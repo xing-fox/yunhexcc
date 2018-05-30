@@ -176,7 +176,6 @@ export default {
             coupon_id: self.coupon_id
           })
           .then(res => {
-
             if (res.data.code == "E00000") {
             } else {
               wx.showToast({
@@ -522,7 +521,6 @@ page{
     }
   }
 }
-
 .orderPriceInfo {
   background: white;
   .priceInfo-TotalPrice {
@@ -547,7 +545,6 @@ page{
     padding: 6px 16px;
   }
 }
-
 .orderTimeInfo {
   margin-top: 8px;
   padding-bottom: 10px;
@@ -560,12 +557,10 @@ page{
     padding: 6px 16px;
   }
 }
-
 .spaceBottom {
   width: 100%;
   height: 200px;
 }
-
 .orderOpertion {
   height: 50px;
   width: 100%;
