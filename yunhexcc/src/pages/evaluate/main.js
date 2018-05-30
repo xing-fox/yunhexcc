@@ -6,6 +6,6 @@ app.$mount()
 
 export default {
   config: {
-    navigationBarTitleText: '潮机优选'
+    navigationBarTitleText: '评价'
   }
 }

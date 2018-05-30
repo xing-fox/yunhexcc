@@ -111,7 +111,6 @@ export default {
       this.totalAction(index)
       this.TotalMoney()
     },
-    
     singleSelect (index, eq) {
       this.testShopName[index].goodsPOList[eq].flag = !this.testShopName[index].goodsPOList[eq].flag
       let singFlag = 0

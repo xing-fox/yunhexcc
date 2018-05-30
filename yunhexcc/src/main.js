@@ -18,11 +18,11 @@ app.$mount()
 
 export default {
   config: {
-    pages: ['^pages/index/main', 'pages/details/main'],
+    pages: ['^pages/index/main', 'pages/mine/main'],
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#ffda44',
-      navigationBarTitleText: '潮机店猿',
+      navigationBarTitleText: '潮机优选',
       navigationBarTextStyle: 'black'
     },
     tabBar: {

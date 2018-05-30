@@ -135,6 +135,10 @@ export default {
     CancelOrder (params) {
     	return request('/yunhe/wechat/order/concelorder', params)
     },
+    /*删除订单*/
+    deleteorder (params) {
+    	return request('/yunhe/wechat/order/deleteorder', params)
+    },
     /*确认收货*/
     takenOrder (params) {
     	return request('/yunhe/wechat/order/ordertaken', params)
@@ -155,7 +159,7 @@ export default {
     showCart (params) {
     	return request('/yunhe/wechat/customer/showCart', params)
     },
-    /*购物车列表*/
+    /*添加购物车*/
     addCart (params) {
     	return request('/yunhe/wechat/cart/addCart', params)
     },
@@ -174,5 +178,13 @@ export default {
     /*直接购买生成订单*/
     generateOrder (params) {
     	return request('/yunhe/wechat/cart/generateOrder', params)
+    },
+    /*订单评价*/
+    evaluateorder (params) {
+    	return request('/yunhe/wechat/order/evaluateorder', params)
+    },
+    /*签到*/
+    addrecord (params) {
+    	return request('/yunhe/wechat/commonoperator/addrecord', params)
     }
 }

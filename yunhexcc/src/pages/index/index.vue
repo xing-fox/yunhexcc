@@ -19,7 +19,8 @@ export default {
       openId: '',
       newData: [],
       dataList: [],
-      dataFlag: true
+      dataFlag: true,
+      changeFlag: 0
     }
   },
   components: {
@@ -47,7 +48,8 @@ export default {
       })
     }
   },
-  onLoad () {
+  onLoad (options) {
+    this.changeFlag = options.flag || 0
     let self = this
     wx.login({
       success: function(res) {
@@ -64,25 +66,52 @@ export default {
               data: res.data.content.phone_register
             })
             self.openId = res.data.content.openid
-            self.$http.Allproduct({
-              data: JSON.stringify({
-                pag_no: 1,
-                pag_num: 5
-              }),
-              'openid': self.openId
-            }).then(res => {
-              self.dataList = res.data.content.data
-            })
-            self.allProduct()
+            if (self.changeFlag == 0) {
+              self.$http.Allproduct({
+                data: JSON.stringify({
+                  pag_no: 1,
+                  pag_num: 5
+                }),
+                'openid': self.openId
+              }).then(res => {
+                self.dataList = res.data.content.data
+              })
+              self.allProduct()
+            }
+            if (self.changeFlag == 1) {
+              wx.switchTab({
+                url: '/pages/mine/main'
+              })
+            }
           })
         }
       }
     })
   },
+  onShow () {
+    if (this.changeFlag != 0 ) {
+      this.$http.Allproduct({
+        data: JSON.stringify({
+          pag_no: 1,
+          pag_num: 5
+        }),
+        'openid': this.openId
+      }).then(res => {
+        this.dataList = res.data.content.data
+      })
+      this.allProduct()
+    }
+  },
   onReachBottom () {
     if (this.dataFlag) {
       this.pag_no++
       this.allProduct()
+    }
+  },
+  onShareAppMessage: function (res) {
+    return {
+      title: '潮机优选',
+      path: '/page/index'
     }
   }
 }

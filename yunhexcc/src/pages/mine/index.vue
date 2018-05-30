@@ -7,6 +7,9 @@
         </div>
         <open-data class="userName" type="userNickName" lang="zh_CN"></open-data>
       </div>
+      <div v-if="registerMessage" class="register" @click="registerFunc">
+        <i></i><span>{{ registerMessage }}</span>
+      </div>
     </div>
     <ul class="tabList">
       <li @click="goToShopCart">
@@ -47,19 +50,20 @@
           <p>待收货</p>
           <span v-if="dataList.order_waitreceive != '0'" class="number">{{ dataList.order_waitreceive }}</span>
         </li>
-        <!-- <li>
+        <li @click="goToOrderList(4)">
           <i class="icon icon_order4"></i>
           <p>待评价</p>
-        </li> -->
-        <li>
+          <span v-if="dataList.order_waitevaluate != '0'" class="number">{{ dataList.order_waitevaluate }}</span>
+        </li>
+        <!-- <li>
           <i class="icon icon_order5"></i>
           <p>退货售后</p>
-        </li>
+        </li> -->
       </ul>
     </div>
     <div class="coupon" @click="addressFunc">
       <span>收货地址</span>
-      <i class="icon_right"></i> 
+      <i class="icon_right"></i>
     </div>
     <div class="coupon bor-1px-b" @click="counponFunc">
       <span>我的优惠券</span>
@@ -74,7 +78,8 @@ export default {
     return {
       openId: '',
       dataList: Object,
-      userInfos: Object
+      userInfos: Object,
+      registerMessage: ''
     }
   },
   onLoad () {
@@ -99,8 +104,12 @@ export default {
           self.$http.customerInfo({
             'openid': self.openId
           }).then(res => {
-            console.log(res)
             self.dataList = res.data.content
+            if ( res.data.content.add_record_flag == '0' ) {
+              self.registerMessage = '已签'
+            } else {
+              self.registerMessage = '签到'  
+            }
           })
         }
       }
@@ -119,13 +128,37 @@ export default {
     },
     goToOrderList (index) {
     	wx.navigateTo({
-    		url:'/pages/order/main?currentIndex='+index
+    		url:'/pages/order/main?currentIndex=' + index
     	})
     },
     goToShopCart () {
       wx.navigateTo({
     		url:'/pages/shopCart/main'
     	})
+    },
+    registerFunc () {
+      if (this.dataList.add_record_flag == '0') {
+        return wx.showToast({
+          title: '您已签过到了！',
+          icon: 'none',
+          duration: 1000,
+          mask: false
+        })
+      }
+      this.$http.addrecord({
+        'openid': this.openId
+      }).then(res => {
+        if (res.data.success) {
+          this.registerMessage = '已签'
+          this.dataList.cur_bal += 10
+        }
+        wx.showToast({
+          title: res.data.msg,
+          icon: 'none',
+          duration: 1000,
+          mask: false
+        })
+      })
     }
   }
 }
@@ -178,6 +211,35 @@ export default {
         bottom: .8rem;
         left: 0;
         text-align: center;
+      }
+    }
+    .register{
+      position: absolute;
+      bottom: .5rem;
+      right: 0;
+      color: #333;
+      font-size: 0;
+      width: 1.5rem;
+      height: .8rem;
+      line-height: .8rem;
+      text-align: center;
+      border-top-left-radius: .4rem;
+      border-bottom-left-radius: .4rem;
+      background: #fff;
+      i{
+        display: inline-block;
+        width: .8rem;
+        height: .8rem;
+        background-image: url('../../../static/images/signIn.png');
+        background-size: 60% 60%;
+        background-repeat: no-repeat;
+        background-position: center center;
+        vertical-align: middle;
+      }
+      span{
+        font-size: .3rem;
+        margin: 0 0 0 -.1rem;
+        vertical-align: middle;
       }
     }
   }
