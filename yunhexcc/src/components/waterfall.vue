@@ -3,12 +3,12 @@
     <template>
       <div v-for="(item, index) of list"
         :key="index"
-        class="column-item">
-        <router-link :to="{ path: 'stroll/details', query:{'note_id': item.note_id}}">
+        class="column-item" @click="dropDetail(item.note_id)">
+        <!--<router-link :to="{ path: 'stroll/details', query:{'note_id': item.note_id}}">-->
           <div class="itemImg">
             <img :src="item.picture_url" alt="">
             <div v-if="item.video_flag == '1'" :class="{imgVedio: item.video_flag == '1'}">
-              <img src="../images/icon/play.png" alt="">
+              <img src="../../static/images/play.png" alt="">
             </div>
           </div>
           <div class='item-title boxOrent'>{{ item.note_name }}</div>
@@ -17,12 +17,12 @@
             <img class='imgSelf' :src="item.customer_picture" alt="">
             <span class='selfName'>{{ item.customer_name }}</span>
             <div class='zan'>
-              <img class='imgZan' @click.stop.prevent="zanFunc(index)" v-if="item.note_like_flag == '1'" src="../images/icon/admire.png" alt="">
-              <img class='imgZan' @click.stop.prevent="zanFunc(index)" v-else src="../images/icon/admire_1.png" alt="">
+              <img class='imgZan' @click.stop.prevent="zanFunc(index)" v-if="item.note_like_flag == '1'" src="../../static/images/admire.png" alt="">
+              <img class='imgZan' @click.stop.prevent="zanFunc(index)" v-else src="../../static/images/admire_1.png" alt="">
               <span class='selfCount'>{{ item.note_like_total }}</span>
             </div>
           </div>
-        </router-link>
+   
       </div>
     </template>
 </div>
@@ -54,6 +54,7 @@ export default {
   watch: {
     list (val) {
       setTimeout(() => {
+      	console.log(this.list)
         this.renderList()
       }, 0)
     }
@@ -105,6 +106,11 @@ export default {
       }).then(response => {
         console.log(response)
       })
+    },
+    dropDetail(noteid) {
+    	wx.navigateTo({
+    		url: "/pages/details/main?orderNumb=" + orderNumb
+    	});
     }
   }
 }

@@ -134,6 +134,8 @@ export default {
                 item.totalCount += parseInt(items.product_number);
               });
             });
+          }else if(res.data.code == 'E00011'){
+          	self.loadEndMore = true;
           }
         });
     },
