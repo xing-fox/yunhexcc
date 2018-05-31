@@ -55,6 +55,10 @@ export default {
     Selectparameter (params) {
       return request('/yunhe/wechat/good/selectparameter', params)
     },
+    /* 商品详情产品规格选择 */
+    Productdetail (params) {
+      return request('/yunhe/wechat/good/productdetail', params)
+    },
     /* 商品详情参数描述 */
     Goodsparameter (params) {
       return request('/yunhe/wechat/good/goodsparameter', params)

@@ -110,39 +110,34 @@ export default {
         })
       }
       let _imgList = this.imgUrl.length ? this.imgUrl.join(';') : ''
-      // this.productData.goodsInfo.map((item, index) => {
-        this.$http.evaluateorder({
-          data: JSON.stringify({
-            'order_no': this.orderId,
-            'product_id': this.productData.goodsInfo[0].product_id,
-            'comment_content': this.commentContent,
-            'shop_goods': this.category[0].starCount,
-            'shop_delivery': this.category[1].starCount,
-            'shop_service': this.category[2].starCount,
-            'shop_satisfaction': this.category[3].starCount,
-            'picture_url': _imgList,
-            'is_hide': this.evalFlag ? 1 : 0
-          }),
-          'openid': this.openId
-        }).then(res => {
-          if (res.data.code == "E00000") {
-            if (index == 0) {
-              wx.showToast({
-                title: '评价成功,感谢您的评价!',
-                icon: 'none',
-                duration: 1000,
-                mask: false
-              })
-            }
-           }
-        }).then(() => {
+      this.$http.evaluateorder({
+        data: JSON.stringify({
+          'order_no': this.orderId,
+          'product_id': this.productData.goodsInfo[0].product_id,
+          'comment_content': this.commentContent,
+          'shop_goods': this.category[0].starCount,
+          'shop_delivery': this.category[1].starCount,
+          'shop_service': this.category[2].starCount,
+          'shop_satisfaction': this.category[3].starCount,
+          'picture_url': _imgList,
+          'is_hide': this.evalFlag ? 1 : 0
+        }),
+        'openid': this.openId
+      }).then(res => {
+        if (res.data.code == "E00000") {
+          wx.showToast({
+            title: '评价成功,感谢您的评价!',
+            icon: 'none',
+            duration: 1000,
+            mask: false
+          })
           setTimeout(() => {
             return wx.switchTab({
               url: '/pages/mine/main'
             })
           }, 1500)
-        }) 
-      // })
+        }
+      })
     }
   },
   onLoad (options) {

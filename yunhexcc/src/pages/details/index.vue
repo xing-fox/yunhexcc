@@ -139,7 +139,10 @@ export default {
         }),
         'openid': this.openId
       }).then(res => {
-        this.specData = res.data.content
+        if (res.data.code == 'E00000') {
+          console.log(res)
+          this.specData = res.data.content
+        }
       })
     },
     specFunc (e) {
@@ -155,7 +158,7 @@ export default {
       if (e.cate === 4) {
         this.contractId = e.id
       }
-      this.$http.Selectparameter({
+      this.$http.Productdetail({
         data: JSON.stringify({
           product_id: this.productId,
           color_id: this.colorId,

@@ -61,6 +61,7 @@
         </li> -->
       </ul>
     </div>
+    <!-- <web-view src="https://test.xclerk.com/wechat_pub/stroll">跳转笔记详情</web-view> -->
     <div class="coupon" @click="addressFunc">
       <span>收货地址</span>
       <i class="icon_right"></i>

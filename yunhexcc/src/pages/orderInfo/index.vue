@@ -1,5 +1,5 @@
 <template>
-	<div class="page" style="background-color: #f7f7f7;">
+	<div class="page" style="background-color: #f7f7f7;padding:0 0 3rem 0;">
 		<div class=" orderState " v-if="urlData.order_status == 1">
 			<i class="orderStateImg_unpaied" />
 			<span id="orderStateText">等待付款</span>
@@ -15,6 +15,10 @@
 		<div class=" orderState " v-else-if="urlData.order_status == 4">
 			<i class="orderStateImg_finished" />
 			<span id="orderStateText">交易成功</span>
+		</div>
+    <div class=" orderState " v-else-if="urlData.order_status == 5">
+			<i class="orderStateImg_finished" />
+			<span id="orderStateText">评价完成</span>
 		</div>
 		<div class="orderAddress ">
 			<div class="addressImg ">
