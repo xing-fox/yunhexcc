@@ -57,7 +57,7 @@ export default {
         },{
           title: '店铺满意度',
           starCount: 0
-        },
+        }
       ],
       imgUrl: [],
       evalFlag: true,
@@ -110,11 +110,11 @@ export default {
         })
       }
       let _imgList = this.imgUrl.length ? this.imgUrl.join(';') : ''
-      this.productData.goodsInfo.map((item, index) => {
+      // this.productData.goodsInfo.map((item, index) => {
         this.$http.evaluateorder({
           data: JSON.stringify({
             'order_no': this.orderId,
-            'product_id': item.product_id,
+            'product_id': this.productData.goodsInfo[0].product_id,
             'comment_content': this.commentContent,
             'shop_goods': this.category[0].starCount,
             'shop_delivery': this.category[1].starCount,
@@ -142,10 +142,32 @@ export default {
             })
           }, 1500)
         }) 
-      })
+      // })
     }
   },
   onLoad (options) {
+    this.category = [
+      {
+        title: '商品描述',
+        starCount: 0
+      },{
+        title: '配送速度',
+        starCount: 0
+      },{
+        title: '服务态度',
+        starCount: 0
+      },{
+        title: '店铺满意度',
+        starCount: 0
+      }
+    ],
+    this.imgUrl = []
+    this.evalFlag = true
+    this.choiseImgFlag = true
+    this.orderId = ''
+    this.productData = ''
+    this.productId = ''
+    this.commentContent = ''
     this.orderId = options.orderId
   },
   onShow () {

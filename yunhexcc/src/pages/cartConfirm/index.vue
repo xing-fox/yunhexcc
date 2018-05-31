@@ -102,7 +102,7 @@ export default {
       couponMessage: '',
       payTypeValue: '在线付款',
       payTypeFlag: 0,
-      payType: ['在线付款', '货到付款'],
+      payType: ['在线付款'],
       dispatchValue: '到店自提',
       dispatchFlag: 0,
       dispatchType: ['到店自提', '送货上门']

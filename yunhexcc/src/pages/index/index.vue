@@ -70,25 +70,29 @@ export default {
       [this.searCloseStatus, this.searchData, this.noData, this.searchVal] = [false, [], true, '']
     },
     changeFunc: _.debounce(function (e) {
-      this.$http.searchgoods({
-        data: JSON.stringify({
-          search_content: this.searchVal
-        }),
-        'openid': this.openId
-      }).then(res => {
-        console.log(res)
-        if (res.data.code == 'E00000') {
-          this.noData = false
-          this.searchData = res.data.content
-        } else {
-          [this.noData, this.searchData] = [true, []]
-          return wx.showToast({
-            title: res.data.msg,
-            icon: 'none',
-            duration: 1000
-          })
-        }
-      })
+      if (this.searchVal == '') {
+        return false
+      } else {
+        this.$http.searchgoods({
+          data: JSON.stringify({
+            search_content: this.searchVal
+          }),
+          'openid': this.openId
+        }).then(res => {
+          console.log(res)
+          if (res.data.code == 'E00000') {
+            this.noData = false
+            this.searchData = res.data.content
+          } else {
+            [this.noData, this.searchData] = [true, []]
+            return wx.showToast({
+              title: res.data.msg,
+              icon: 'none',
+              duration: 1000
+            })
+          }
+        })
+      }
     }, 500)
   },
   onLoad (options) {
