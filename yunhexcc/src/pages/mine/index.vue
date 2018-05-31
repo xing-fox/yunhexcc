@@ -25,7 +25,7 @@
 				<div class="type">点赞数</div>
 			</li>
 			<li>
-				<div class="count">{{ dataList.cur_bal }}</div>
+				<div class="count" :class="{'animated': countAni, 'pulse': countAni}">{{ dataList.cur_bal }}</div>
 				<div class="type">猿币数</div>
 			</li>
 		</ul>
@@ -69,11 +69,57 @@
 			<span>我的优惠券</span>
 			<i class="icon_right"></i>
 		</div>
-		<div class="options" v-if="dataList.notePOList">
-			<div class="notelist_left">
-
+		<div class="recomment_note" v-if="dataList.notePOList">
+			<div class=" title_note">
+				<i></i>
+				<span>为你推荐</span>
 			</div>
-			<div class="notelist_right">
+			<div class="content_note">
+
+				<div class="notelist_left">
+
+					<div class="note_left" v-for="(item ,index) in dataList.notePOList" :key="index" v-if="index%2 == 0">
+						<div class="itemImg">
+							<img :src="item.picture_url" alt="">
+							<div v-if="item.video_flag == '1'" :class="{imgVedio: item.video_flag == '1'}">
+								<img src="../../../static/images/play.png" alt="">
+							</div>
+						</div>
+						<div class='item-title boxOrent'>{{ item.note_name }}</div>
+						<div class='item-content boxOrent'>{{ item.note_desc }}</div>
+						<div class='item-slef'>
+							<img class='imgSelf' :src="item.customer_picture" alt="">
+							<span class='selfName'>{{ item.customer_name }}</span>
+							<div class='zan'>
+								<img class='imgZan' @click.stop.prevent="zanFunc(index)" v-if="item.note_like_flag == '1'" src="../../../static/images/admire.png" alt="">
+								<img class='imgZan' @click.stop.prevent="zanFunc(index)" v-else src="../../../static/images/admire_1.png" alt="">
+								<span class='selfCount'>{{ item.note_like_total }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="notelist_left">
+					<div class="note_left" v-for="(item ,index) in dataList.notePOList" :key="index" v-if="index%2 == 1">
+						<div class="itemImg">
+							<img :src="item.picture_url" alt="">
+							<div v-if="item.video_flag == '1'" :class="{imgVedio: item.video_flag == '1'}">
+								<img src="../../../static/images/play.png" alt="">
+							</div>
+						</div>
+						<div class='item-title boxOrent'>{{item.note_name}}</div>
+						<div class='item-content boxOrent'>{{ item.note_desc }}</div>
+						<div class='item-slef'>
+							<img class='imgSelf' :src="item.customer_picture" alt="">
+							<span class='selfName'>{{ item.customer_name }}</span>
+							<div class='zan'>
+								<img class='imgZan' @click.stop.prevent="zanFunc(index)" v-if="item.note_like_flag == '1'" src="../../../static/images/admire.png" alt="">
+								<img class='imgZan' @click.stop.prevent="zanFunc(index)" v-else src="../../../static/images/admire_1.png" alt="">
+								<span class='selfCount'>{{ item.note_like_total }}</span>
+							</div>
+						</div>
+					</div>
+				</div>
 
 			</div>
 		</div>
@@ -81,16 +127,17 @@
 </template>
 
 <script>
+	import { Base64 } from 'js-base64'
 	export default {
 		data() {
 			return {
 				openId: '',
+				countAni: false,
 				dataList: Object,
 				userInfos: Object,
 				registerMessage: ''
 			}
 		},
-
 		onLoad() {
 			let self = this
 			wx.getStorage({
@@ -114,8 +161,18 @@
 							'openid': self.openId
 						}).then(res => {
 							self.dataList = res.data.content
+							//							console.log(JSON.stringify(res.data.content))
+							res.data.content.notePOList.map((item, index) => {
+
+								let _len = item.picture_url.lastIndexOf('/') + 1
+								item.picture_url = item.picture_url.substring(0, _len) + '2x_' + item.picture_url.slice(_len)
+								item.note_name = Base64.decode(item.note_name)
+								item.note_desc = Base64.decode(item.note_desc)
+
+							})
 
 							if(res.data.content.add_record_flag == '0') {
+								self.countAni = true
 								self.registerMessage = '已签'
 							} else {
 								self.registerMessage = '签到'
@@ -160,7 +217,7 @@
 				}).then(res => {
 					if(res.data.success) {
 						this.registerMessage = '已签'
-						this.dataList.cur_bal += 10
+						this.dataList.cur_bal = parseInt(this.dataList.cur_bal) + 10
 					}
 					wx.showToast({
 						title: res.data.msg,
@@ -168,6 +225,25 @@
 						duration: 1000,
 						mask: false
 					})
+				})
+			},
+			zanFunc(arg) {
+				if(this.dataList.notePOList[arg].note_like_flag === '1') {
+					this.dataList.notePOList[arg].note_like_flag = '-1'
+					this.dataList.notePOList[arg].note_like_total = parseInt(this.dataList.notePOList[arg].note_like_total) + 1
+				} else {
+					this.dataList.notePOList[arg].note_like_flag = '1'
+					this.dataList.notePOList[arg].note_like_total = parseInt(this.dataList.notePOList[arg].note_like_total) - 1
+				}
+				let self = this
+				this.$http.zanNewNote({
+					data: JSON.stringify({
+						parameter_id: this.dataList.notePOList[arg].note_id,
+						operate: 2
+					}),
+					openid: self.openId
+				}).then(response => {
+					console.log(response)
 				})
 			}
 		}
@@ -375,19 +451,133 @@
 		}
 	}
 	
-	.options {
+	.recomment_note {
 		width: 100%;
-		padding: .2rem 0 0 0;
-		background: #f4f6fa;
-		display: -webkit-flex;
-		display: flex;
-		height: 5rem;
-		.notelist_left{
-			width: 50%;
+		background: white;
+		.title_note {
+			display: flex;
+			align-items: center;
+			padding: .25rem .2rem .05rem .2rem;
+			i {
+				width: .37rem;
+				height: .37rem;
+				background-image: url('../../../static/images/icon_note.png');
+				background-size: 90% 90%;
+				background-repeat: no-repeat;
+				background-position: center center;
+			}
+			span {
+				margin-left: .1rem;
+				color: #222;
+				font-size: .26rem;
+			}
 		}
-		.notelist_right{
-			width: 50%;
-
+		.content_note {
+			display: -webkit-flex;
+			display: flex;
+			margin: 0 .13rem;
+			.notelist_left {
+				width: 50%;
+				margin: 0 .08rem;
+				.note_left {
+					overflow: hidden;
+					box-sizing: border-box;
+					transition: all 0.3s ease;
+					border: 1px solid #ddd;
+					border-radius: .1rem;
+					margin: 0 0 0.2rem 0;
+					.itemImg {
+						width: 100%;
+						position: relative;
+						img {
+							width: 100%;
+						}
+						.imgVedio {
+							width: 100%;
+							height: 100%;
+							position: absolute;
+							top: 0;
+							bottom: 0;
+							left: 0;
+							right: 0;
+							background-color: rgba(0, 0, 0, .6);
+							img {
+								width: .9rem;
+								height: .9rem;
+								position: absolute;
+								top: 0;
+								left: 0;
+								right: 0;
+								bottom: 0;
+								margin: auto auto;
+							}
+						}
+					}
+					.item-title {
+						color: #222;
+						font-size: .28rem;
+						display: -webkit-box;
+						word-break: break-all;
+						text-overflow: ellipsis;
+						-webkit-line-clamp: 2;
+						overflow: hidden;
+						margin: .22rem .04rem .1rem .16rem;
+					}
+					.item-content {
+						color: #999;
+						font-size: .24rem;
+						line-height: .34rem;
+						display: -webkit-box;
+						word-break: break-all;
+						text-overflow: ellipsis;
+						-webkit-line-clamp: 2;
+						overflow: hidden;
+						margin: 0 .06rem .2rem .16rem;
+					}
+					.item-slef {
+						width: 100%;
+						line-height: .4rem;
+						margin: .2rem 0;
+						position: relative;
+						display: flex;
+						.imgSelf {
+							width: .4rem;
+							height: .4rem;
+							margin: 0 .08rem 0 .2rem;
+							border-radius: .2rem;
+						}
+						.zan {
+							flex: 1;
+							text-align: right;
+							margin: 0 .2rem 0 0;
+							.imgZan {
+								display: inline-block;
+								width: .3rem;
+								height: .32rem;
+								vertical-align: middle;
+							}
+							.selfCount {
+								display: inline-block;
+								color: #999;
+								font-size: .24rem;
+								margin: 0 0 0 .1rem;
+								vertical-align: middle;
+							}
+						}
+						.selfName {
+							color: #222;
+							font-size: .2rem;
+							width: 1.6rem;
+							height: .4rem;
+							display: -webkit-box;
+							word-break: break-all;
+							text-overflow: ellipsis;
+							-webkit-line-clamp: 1;
+							overflow: hidden;
+						}
+					}
+				}
+			}
 		}
 	}
 </style>

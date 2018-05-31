@@ -47,6 +47,7 @@
     "iscroll": "^5.2.0",
     "less": "^3.0.2",
     "less-loader": "^4.1.0",
+    "lodash": "^4.17.10",
     "media-typer": "^0.3.0",
     "methods": "^1.1.2",
     "mpvue-loader": "^1.0.8",
