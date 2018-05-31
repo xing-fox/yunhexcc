@@ -107,7 +107,6 @@ export default {
           }).then(res => {
             self.dataList = res.data.content
             if ( res.data.content.add_record_flag == '0' ) {
-              self.countAni = true
               self.registerMessage = '已签'
             } else {
               self.registerMessage = '签到'  
@@ -151,6 +150,7 @@ export default {
         'openid': this.openId
       }).then(res => {
         if (res.data.success) {
+          self.countAni = true
           this.registerMessage = '已签'
           this.dataList.cur_bal = parseInt(this.dataList.cur_bal) + 10
         }
