@@ -186,5 +186,9 @@ export default {
     /*签到*/
     addrecord (params) {
     	return request('/yunhe/wechat/commonoperator/addrecord', params)
+    },
+    /*搜索商品*/
+    searchgoods (params) {
+    	return request('/yunhe/wechat/search/searchgoods', params)
     }
 }

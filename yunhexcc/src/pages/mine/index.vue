@@ -25,7 +25,7 @@
         <div class="type">点赞数</div>
       </li>
       <li>
-        <div class="count">{{ dataList.cur_bal }}</div>
+        <div class="count" :class="{'animated': countAni, 'pulse': countAni}">{{ dataList.cur_bal }}</div>
         <div class="type">猿币数</div>
       </li>
     </ul>
@@ -67,7 +67,7 @@
     </div>
     <div class="coupon bor-1px-b" @click="counponFunc">
       <span>我的优惠券</span>
-      <i class="icon_right"></i> 
+      <i class="icon_right"></i>
     </div>
   </div>
 </template>
@@ -77,6 +77,7 @@ export default {
   data () {
     return {
       openId: '',
+      countAni: false,
       dataList: Object,
       userInfos: Object,
       registerMessage: ''
@@ -106,6 +107,7 @@ export default {
           }).then(res => {
             self.dataList = res.data.content
             if ( res.data.content.add_record_flag == '0' ) {
+              self.countAni = true
               self.registerMessage = '已签'
             } else {
               self.registerMessage = '签到'  
@@ -150,7 +152,7 @@ export default {
       }).then(res => {
         if (res.data.success) {
           this.registerMessage = '已签'
-          this.dataList.cur_bal += 10
+          this.dataList.cur_bal = parseInt(this.dataList.cur_bal) + 10
         }
         wx.showToast({
           title: res.data.msg,
