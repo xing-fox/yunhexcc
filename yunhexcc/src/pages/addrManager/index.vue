@@ -66,12 +66,14 @@ export default {
         }),
         'openid': this.openId
       }).then(res => {
-        this.init()
-        setTimeout(() => {
-          wx.navigateBack({
-            delta: 1
+        if (res.data.code == 'E00000') {
+          this.init()
+          wx.showToast({
+            title: '默认地址修改成功',
+            icon: 'none',
+            duration: 1000
           })
-        }, 1000)
+        }
       })
     },
     deleteFunc (index, id) {

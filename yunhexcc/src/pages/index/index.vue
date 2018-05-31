@@ -1,7 +1,7 @@
 <template>
 <div class="page">
   <div class="searchGoods">
-    <input type="text" placeholder="商品搜索" @focus="focusFunc" @input="changeFunc" v-model="searchVal" />
+    <input type="text" placeholder="搜索商品" @focus="focusFunc" @input="changeFunc" v-model="searchVal" />
     <span v-if="searCloseStatus" @click="blurFunc">取消</span>
   </div>
   <div class="page__bd page__bd_spacing newProBox" v-show="!searCloseStatus">
@@ -154,13 +154,13 @@ export default {
       this.pag_no++
       this.allProduct()
     }
-  },
-  onShareAppMessage: function (res) {
-    return {
-      title: '潮机优选',
-      path: '/page/index'
-    }
   }
+  // onShareAppMessage: function (res) {
+  //   return {
+  //     title: '潮机优选',
+  //     path: '/page/index'
+  //   }
+  // }
 }
 </script>
 
@@ -224,7 +224,7 @@ export default {
     left: 0;
     right: 0;
     z-index: 1;
-    border: 1px solid #eee;
+    border-bottom: 1px solid #eee;
     display: flex;
     input{
       flex: 1;

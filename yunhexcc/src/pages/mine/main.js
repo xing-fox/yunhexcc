@@ -7,5 +7,6 @@ app.$mount()
 export default {
   config: {
     navigationBarTitleText: '我的详情',
+    navigationBarBackgroundColor: '#ffda44'
   }
 }

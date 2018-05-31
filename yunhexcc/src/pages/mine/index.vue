@@ -69,516 +69,301 @@
 			<span>我的优惠券</span>
 			<i class="icon_right"></i>
 		</div>
-		<div class="recomment_note" v-if="dataList.notePOList">
-			<div class=" title_note">
-				<i></i>
-				<span>为你推荐</span>
-			</div>
-			<div class="content_note">
-
-				<div class="notelist_left">
-
-					<div class="note_left" v-for="(item ,index) in dataList.notePOList" :key="index" v-if="index%2 == 0">
-						<div class="itemImg">
-							<img :src="item.picture_url" alt="">
-							<div v-if="item.video_flag == '1'" :class="{imgVedio: item.video_flag == '1'}">
-								<img src="../../../static/images/play.png" alt="">
-							</div>
-						</div>
-						<div class='item-title boxOrent'>{{ item.note_name }}</div>
-						<div class='item-content boxOrent'>{{ item.note_desc }}</div>
-						<div class='item-slef'>
-							<img class='imgSelf' :src="item.customer_picture" alt="">
-							<span class='selfName'>{{ item.customer_name }}</span>
-							<div class='zan'>
-								<img class='imgZan' @click.stop.prevent="zanFunc(index)" v-if="item.note_like_flag == '1'" src="../../../static/images/admire.png" alt="">
-								<img class='imgZan' @click.stop.prevent="zanFunc(index)" v-else src="../../../static/images/admire_1.png" alt="">
-								<span class='selfCount'>{{ item.note_like_total }}</span>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="notelist_left">
-					<div class="note_left" v-for="(item ,index) in dataList.notePOList" :key="index" v-if="index%2 == 1">
-						<div class="itemImg">
-							<img :src="item.picture_url" alt="">
-							<div v-if="item.video_flag == '1'" :class="{imgVedio: item.video_flag == '1'}">
-								<img src="../../../static/images/play.png" alt="">
-							</div>
-						</div>
-						<div class='item-title boxOrent'>{{item.note_name}}</div>
-						<div class='item-content boxOrent'>{{ item.note_desc }}</div>
-						<div class='item-slef'>
-							<img class='imgSelf' :src="item.customer_picture" alt="">
-							<span class='selfName'>{{ item.customer_name }}</span>
-							<div class='zan'>
-								<img class='imgZan' @click.stop.prevent="zanFunc(index)" v-if="item.note_like_flag == '1'" src="../../../static/images/admire.png" alt="">
-								<img class='imgZan' @click.stop.prevent="zanFunc(index)" v-else src="../../../static/images/admire_1.png" alt="">
-								<span class='selfCount'>{{ item.note_like_total }}</span>
-							</div>
-						</div>
-					</div>
-				</div>
-
-			</div>
-		</div>
 	</div>
 </template>
 
 <script>
-	import { Base64 } from 'js-base64'
-	export default {
-		data() {
-			return {
-				openId: '',
-				countAni: false,
-				dataList: Object,
-				userInfos: Object,
-				registerMessage: ''
-			}
-		},
-		onLoad() {
-			let self = this
-			wx.getStorage({
-				key: 'openId',
-				success: function(res) {
-					self.openId = res.data
-				}
-			})
-		},
-		onShow() {
-			let self = this
-			wx.getStorage({
-				key: 'phoneRegister',
-				success: function(res) {
-					if(res.data === '0') {
-						wx.navigateTo({
-							url: '/pages/login/main'
-						})
-					} else {
-						self.$http.customerInfo({
-							'openid': self.openId
-						}).then(res => {
-							self.dataList = res.data.content
-							//							console.log(JSON.stringify(res.data.content))
-							res.data.content.notePOList.map((item, index) => {
-
-								let _len = item.picture_url.lastIndexOf('/') + 1
-								item.picture_url = item.picture_url.substring(0, _len) + '2x_' + item.picture_url.slice(_len)
-								item.note_name = Base64.decode(item.note_name)
-								item.note_desc = Base64.decode(item.note_desc)
-
-							})
-
-							if(res.data.content.add_record_flag == '0') {
-								self.countAni = true
-								self.registerMessage = '已签'
-							} else {
-								self.registerMessage = '签到'
-							}
-						})
-					}
-				}
-			})
-		},
-		methods: {
-			addressFunc() {
-				wx.navigateTo({
-					url: '/pages/address/main?from=1'
-				})
-			},
-			counponFunc() {
-				wx.navigateTo({
-					url: '/pages/coupon/main'
-				})
-			},
-			goToOrderList(index) {
-				wx.navigateTo({
-					url: '/pages/order/main?currentIndex=' + index
-				})
-			},
-			goToShopCart() {
-				wx.navigateTo({
-					url: '/pages/shopCart/main'
-				})
-			},
-			registerFunc() {
-				if(this.dataList.add_record_flag == '0') {
-					return wx.showToast({
-						title: '您已签过到了！',
-						icon: 'none',
-						duration: 1000,
-						mask: false
-					})
-				}
-				this.$http.addrecord({
-					'openid': this.openId
-				}).then(res => {
-					if(res.data.success) {
-						this.registerMessage = '已签'
-						this.dataList.cur_bal = parseInt(this.dataList.cur_bal) + 10
-					}
-					wx.showToast({
-						title: res.data.msg,
-						icon: 'none',
-						duration: 1000,
-						mask: false
-					})
-				})
-			},
-			zanFunc(arg) {
-				if(this.dataList.notePOList[arg].note_like_flag === '1') {
-					this.dataList.notePOList[arg].note_like_flag = '-1'
-					this.dataList.notePOList[arg].note_like_total = parseInt(this.dataList.notePOList[arg].note_like_total) + 1
-				} else {
-					this.dataList.notePOList[arg].note_like_flag = '1'
-					this.dataList.notePOList[arg].note_like_total = parseInt(this.dataList.notePOList[arg].note_like_total) - 1
-				}
-				let self = this
-				this.$http.zanNewNote({
-					data: JSON.stringify({
-						parameter_id: this.dataList.notePOList[arg].note_id,
-						operate: 2
-					}),
-					openid: self.openId
-				}).then(response => {
-					console.log(response)
-				})
-			}
-		}
-	}
-
+export default {
+  data() {
+    return {
+      openId: '',
+      countAni: false,
+      dataList: Object,
+      userInfos: Object,
+      registerMessage: ''
+    }
+  },
+  onLoad() {
+    let self = this;
+    wx.getStorage({
+      key: "openId",
+      success: function(res) {
+        self.openId = res.data
+      }
+    })
+  },
+  onShow() {
+    let self = this
+    wx.getStorage({
+      key: "phoneRegister",
+      success: function(res) {
+        if (res.data === "0") {
+          wx.navigateTo({
+            url: "/pages/login/main"
+          });
+        } else {
+          self.$http
+            .customerInfo({
+              openid: self.openId
+            })
+            .then(res => {
+              self.dataList = res.data.content
+              if (res.data.content.add_record_flag == "0") {
+                self.countAni = true
+                self.registerMessage = "已签"
+              } else {
+                self.registerMessage = "签到"
+              }
+            })
+        }
+      }
+    })
+  },
+  methods: {
+    addressFunc() {
+      wx.navigateTo({
+        url: "/pages/address/main?from=1"
+      })
+    },
+    counponFunc() {
+      wx.navigateTo({
+        url: "/pages/coupon/main"
+      })
+    },
+    goToOrderList(index) {
+      wx.navigateTo({
+        url: "/pages/order/main?currentIndex=" + index
+      })
+    },
+    goToShopCart() {
+      wx.navigateTo({
+        url: "/pages/shopCart/main"
+      })
+    },
+    registerFunc() {
+      if (this.dataList.add_record_flag == "0") {
+        return wx.showToast({
+          title: "您已签过到了！",
+          icon: "none",
+          duration: 1000,
+          mask: false
+        })
+      }
+      this.$http.addrecord({
+          openid: this.openId
+        }).then(res => {
+          if (res.data.success) {
+            this.registerMessage = "已签"
+            wx.showToast({
+              title: '签到成功，恭喜您获得10猿币!',
+              icon: "none",
+              duration: 1000,
+              mask: false
+            })
+            setTimeout(() => {
+              this.dataList.cur_bal = parseInt(this.dataList.cur_bal) + 10
+            }, 1000)
+          }
+        })
+    }
+  }
+}
 </script>
 
 <style scoped lang="less">
-	.page {
-		background: #f3f5f9;
-	}
-	
-	.header {
-		width: 100%;
-		height: 4.2rem;
-		background-image: url('http://test.xclerk.com/mrsyg/YunHaiTongProject/public_tab/image/xcc/bg.jpg');
-		background-size: 100% 100%;
-		background-repeat: no-repeat;
-		position: relative;
-		.userinfo {
-			width: 100%;
-			position: absolute;
-			top: 1rem;
-			bottom: 0;
-			left: 0;
-			right: 0;
-			margin: auto auto;
-			text-align: center;
-			.userPhoto {
-				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				margin: 0 auto;
-				width: 1.7rem;
-				height: 1.7rem;
-				border-radius: .85rem;
-				overflow: hidden;
-				box-sizing: border-box;
-				border: 2px solid #fff;
-				.userImg {
-					display: block;
-					width: 100%;
-					height: 100%;
-					box-sizing: border-box;
-				}
-			}
-			.userName {
-				color: #222;
-				font-size: .32rem;
-				width: 100%;
-				position: absolute;
-				bottom: .8rem;
-				left: 0;
-				text-align: center;
-			}
-		}
-		.register {
-			position: absolute;
-			bottom: .5rem;
-			right: 0;
-			color: #333;
-			font-size: 0;
-			width: 1.5rem;
-			height: .8rem;
-			line-height: .8rem;
-			text-align: center;
-			border-top-left-radius: .4rem;
-			border-bottom-left-radius: .4rem;
-			background: #fff;
-			i {
-				display: inline-block;
-				width: .8rem;
-				height: .8rem;
-				background-image: url('../../../static/images/signIn.png');
-				background-size: 60% 60%;
-				background-repeat: no-repeat;
-				background-position: center center;
-				vertical-align: middle;
-			}
-			span {
-				font-size: .3rem;
-				margin: 0 0 0 -.1rem;
-				vertical-align: middle;
-			}
-		}
-	}
-	
-	.tabList {
-		width: 100%;
-		height: 1.5rem;
-		background: #fff;
-		display: flex;
-		li {
-			flex: 1;
-			text-align: center;
-			.count {
-				color: #222;
-				font-size: .36rem;
-				margin: .28rem 0 0 0;
-			}
-			.type {
-				color: #999;
-				font-size: .28rem;
-			}
-		}
-	}
-	
-	.order {
-		width: 100%;
-		background: #fff;
-		margin: .24rem 0 0 0;
-		.title {
-			height: .92rem;
-			line-height: .92rem;
-			margin: 0 0 0 .3rem;
-			display: flex;
-			span {
-				flex: 1;
-				color: #222;
-				font-size: .3rem;
-			}
-			.icon_right {
-				display: inline-block;
-				width: .92rem;
-				height: .92rem;
-				background-image: url('../../../static/images/right.png');
-				background-size: 30% 30%;
-				background-repeat: no-repeat;
-				background-position: center center;
-			}
-		}
-		.orderList {
-			width: 100%;
-			display: flex;
-			li {
-				flex: 1;
-				padding: .2rem 0;
-				text-align: center;
-				position: relative;
-				.icon {
-					display: inline-block;
-					width: .5rem;
-					height: .5rem;
-					background-size: 100% 100%;
-					background-repeat: no-repeat;
-					background-position: center center;
-					&.icon_order1 {
-						background-image: url('../../../static/images/icon_order1.png');
-					}
-					&.icon_order2 {
-						background-image: url('../../../static/images/icon_order2.png');
-					}
-					&.icon_order3 {
-						background-image: url('../../../static/images/icon_order3.png');
-					}
-					&.icon_order4 {
-						background-image: url('../../../static/images/icon_order4.png');
-					}
-					&.icon_order5 {
-						background-image: url('../../../static/images/icon_order5.png');
-					}
-				}
-				p {
-					color: #222;
-					font-size: .28rem;
-				}
-				.number {
-					color: #fff;
-					font-size: .22rem;
-					width: .34rem;
-					height: .34rem;
-					border-radius: .2rem;
-					line-height: .34rem;
-					text-align: center;
-					box-sizing: border-box;
-					position: absolute;
-					top: .1rem;
-					right: .5rem;
-					background: red;
-				}
-			}
-		}
-	}
-	
-	.coupon {
-		background: #fff;
-		height: .92rem;
-		line-height: .92rem;
-		margin: .24rem 0;
-		padding: 0 0 0 .3rem;
-		display: flex;
-		span {
-			flex: 1;
-			color: #222;
-			font-size: .32rem;
-		}
-		.icon_right {
-			display: inline-block;
-			width: .92rem;
-			height: .92rem;
-			background-image: url('../../../static/images/right.png');
-			background-size: 30% 30%;
-			background-repeat: no-repeat;
-			background-position: center center;
-		}
-	}
-	
-	.recomment_note {
-		width: 100%;
-		background: white;
-		.title_note {
-			display: flex;
-			align-items: center;
-			padding: .25rem .2rem .05rem .2rem;
-			i {
-				width: .37rem;
-				height: .37rem;
-				background-image: url('../../../static/images/icon_note.png');
-				background-size: 90% 90%;
-				background-repeat: no-repeat;
-				background-position: center center;
-			}
-			span {
-				margin-left: .1rem;
-				color: #222;
-				font-size: .26rem;
-			}
-		}
-		.content_note {
-			display: -webkit-flex;
-			display: flex;
-			margin: 0 .13rem;
-			.notelist_left {
-				width: 50%;
-				margin: 0 .08rem;
-				.note_left {
-					overflow: hidden;
-					box-sizing: border-box;
-					transition: all 0.3s ease;
-					border: 1px solid #ddd;
-					border-radius: .1rem;
-					margin: 0 0 0.2rem 0;
-					.itemImg {
-						width: 100%;
-						position: relative;
-						img {
-							width: 100%;
-						}
-						.imgVedio {
-							width: 100%;
-							height: 100%;
-							position: absolute;
-							top: 0;
-							bottom: 0;
-							left: 0;
-							right: 0;
-							background-color: rgba(0, 0, 0, .6);
-							img {
-								width: .9rem;
-								height: .9rem;
-								position: absolute;
-								top: 0;
-								left: 0;
-								right: 0;
-								bottom: 0;
-								margin: auto auto;
-							}
-						}
-					}
-					.item-title {
-						color: #222;
-						font-size: .28rem;
-						display: -webkit-box;
-						word-break: break-all;
-						text-overflow: ellipsis;
-						-webkit-line-clamp: 2;
-						overflow: hidden;
-						margin: .22rem .04rem .1rem .16rem;
-					}
-					.item-content {
-						color: #999;
-						font-size: .24rem;
-						line-height: .34rem;
-						display: -webkit-box;
-						word-break: break-all;
-						text-overflow: ellipsis;
-						-webkit-line-clamp: 2;
-						overflow: hidden;
-						margin: 0 .06rem .2rem .16rem;
-					}
-					.item-slef {
-						width: 100%;
-						line-height: .4rem;
-						margin: .2rem 0;
-						position: relative;
-						display: flex;
-						.imgSelf {
-							width: .4rem;
-							height: .4rem;
-							margin: 0 .08rem 0 .2rem;
-							border-radius: .2rem;
-						}
-						.zan {
-							flex: 1;
-							text-align: right;
-							margin: 0 .2rem 0 0;
-							.imgZan {
-								display: inline-block;
-								width: .3rem;
-								height: .32rem;
-								vertical-align: middle;
-							}
-							.selfCount {
-								display: inline-block;
-								color: #999;
-								font-size: .24rem;
-								margin: 0 0 0 .1rem;
-								vertical-align: middle;
-							}
-						}
-						.selfName {
-							color: #222;
-							font-size: .2rem;
-							width: 1.6rem;
-							height: .4rem;
-							display: -webkit-box;
-							word-break: break-all;
-							text-overflow: ellipsis;
-							-webkit-line-clamp: 1;
-							overflow: hidden;
-						}
-					}
-				}
-			}
-		}
-	}
+.page {
+  background: #f3f5f9;
+}
+.header {
+  width: 100%;
+  height: 4.2rem;
+  background-image: url("http://test.xclerk.com/mrsyg/YunHaiTongProject/public_tab/image/xcc/bg.jpg");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  position: relative;
+  .userinfo {
+    width: 100%;
+    position: absolute;
+    top: 1rem;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto auto;
+    text-align: center;
+    .userPhoto {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      width: 1.7rem;
+      height: 1.7rem;
+      border-radius: .85rem;
+      overflow: hidden;
+      box-sizing: border-box;
+      border: 2px solid #fff;
+      .userImg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+      }
+    }
+    .userName {
+      color: #222;
+      font-size: 0.32rem;
+      width: 100%;
+      position: absolute;
+      bottom: 0.8rem;
+      left: 0;
+      text-align: center;
+    }
+  }
+  .register {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0;
+    color: #333;
+    font-size: 0;
+    width: 1.5rem;
+    height: 0.8rem;
+    line-height: 0.8rem;
+    text-align: center;
+    border-top-left-radius: 0.4rem;
+    border-bottom-left-radius: 0.4rem;
+    background: #fff;
+    i {
+      display: inline-block;
+      width: 0.8rem;
+      height: 0.8rem;
+      background-image: url("../../../static/images/signIn.png");
+      background-size: 60% 60%;
+      background-repeat: no-repeat;
+      background-position: center center;
+      vertical-align: middle;
+    }
+    span {
+      font-size: 0.3rem;
+      margin: 0 0 0 -0.1rem;
+      vertical-align: middle;
+    }
+  }
+}
+.tabList {
+  width: 100%;
+  height: 1.5rem;
+  background: #fff;
+  display: flex;
+  li {
+    flex: 1;
+    text-align: center;
+    .count {
+      color: #222;
+      font-size: 0.36rem;
+      margin: 0.28rem 0 0 0;
+    }
+    .type {
+      color: #999;
+      font-size: 0.28rem;
+    }
+  }
+}
+.order {
+  width: 100%;
+  background: #fff;
+  margin: 0.24rem 0 0 0;
+  .title {
+    height: 0.92rem;
+    line-height: 0.92rem;
+    margin: 0 0 0 0.3rem;
+    display: flex;
+    span {
+      flex: 1;
+      color: #222;
+      font-size: 0.3rem;
+    }
+    .icon_right {
+      display: inline-block;
+      width: 0.92rem;
+      height: 0.92rem;
+      background-image: url("../../../static/images/right.png");
+      background-size: 30% 30%;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+  }
+  .orderList {
+    width: 100%;
+    display: flex;
+    li {
+      flex: 1;
+      padding: 0.2rem 0;
+      text-align: center;
+      position: relative;
+      .icon {
+        display: inline-block;
+        width: 0.5rem;
+        height: 0.5rem;
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        background-position: center center;
+        &.icon_order1 {
+          background-image: url("../../../static/images/icon_order1.png");
+        }
+        &.icon_order2 {
+          background-image: url("../../../static/images/icon_order2.png");
+        }
+        &.icon_order3 {
+          background-image: url("../../../static/images/icon_order3.png");
+        }
+        &.icon_order4 {
+          background-image: url("../../../static/images/icon_order4.png");
+        }
+        &.icon_order5 {
+          background-image: url("../../../static/images/icon_order5.png");
+        }
+      }
+      p {
+        color: #222;
+        font-size: 0.28rem;
+      }
+      .number {
+        color: #fff;
+        font-size: 0.22rem;
+        width: 0.34rem;
+        height: 0.34rem;
+        border-radius: 0.2rem;
+        line-height: 0.34rem;
+        text-align: center;
+        box-sizing: border-box;
+        position: absolute;
+        top: 0.1rem;
+        right: 0.5rem;
+        background: red;
+      }
+    }
+  }
+}
+.coupon {
+  background: #fff;
+  height: 0.92rem;
+  line-height: 0.92rem;
+  margin: 0.24rem 0;
+  padding: 0 0 0 0.3rem;
+  display: flex;
+  span {
+    flex: 1;
+    color: #222;
+    font-size: 0.32rem;
+  }
+  .icon_right {
+    display: inline-block;
+    width: 0.92rem;
+    height: 0.92rem;
+    background-image: url("../../../static/images/right.png");
+    background-size: 30% 30%;
+    background-repeat: no-repeat;
+    background-position: center center;
+  }
+}
 </style>
