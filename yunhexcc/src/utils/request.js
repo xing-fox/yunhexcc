@@ -198,6 +198,5 @@ export default {
     /*笔记点赞*/
     zanNewNote (params) {
     	return request('/yunhe/wechat/like/like', params)
-    },
-    
+    }
 }
