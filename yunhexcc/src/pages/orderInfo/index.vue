@@ -222,7 +222,9 @@ export default {
                   mask: true
                 });
                 setTimeout(() => {
-                  wx.navigateBack();
+                   wx.switchTab({
+                    url: '/pages/mine/main'
+                  })
                 }, 1000);
               },
               fail: function(res) {
@@ -359,10 +361,8 @@ export default {
       wx.makePhoneCall({
         phoneNumber: numb,
         success: function() {
-          console.log("拨打电话成功！");
         },
         fail: function() {
-          console.log("拨打电话失败！");
         }
       });
     }
