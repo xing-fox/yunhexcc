@@ -25,7 +25,7 @@
 				<div class="type">点赞数</div>
 			</li>
 			<li>
-				<div class="count" :class="{'animated': countAni, 'pulse': countAni}">{{ dataList.cur_bal }}</div>
+				<div class="count" :class="{'animated': countAni, 'wobble': countAni}">{{ dataList.cur_bal }}</div>
 				<div class="type">猿币数</div>
 			</li>
 		</ul>
@@ -109,7 +109,6 @@ export default {
             .then(res => {
               self.dataList = res.data.content
               if (res.data.content.add_record_flag == "0") {
-                self.countAni = true
                 self.registerMessage = "已签"
               } else {
                 self.registerMessage = "签到"
@@ -161,6 +160,7 @@ export default {
               mask: false
             })
             setTimeout(() => {
+              this.countAni = true
               this.dataList.cur_bal = parseInt(this.dataList.cur_bal) + 10
             }, 1000)
           }

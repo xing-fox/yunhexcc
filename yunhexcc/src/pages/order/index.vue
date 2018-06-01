@@ -379,7 +379,7 @@ export default {
 }
 .content-list {
   width: 100%;
-  margin-top: 42px;
+  padding-top: 42px;
 }
 .spaceDive {
   display: flex;
