@@ -198,5 +198,13 @@ export default {
     /*笔记点赞*/
     zanNewNote (params) {
     	return request('/yunhe/wechat/like/like', params)
+    },
+    /*用户信息*/
+    customerInfoUser (params) {
+    	return request('/yunhe/wechat/customer/customerinfouser', params)
+    },
+    /*订单状态数*/
+    orderTotal (params) {
+    	return request('/yunhe/wechat/customer/customerinfoordertotal', params)
     }
 }

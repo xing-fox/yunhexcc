@@ -13,19 +13,19 @@
 		</div>
 		<ul class="tabList">
 			<li @click="goToShopCart">
-				<div class="count">{{dataList.cart_total}}</div>
+				<div class="count">{{infoUser.cart_total}}</div>
 				<div class="type">购物车</div>
 			</li>
 			<li>
-				<div class="count">{{dataList.collection_total}}</div>
+				<div class="count">{{infoUser.collection_total}}</div>
 				<div class="type">收藏单</div>
 			</li>
 			<li>
-				<div class="count">{{dataList.like_total}}</div>
+				<div class="count">{{infoUser.like_total}}</div>
 				<div class="type">点赞数</div>
 			</li>
 			<li>
-				<div class="count" :class="{'animated': countAni, 'wobble': countAni}">{{ dataList.cur_bal }}</div>
+				<div class="count" :class="{'animated': countAni, 'wobble': countAni}">{{ infoUser.cur_bal }}</div>
 				<div class="type">猿币数</div>
 			</li>
 		</ul>
@@ -38,22 +38,22 @@
 				<li @click="goToOrderList(1)">
 					<i class="icon icon_order1"></i>
 					<p>待付款</p>
-					<span v-if="dataList.order_waitpay != '0'" class="number">{{ dataList.order_waitpay }}</span>
+					<span v-if="dataList.order_waitpay != '0' && dataList.order_waitpay" class="number">{{ dataList.order_waitpay }}</span>
 				</li>
 				<li @click="goToOrderList(2)">
 					<i class="icon icon_order2"></i>
 					<p>待发货</p>
-					<span v-if="dataList.order_waitsend != '0'" class="number">{{ dataList.order_waitsend }}</span>
+					<span v-if="dataList.order_waitsend != '0' && dataList.order_waitsend" class="number">{{ dataList.order_waitsend }}</span>
 				</li>
 				<li @click="goToOrderList(3)">
 					<i class="icon icon_order3"></i>
 					<p>待收货</p>
-					<span v-if="dataList.order_waitreceive != '0'" class="number">{{ dataList.order_waitreceive }}</span>
+					<span v-if="dataList.order_waitreceive != '0' && dataList.order_waitreceive" class="number">{{ dataList.order_waitreceive }}</span>
 				</li>
 				<li @click="goToOrderList(4)">
 					<i class="icon icon_order4"></i>
 					<p>待评价</p>
-					<span v-if="dataList.order_waitevaluate != '0'" class="number">{{ dataList.order_waitevaluate }}</span>
+					<span v-if="dataList.order_waitevaluate != '0' && dataList.order_waitevaluate" class="number">{{ dataList.order_waitevaluate }}</span>
 				</li>
 				<!-- <li>
           <i class="icon icon_order5"></i>
@@ -76,7 +76,8 @@
 	export default {
 		data() {
 			return {
-				openId: '',
+        openId: '',
+        infoUser: '',
 				countAni: false,
 				dataList: Object,
 				userInfos: Object,
@@ -132,16 +133,25 @@
 							wx.navigateTo({
 								url: "/pages/login/main"
 							})
-						} else {
-							self.$http.customerInfo({
+            } else {
+              self.$http.customerInfoUser({
 								openid: self.openId
 							}).then(res => {
-								self.dataList = res.data.content
-								if(res.data.content.add_record_flag == "0") {
-									self.registerMessage = "已签"
-								} else {
-									self.registerMessage = "签到"
-								}
+                if (res.data.code == 'E00000') {
+                  self.infoUser = res.data.content
+                  if(res.data.content.add_record_flag == "0") {
+                    self.registerMessage = "已签"
+                  } else {
+                    self.registerMessage = "签到"
+                  }
+                }
+              })
+              self.$http.orderTotal({
+								openid: self.openId
+							}).then(res => {
+                if (res.data.code == 'E00000') {
+                  self.dataList = res.data.content
+                }
 							})
 						}
 					}
@@ -168,7 +178,7 @@
 				})
 			},
 			registerFunc() {
-				if(this.dataList.add_record_flag == "0") {
+				if(this.infoUser.add_record_flag == "0") {
 					return wx.showToast({
 						title: "您已签过到了！",
 						icon: "none",
@@ -189,7 +199,7 @@
 						})
 						setTimeout(() => {
 							this.countAni = true
-							this.dataList.cur_bal = parseInt(this.dataList.cur_bal) + 10
+							this.infoUser.cur_bal = parseInt(this.infoUser.cur_bal) + 10
 						}, 1000)
 					}
 				})
