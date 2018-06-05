@@ -195,8 +195,12 @@ export default {
     searchgoods (params) {
     	return request('/yunhe/wechat/search/searchgoods', params)
     },
+    /*最新笔记*/
+    newNote (params) {
+    	return request('/yunhe/wechat/note/newNote', params)
+    },
     /*笔记点赞*/
-    zanNewNote (params) {
+    admireNote (params) {
     	return request('/yunhe/wechat/like/like', params)
     }
 }

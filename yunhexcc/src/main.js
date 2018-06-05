@@ -18,7 +18,7 @@ app.$mount()
 
 export default {
   config: {
-    pages: ['^pages/index/main', 'pages/mine/main'],
+    pages: ['^pages/note/main', 'pages/index/main', 'pages/mine/main'],
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
@@ -33,19 +33,19 @@ export default {
       list: [
         {
           text: '首页',
-          pagePath: 'pages/index/main',
+          pagePath: 'pages/note/main',
           iconPath: 'static/images/home.png',
           selectedIconPath: 'static/images/home_1.png'
+        },
+        {
+          text: '活动',
+          pagePath: 'pages/index/main',
+          iconPath: 'static/images/activicy.png',
+          selectedIconPath: 'static/images/activicy_1.png'
         },
         // {
         //   text: '关注',
         //   pagePath: 'pages/follow/main',
-        //   iconPath: 'static/images/star.png',
-        //   selectedIconPath: 'static/images/star_1.png'
-        // },
-        // {
-        //   text: '活动',
-        //   pagePath: 'pages/activity/main',
         //   iconPath: 'static/images/star.png',
         //   selectedIconPath: 'static/images/star_1.png'
         // },

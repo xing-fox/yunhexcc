@@ -94,19 +94,48 @@ export default {
   },
   onShow() {
     let self = this
-    wx.getStorage({
-      key: "phoneRegister",
-      success: function(res) {
-        if (res.data === "0") {
-          wx.navigateTo({
-            url: "/pages/login/main"
-          });
-        } else {
-          self.$http
-            .customerInfo({
-              openid: self.openId
+    wx.checkSession({
+      success: function(){
+        self.phoneRegister()
+      },
+      fail: function(){
+        wx.login({
+          success: function(res) {
+            if (res.code) {
+              self.$http.Xcclogin({
+                'code': res.code
+              }).then(res => {
+                wx.setStorage({
+                  key: 'openId',
+                  data: res.data.content.openid
+                })
+                wx.setStorage({
+                  key: 'phoneRegister',
+                  data: res.data.content.phone_register
+                })
+                self.openId = res.data.content.openid
+                self.phoneRegister()
+              })
+            }
+          }
+        })
+      }
+    })
+  },
+  methods: {
+    phoneRegister () {
+      let self = this
+      wx.getStorage({
+        key: "phoneRegister",
+        success: function(res) {
+          if (res.data === '0') {
+            wx.navigateTo({
+              url: "/pages/login/main"
             })
-            .then(res => {
+          } else {
+            self.$http.customerInfo({
+              openid: self.openId
+            }).then(res => {
               self.dataList = res.data.content
               if (res.data.content.add_record_flag == "0") {
                 self.registerMessage = "已签"
@@ -114,32 +143,31 @@ export default {
                 self.registerMessage = "签到"
               }
             })
+          }
         }
-      }
-    })
-  },
-  methods: {
-    addressFunc() {
+      })
+    },
+    addressFunc () {
       wx.navigateTo({
         url: "/pages/address/main?from=1"
       })
     },
-    counponFunc() {
+    counponFunc () {
       wx.navigateTo({
         url: "/pages/coupon/main"
       })
     },
-    goToOrderList(index) {
+    goToOrderList (index) {
       wx.navigateTo({
         url: "/pages/order/main?currentIndex=" + index
       })
     },
-    goToShopCart() {
+    goToShopCart () {
       wx.navigateTo({
         url: "/pages/shopCart/main"
       })
     },
-    registerFunc() {
+    registerFunc () {
       if (this.dataList.add_record_flag == "0") {
         return wx.showToast({
           title: "您已签过到了！",

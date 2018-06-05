@@ -157,13 +157,14 @@ export default {
       this.pag_no++
       this.allProduct()
     }
+  },
+  onShareAppMessage: function (res) {
+    return {
+      title: '追求卓越体验的潮机新零售平台',
+      path: '/pages/index/main',
+      imageUrl: 'http://test.xclerk.com/mrsyg/YunHaiTongProject/public_tab/image/xcc/wxmin_share.jpg'
+    }
   }
-  // onShareAppMessage: function (res) {
-  //   return {
-  //     title: '潮机优选',
-  //     path: '/page/index'
-  //   }
-  // }
 }
 </script>
 
