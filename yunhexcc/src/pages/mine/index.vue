@@ -69,6 +69,10 @@
 			<span>我的优惠券</span>
 			<i class="icon_right"></i>
 		</div>
+		<div class="coupon bor-1px-b" v-if="dataList.assistant_id" @click="orderqueryFunc">
+			<span>订单查询</span>
+			<i class="icon_right"></i>
+		</div>
 	</div>
 </template>
 
@@ -76,8 +80,8 @@
 	export default {
 		data() {
 			return {
-        openId: '',
-        infoUser: '',
+				openId: '',
+				infoUser: '',
 				countAni: false,
 				dataList: Object,
 				userInfos: Object,
@@ -133,25 +137,25 @@
 							wx.navigateTo({
 								url: "/pages/login/main"
 							})
-            } else {
-              self.$http.customerInfoUser({
+						} else {
+							self.$http.customerInfoUser({
 								openid: self.openId
 							}).then(res => {
-                if (res.data.code == 'E00000') {
-                  self.infoUser = res.data.content
-                  if(res.data.content.add_record_flag == "0") {
-                    self.registerMessage = "已签"
-                  } else {
-                    self.registerMessage = "签到"
-                  }
-                }
-              })
-              self.$http.orderTotal({
+								if(res.data.code == 'E00000') {
+									self.infoUser = res.data.content
+									if(res.data.content.add_record_flag == "0") {
+										self.registerMessage = "已签"
+									} else {
+										self.registerMessage = "签到"
+									}
+								}
+							})
+							self.$http.orderTotal({
 								openid: self.openId
 							}).then(res => {
-                if (res.data.code == 'E00000') {
-                  self.dataList = res.data.content
-                }
+								if(res.data.code == 'E00000') {
+									self.dataList = res.data.content
+								}
 							})
 						}
 					}
@@ -202,6 +206,11 @@
 							this.infoUser.cur_bal = parseInt(this.infoUser.cur_bal) + 10
 						}, 1000)
 					}
+				})
+			},
+			orderqueryFunc() {
+				wx.navigateTo({
+					url: "/pages/assistantOrder/main"
 				})
 			}
 		}
