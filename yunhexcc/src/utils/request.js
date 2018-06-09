@@ -206,5 +206,15 @@ export default {
     /*订单状态数*/
     orderTotal (params) {
     	return request('/yunhe/wechat/customer/customerinfoordertotal', params)
-    }
+    },
+    /*判断手机号是否注册*/
+    infoCheck (params) {
+    	return request('yunhe/wechat/customer/customerinfocheck', params)
+    	},
+    /*营业员订单管理*/
+    manageorders (params) {
+    	return request('yunhe/wechat/order/manageorders', params)
+    	}
+   
+    
 }

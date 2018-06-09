@@ -53,17 +53,17 @@
 				</span>
 			</div>
 			<div class="orderGoods-GoodsInfo">
-				<view class='middleView' v-for='(goodsData, subIndex) in urlData.goodsInfo' :key="subIndex" @tap='orderClick'>
+				<div class='middlediv' v-for='(goodsData, subIndex) in urlData.goodsInfo' :key="subIndex" @tap='orderClick'>
 					<image class='goodsImg' :src="goodsData.picture_url"></image>
-					<view class='goodNameInfo'>
-						<view class='goodsName'>{{goodsData.product_name}}</view>
-						<view class='goodsPlans'>{{goodsData.color?goodsData.color:''}}{{goodsData.memory_capacity?goodsData.memory_capacity:''}} {{goodsData.supplier_name?goodsData.supplier_name:''}} {{goodsData.contract_name?goodsData.contract_name:''}}</view>
-					</view>
-					<view class='goodsPriceInfo'>
-						<view class='goodsPrice'>¥ {{goodsData.product_price}}</view>
-						<view class='goodsCount'>{{goodsData.product_number}}</view>
-					</view>
-				</view>
+					<div class='goodNameInfo'>
+						<div class='goodsName'>{{goodsData.product_name}}</div>
+						<div class='goodsPlans'>{{goodsData.color?goodsData.color:''}}{{goodsData.memory_capacity?goodsData.memory_capacity:''}} {{goodsData.supplier_name?goodsData.supplier_name:''}} {{goodsData.contract_name?goodsData.contract_name:''}}</div>
+					</div>
+					<div class='goodsPriceInfo'>
+						<div class='goodsPrice'>¥ {{goodsData.product_price}}</div>
+						<div class='goodsCount'>{{goodsData.product_number}}</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="orderPriceInfo">
@@ -72,7 +72,7 @@
 				<span> ¥ {{urlData.pay_amount}}</span>
 			</div>
 			<div class="priceInfo-TotalPrice">
-				<span>运费（快递</span>
+				<span>运费（快递）</span>
 				<span> ¥ {{0.00}} </span>
 			</div>
 			<div class="priceInfo-TotalPrice bor-1px-b">
@@ -80,7 +80,7 @@
 				<span v-if="serve_amount>0"> - ¥{{serve_amount}}</span>
 				<span v-else>无</span>
 			</div>
-			<div class="needPlayPrice-view">
+			<div class="needPlayPrice-div">
 				<span v-if="urlData.order_status == 1">需付款</span>
 				<span v-else>已付款</span>
 				<span> ¥ {{pay_amount}} </span>
@@ -105,20 +105,20 @@
 						联系商家
 					</div>
 				</div>
-				<view v-if="urlData.order_status == 1" class='opertionBtn'>
-					<view class='cancelOrderBtn' @click='cancelClick(urlData.order_no)'>取消订单</view>
-					<view class='delectOrderBtn' @click='payClick(urlData.order_no,urlData.order_type)'>付款</view>
-				</view>
-				<view v-if="urlData.order_status == 2" class='opertionBtn'>
-					<view class='cancelOrderBtn' @click='remindOrderClick(urlData.order_no)'>提醒发货</view>
-				</view>
-				<view v-if="urlData.order_status == 3" class='opertionBtn'>
-					<view class='cancelOrderBtn' @click='sureOrderClick(urlData.order_no)'>确认收货</view>
-				</view>
-				<view v-if="urlData.order_status == 4" class='opertionBtn'>
-					<view class='cancelOrderBtn' @click='deleteClick(urlData.order_no)'>删除订单</view>
-					<view class='delectOrderBtn' @click='evalClick(urlData.order_no)'>评价</view>
-				</view>
+				<div v-if="urlData.order_status == 1" class='opertionBtn'>
+					<div class='cancelOrderBtn' @click='cancelClick(urlData.order_no)'>取消订单</div>
+					<div class='delectOrderBtn' @click='payClick(urlData.order_no,urlData.order_type)'>付款</div>
+				</div>
+				<div v-if="urlData.order_status == 2" class='opertionBtn'>
+					<div class='cancelOrderBtn' @click='remindOrderClick(urlData.order_no)'>提醒发货</div>
+				</div>
+				<div v-if="urlData.order_status == 3" class='opertionBtn'>
+					<div class='cancelOrderBtn' @click='sureOrderClick(urlData.order_no)'>确认收货</div>
+				</div>
+				<div v-if="urlData.order_status == 4" class='opertionBtn'>
+					<div class='cancelOrderBtn' @click='deleteClick(urlData.order_no)'>删除订单</div>
+					<div class='delectOrderBtn' @click='evalClick(urlData.order_no)'>评价</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -478,7 +478,7 @@ page{
       color: #999999;
     }
   }
-  .middleView {
+  .middlediv {
     height: 80px;
     display: flex;
     padding-left: 16px;
@@ -539,7 +539,7 @@ page{
     background: #f7f7f7;
     width: 100%;
   }
-  .needPlayPrice-view {
+  .needPlayPrice-div {
     display: flex;
     justify-content: space-between;
     color: red;

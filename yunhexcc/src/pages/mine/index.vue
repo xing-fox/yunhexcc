@@ -69,7 +69,7 @@
 			<span>我的优惠券</span>
 			<i class="icon_right"></i>
 		</div>
-		<div class="coupon bor-1px-b" v-if="dataList.assistant_id" @click="orderqueryFunc">
+		<div class="coupon bor-1px-b" v-if="isAssisstanat" @click="orderqueryFunc">
 			<span>订单查询</span>
 			<i class="icon_right"></i>
 		</div>
@@ -85,7 +85,8 @@
 				countAni: false,
 				dataList: Object,
 				userInfos: Object,
-				registerMessage: ''
+				registerMessage: '',
+				isAssisstanat: false
 			}
 		},
 		onLoad() {
@@ -99,6 +100,7 @@
 		},
 		onShow() {
 			let self = this
+
 			wx.checkSession({
 				success: function() {
 					self.phoneRegister()
@@ -130,6 +132,7 @@
 		methods: {
 			phoneRegister() {
 				let self = this
+
 				wx.getStorage({
 					key: "phoneRegister",
 					success: function(res) {
@@ -138,28 +141,48 @@
 								url: "/pages/login/main"
 							})
 						} else {
-							self.$http.customerInfoUser({
+
+							self.$http.infoCheck({
 								openid: self.openId
 							}).then(res => {
-								if(res.data.code == 'E00000') {
-									self.infoUser = res.data.content
-									if(res.data.content.add_record_flag == "0") {
-										self.registerMessage = "已签"
-									} else {
-										self.registerMessage = "签到"
+
+								if(res.data.success === true) {
+
+									if(res.data.content.assistant_id) {
+										self.isAssisstanat = true
 									}
-								}
-							})
-							self.$http.orderTotal({
-								openid: self.openId
-							}).then(res => {
-								if(res.data.code == 'E00000') {
-									self.dataList = res.data.content
+
+									self.$http.customerInfoUser({
+										openid: self.openId
+									}).then(res => {
+										if(res.data.code == 'E00000') {
+											self.infoUser = res.data.content
+											if(res.data.content.add_record_flag == "0") {
+												self.registerMessage = "已签"
+											} else {
+												self.registerMessage = "签到"
+											}
+										}
+									})
+									self.$http.orderTotal({
+										openid: self.openId
+									}).then(res => {
+										if(res.data.code == 'E00000') {
+											self.dataList = res.data.content
+										}
+									})
+
+								} else {
+									wx.navigateTo({
+										url: "/pages/login/main"
+									})
 								}
 							})
 						}
+
 					}
 				})
+
 			},
 			addressFunc() {
 				wx.navigateTo({
