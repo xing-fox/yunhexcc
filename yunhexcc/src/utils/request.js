@@ -214,6 +214,18 @@ export default {
     /*营业员订单管理*/
     manageorders (params) {
     	return request('yunhe/wechat/order/manageorders', params)
+    	},
+    /*选择营业员作为配送员*/
+    getcommonshopassistants (params) {
+    	return request('yunhe/wechat/assistant/getcommonshopassistants', params)
+    	},
+    /*发货*/
+    sendorder (params) {
+    	return request('yunhe/wechat/order/sendorder', params)
+    	},
+    /*确认收货*/
+    takenorder (params) {
+    	return request('yunhe/wechat/order/takenorder', params)
     	}
    
     

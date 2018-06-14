@@ -161,9 +161,10 @@ export default {
     this.choiseImgFlag = true
     this.orderId = ''
     this.productData = ''
-    this.productId = ''
+    this.productId = options.productId
     this.commentContent = ''
     this.orderId = options.orderId
+    console.log(options.productId)
   },
   onShow () {
     let self = this
