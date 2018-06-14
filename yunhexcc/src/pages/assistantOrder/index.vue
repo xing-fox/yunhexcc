@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div class="singleOrder" v-for="(content,index) in listData" :key="index">
+    <div class="singleOrder" v-for="(content,index) in listData" :key="index" >
 
       <div class="topdiv">
         <span class="orderNumb">
@@ -22,7 +22,7 @@
           </div>
           <div class='goodsPriceInfo'>
             <div class='goodsPrice'>¥ {{goodsData.product_price}}</div>
-            <div class='goodsCount'>x {{goodsData.product_number}}{{goodsData.order_status}}</div>
+            <div class='goodsCount'>x {{goodsData.product_number}}</div>
           </div>
         </div>
         <div class="opertionDiv">
@@ -65,7 +65,7 @@
           <span class="deliverSpan" v-if="content.delivery_way == 0">
 					配送方式：到店自提
 					</span>
-          <span class="deliverSpan" v-else>
+          <span class="deliverSpan" v-else-if= "content.delivery_way == 1">
 					配送方式：送货上门
 					</span>
         </div>
@@ -81,7 +81,6 @@
 
           <div class="right-opertion">
           </div>
-
         </div>
       </div>
       <div class="spaceLine"></div>

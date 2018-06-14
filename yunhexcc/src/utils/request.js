@@ -185,7 +185,7 @@ export default {
     },
     /*订单评价*/
     evaluateorder (params) {
-    	return request('/yunhe/wechat/order/evaluateorder', params)
+    	return request('/yunhe/wechat/order/newevaluateorder', params)
     },
     /*签到*/
     addrecord (params) {

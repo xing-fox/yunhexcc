@@ -62,6 +62,7 @@
           <div class='goodsPriceInfo'>
             <div class='goodsPrice'>¥ {{goodsData.product_price}}</div>
             <div class='goodsCount'>{{goodsData.product_number}}</div>
+            <div class='delectOrderBtn' @click='evalClick(urlData.order_no,goodsData.id)'>评价</div>
           </div>
         </div>
       </div>
@@ -117,7 +118,7 @@
         </div>
         <div v-if="urlData.order_status == 4" class='opertionBtn'>
           <div class='cancelOrderBtn' @click='deleteClick(urlData.order_no)'>删除订单</div>
-          <div class='delectOrderBtn' @click='evalClick(urlData.order_no)'>评价</div>
+          <!--<div class='delectOrderBtn' @click='evalClick(urlData.order_no,urlData.id)'>评价</div>-->
         </div>
       </div>
     </div>
@@ -311,9 +312,9 @@
         })
       },
       /* 评价订单 */
-      evalClick(orderNumb) {
+      evalClick(orderNumb, Id) {
         wx.navigateTo({
-          url: '/pages/evaluate/main?orderId=' + orderNumb
+          url: '/pages/evaluate/main?orderId=' + orderNumb + '&Id=' + Id
         })
       },
       /* 提醒发货 */
@@ -477,7 +478,7 @@
       }
     }
     .middlediv {
-      height: 80px;
+      height: 90px;
       display: flex;
       padding-left: 16px;
       background-color: #f7f7f7;
@@ -518,6 +519,19 @@
         .goodsCount {
           font-size: 12px;
           color: #999999;
+        }
+        .delectOrderBtn {
+          text-align: center;
+          font-size: 14px;
+          margin: 3px 4px auto 18px;
+          height: 22px;
+          line-height: 22px;
+          width: 74px;
+          color: #222;
+          box-sizing: border-box;
+          background-color: #ffda44;
+          border: 1px solid #ffda44;
+          border-radius: 3px;
         }
       }
     }

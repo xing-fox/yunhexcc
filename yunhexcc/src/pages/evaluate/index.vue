@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="proIntro bor-1px-b">
-      <div class="introBox bor-1px-b" v-for="(item, index) in productData.goodsInfo" :key="index">
+      <div class="introBox bor-1px-b" v-for="(item, index) in productData.goodsInfo" :key="index" v-if="item.id == productId">
         <div class="proLeft">
           <img :src="item.picture_url">
         </div>
@@ -112,6 +112,7 @@ export default {
       let _imgList = this.imgUrl.length ? this.imgUrl.join(';') : ''
       this.$http.evaluateorder({
         data: JSON.stringify({
+          'id':this.productId,
           'order_no': this.orderId,
           'product_id': this.productData.goodsInfo[0].product_id,
           'comment_content': this.commentContent,
@@ -161,10 +162,10 @@ export default {
     this.choiseImgFlag = true
     this.orderId = ''
     this.productData = ''
-    this.productId = options.productId
+    this.productId = options.Id
     this.commentContent = ''
     this.orderId = options.orderId
-    console.log(options.productId)
+    console.log(this.productId)
   },
   onShow () {
     let self = this

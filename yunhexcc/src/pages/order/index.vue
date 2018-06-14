@@ -27,8 +27,8 @@
                 <view class='goodsCount'>x {{goodsData.product_number}}</view>
               </view>
             </div>
-            <div class="evalDiv" v-if="content.order_status == 4">
-              <view class='delectOrderBtn' @click='evalClick(content.order_no,goodsData.id)'>评价</view>
+            <div class="evalDiv" v-if="goodsData.order_status == 4">
+              <view class='delectOrderBtn' @click.stop.prevent='evalClick(content.order_no,goodsData.id)'>评价</view>
             </div>
           </div>
           <view class='footView'>
@@ -213,9 +213,9 @@
           });
       },
       /* 评价订单 */
-      evalClick(orderNumb, productId) {
+      evalClick(orderNumb, Id) {
         wx.navigateTo({
-          url: '/pages/evaluate/main?orderId=' + orderNumb + '&productId=' + productId
+          url: '/pages/evaluate/main?orderId=' + orderNumb + '&Id=' + Id
         })
       },
       /* 取消订单 */
@@ -478,6 +478,7 @@
         font-size: 14px;
         display: flex;
         justify-content: flex-end;
+    
         .delectOrderBtn {
           text-align: center;
           margin: 8px 8px;
