@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div class="singleOrder" v-for="(content,index) in listData" :key="index" >
+    <div class="singleOrder" v-for="(content,index) in listData" :key="index">
 
       <div class="topdiv">
         <span class="orderNumb">
@@ -33,10 +33,14 @@
             <!--<div class='orderBtn' @click='stockoutClick(goodsData.order_no)'>缺货</div>-->
           </div>
           <div v-if="goodsData.order_status == 3" class='opertionBtn'>
-            <div class='orderdeliverBtn' @click='inputOrderCodeClick(goodsData.order_no,goodsData.id)'>提货验证码</div>
+            <div class='orderdeliverBtn' @click='inputOrderCodeClick(goodsData.order_no,goodsData.id)'>提货码验证</div>
           </div>
           <div v-if="goodsData.order_status == 4" class='opertionBtn'>
             <div class='unClickBtn'>待评价</div>
+            <!--<div class='orderBtn' @click='modificationRemarkClick(goodsData.order_no)'>修改备注</div>-->
+          </div>
+          <div v-if="goodsData.order_status == 5" class='opertionBtn'>
+            <div class='unClickBtn'>已评价</div>
             <!--<div class='orderBtn' @click='modificationRemarkClick(goodsData.order_no)'>修改备注</div>-->
           </div>
         </div>
@@ -65,7 +69,7 @@
           <span class="deliverSpan" v-if="content.delivery_way == 0">
 					配送方式：到店自提
 					</span>
-          <span class="deliverSpan" v-else-if= "content.delivery_way == 1">
+          <span class="deliverSpan" v-else-if="content.delivery_way == 1">
 					配送方式：送货上门
 					</span>
         </div>
@@ -78,7 +82,6 @@
               {{content.mobile_code}}
             </div>
           </div>
-
           <div class="right-opertion">
           </div>
         </div>
@@ -89,6 +92,10 @@
     <orderModifyRemark v-if="setModificationStata == true && setStockOutState == false && setCodeState == false  && setDeliverState == false" :orderId='selectOrder' :goodsId='selectId' @cancelClick='cancelCodeClick' @completeClick='completeCodeClick'></orderModifyRemark>
     <orderDeliver v-if="setDeliverState == true && setModificationStata == false && setStockOutState == false && setCodeState == false" :orderId='selectOrder' :goodsId='selectId' @cancelClick='cancelCodeClick' @completeClick='completeCodeClick'></orderDeliver>
     <orderStockOut v-if="setStockOutState == true && setModificationStata == false && setDeliverState == false && setCodeState == false" :orderId='selectOrder' :goodsId='selectId' @cancelClick='cancelCodeClick' @completeClick='completeCodeClick'></orderStockOut>
+
+    <div v-if="listData.length == 0" class="spaceDive">
+      <i class="spaceImg"></i>
+    </div>
   </div>
 
 </template>
@@ -123,6 +130,7 @@
         key: "openId",
         success: function(res) {
           self.openId = res.data
+          console.log("openid="+self.openId)
           self.requestOrderList()
         }
       })
@@ -398,6 +406,21 @@
       width: 100%;
       height: .12rem;
       background-color: #F4F4F4;
+    }
+    .spaceDive {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: white;
+      .spaceImg {
+        display: inline-block;
+        margin: 200px 0;
+        width: 150px;
+        height: 150px;
+        background-image: url("../../../static/images/nodata.png");
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+      }
     }
   }
 </style>
