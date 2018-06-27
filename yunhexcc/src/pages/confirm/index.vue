@@ -55,7 +55,7 @@
             <span>¥{{ dataList.product_price }}</span>
           </div>
           <div class="spec">
-            <span class="spec_span"><span v-if="dataList.color">{{ dataList.color }}</span><span v-if="dataList.memory_capacity"> {{ dataList.memory_capacity }}</span><span v-if="dataList.supplier_desc"> {{ dataList.supplier_desc }}</span><span v-if="dataList.contract_name"> {{ dataList.contract_name }}</span></span>
+            <span class="spec_span">{{ dataList.detailsInfo }}</span>
             <span>x{{ proNum }}</span>
           </div>
         </div>
@@ -246,6 +246,14 @@ export default {
           'openid': self.openId
         }).then(res => {
           self.dataList = res.data.content
+          /**
+           * 选择的套餐
+           */
+          self.dataList.detailsInfo = ''
+          self.dataList.detail_info = JSON.parse(self.dataList.detail_info)
+          self.dataList.detail_info.content.map((item) => {
+            self.dataList.detailsInfo += item.paramName + ' '
+          })
           self.addrInfor = {
             userName: self.dataList.receiver_name,
             telNumber: self.dataList.receiver_phone,

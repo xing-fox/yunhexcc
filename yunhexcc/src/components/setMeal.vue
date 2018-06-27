@@ -7,31 +7,13 @@
           <div class="proIntro">
             <div class="Name">{{ proList.product_name }}</div>
             <div class="content"></div>
-            <div class="price">¥{{ proList.price_new }} <span>{{ proList.price_old }}</span> </div>
+            <div class="price">¥{{ price }}</div>
           </div>
         </div>
-        <div class="specList" v-if="dataList.colorinfo[0]">
-          <div class="listTitle">颜色：</div>
+        <div class="specList" v-for="(item, key) of contentObj" :key="key">
+          <div class="listTitle">{{ key }}</div>
           <div class="listCategory">
-            <div v-for="(item, index) in dataList.colorinfo" :key="index" class="categoryList" :class="{active: colorIndex === index}" @click="specFunc(1, index, item.color_id)">{{ item.color_name }}</div>
-          </div>
-        </div>
-        <div class="specList" v-if="dataList.memoryinfo[0]">
-          <div class="listTitle">容量：</div>
-          <div class="listCategory">
-            <div v-for="(item, index) in dataList.memoryinfo" :key="index" class="categoryList" :class="{active: memoryIndex === index}" @click="specFunc(2, index, item.memory_id)">{{ item.memory_name }}</div>
-          </div>
-        </div>
-        <div class="specList" v-if="dataList.supplierinfo[0]">
-          <div class="listTitle">供应商：</div>
-          <div class="listCategory">
-            <div v-for="(item, index) in dataList.supplierinfo" :key="index" class="categoryList" :class="{active: supplierIndex === index}" @click="specFunc(3, index, item.supplier_id)">{{ item.supplier_name }}</div>
-          </div>
-        </div>
-        <div class="specList" v-if="dataList.contractinfo[0]">
-          <div class="listTitle">套餐：</div>
-          <div class="listCategory">
-            <div v-for="(item, index) in dataList.contractinfo" :key="index" class="categoryList" :class="{active: contractIndex === index}" @click="specFunc(4, index, item.contract_id)">{{ item.contract_name }}</div>
+            <div v-for="value in item" :key="value" :class="[classdata[key+'_'+value] == 1 ? 'active' : (classdata[key+'_'+value] == 2 ? 'active1' : '')]" @click="selected(key,value)" class="categoryList">{{ value }}</div>
           </div>
         </div>
         <div class="choiseCount">
@@ -55,107 +37,263 @@
 export default {
   props: {
     typeIndex: {
+      // 判断是否是购物车
       type: [Number, String],
       default: 0
     },
     dataList: {
-      type: Object,
+      // 商品参数
+      type: [Object, Array],
       default: {}
     },
     proList: {
+      // 商品信息
       type: Object,
       default: {}
     },
     contId: {
+      // 无
       type: [String, Number],
-      default: ''
+      default: ""
     },
     detailId: {
+      // 商品详情id
       type: String,
-      default: ''
+      default: ""
     }
   },
-  data () {
+  data() {
     return {
-      openId: '',
+      openId: "",
       colorIndex: 0,
       memoryIndex: 0,
       supplierIndex: 0,
       contractIndex: 0,
       totalCount: 1,
-      contractId: '',
+      contractId: "",
+      indexs: [],
+      classdata: {},
+      contentObj: {},
+      dataObj: {},
+      price: 0,
+      parameterMoney: [], // 套餐价格
+      parameterIndex: {}, // 套餐序列
+      parameterData: [], // 套餐汇总的数据
+      parameterList: [], // 套餐数据转换的数据
+      parameterDataList: [], // 展示汇总的数据
+      parameterTotalData: [], // 展示的数据
       animalClassfadeIn: true,
       animalClassfadeOut: false
-    }
+    };
   },
-  onLoad () {
-    let self = this
+  mounted() {
+    let self = this;
     wx.getStorage({
-      key: 'openId',
+      key: "openId",
       success: function(res) {
-        self.openId = res.data
+        self.openId = res.data;
       }
-    })  
-    this.contractId = this.dataList.contractinfo[0].contract_id
+    });
+    /**
+     * 整理套餐信息
+     */
+    this.parameterData = this.dataList.goodsdetailinfo; // 所有套餐信息
+    this.init();
   },
   methods: {
-    specFunc (cate, index, id) {
-      if (cate === 1) {
-        this.colorIndex = index
+    selected: function(key, value) {
+      let new_key = key + "_" + value;
+      if (this.classdata[new_key] == 2) {
+        return;
       }
-      if (cate === 2) {
-        this.memoryIndex = index
+      //同一大类只能选择一个
+      for (let objKey in this.classdata) {
+        if (objKey.substring(0, key.length) == key) {
+          if (new_key == objKey) {
+            this.classdata[objKey] = this.classdata[new_key] == 1 ? 3 : 1;
+          } else {
+            this.classdata[objKey] = 3;
+          }
+        }
       }
-      if (cate === 3) {
-        this.supplierIndex = index
+      //查找已确定的数据索引
+      var new_data = []; //交集
+      for (let objKey in this.classdata) {
+        if (this.classdata[objKey] == 1) {
+          let indexs = this.dataObj[objKey];
+          new_data = this.intersect(new_data, indexs);
+        }
       }
-      if (cate === 4) {
-        this.contractId = id
-        this.contractIndex = index
+      //确认已查到的
+      if (new_data.length == 1) {
+        if (this.classdata[new_key] == 1) {
+          let obj = this.parameterData[new_data[0]];
+          let detailInfo = obj.detail_info;
+          let content = detailInfo.content;
+          for (let j = 0, size = content.length; j < size; j++) {
+            let contentData = content[j];
+            let name = contentData.paramTypeName + "_" + contentData.paramName;
+            this.classdata[name] = 1;
+          }
+          for (let objKey in this.classdata) {
+            if (this.classdata[objKey] != 1) {
+              this.classdata[objKey] = 2;
+            }
+          }
+          this.price = obj.product_price;
+          this.contractId = obj.contract_id; // 切换contract_id
+          return obj;
+        }
+        if (this.classdata[new_key] == 3) {
+          new_data = [];
+          for (let objKey in this.classdata) {
+            if (this.classdata[objKey] == 1) {
+              let indexs = this.dataObj[objKey];
+              new_data = this.intersect(new_data, indexs);
+            }
+          }
+        }
       }
-      this.$emit('changeSpec', {
-        id: id,
-        cate: cate
-      })
+      var list = [];
+      //差集
+      var diff_data = this.diff(this.indexs, new_data);
+      this.contractId = ''
+      console.info(diff_data);
+      if (this.indexs.length == diff_data.length) {
+        for (let objKey in this.classdata) {
+          this.classdata[objKey] = 3;
+        }
+        return;
+      }
+      for (let i in diff_data) {
+        list[i] = this.parameterData[diff_data[i]];
+      }
+      for (let i = 0, length = list.length; i < length; i++) {
+        let obj = list[i];
+        let detailInfo = obj.detail_info;
+        let content = detailInfo.content;
+        for (let j = 0, size = content.length; j < size; j++) {
+          let contentData = content[j];
+          let name = contentData.paramTypeName + "_" + contentData.paramName;
+          if (this.classdata[name] != 1) {
+            this.classdata[name] = 2;
+          }
+        }
+      }
+      //继续聚合
+      list = [];
+      for (let i in new_data) {
+        list[i] = this.parameterData[new_data[i]];
+      }
+      for (let i = 0, length = list.length; i < length; i++) {
+        let obj = list[i];
+        let detailInfo = obj.detail_info;
+        let content = detailInfo.content;
+        for (let j = 0, size = content.length; j < size; j++) {
+          let contentData = content[j];
+          let name = contentData.paramTypeName + "_" + contentData.paramName;
+          if (this.classdata[name] != 1) {
+            this.classdata[name] = 3;
+          }
+        }
+      }
     },
-    pageFunc (e) {
-      this.animalClassfadeIn = false
-      setTimeout(() => {
-        this.animalClassfadeOut = true
-      }, 0)
-      setTimeout(() => {
-        this.$emit('changeState')
-      }, 300)
+    intersect: function(arr1, arr2) {
+      if (
+        Object.prototype.toString.call(arr1) === "[object Array]" &&
+        Object.prototype.toString.call(arr2) === "[object Array]"
+      ) {
+        if (arr1.length == 0) {
+          return arr2;
+        }
+        if (arr2.length == 0) {
+          return arr1;
+        }
+        return arr1.filter(function(v) {
+          return arr2.indexOf(v) !== -1;
+        });
+      }
     },
-    minusFunc () {
+    diff: function(arr1, arr2) {
+      if (
+        Object.prototype.toString.call(arr1) === "[object Array]" &&
+        Object.prototype.toString.call(arr2) === "[object Array]"
+      ) {
+        if (arr1.length >= arr2.length) {
+          return arr1.filter(function(i) {
+            return arr2.indexOf(i) < 0;
+          });
+        }
+        if (arr2.length > arr1.length) {
+          return arr2.filter(function(i) {
+            return arr1.indexOf(i) < 0;
+          });
+        }
+      }
+    },
+    union: function(arr1, arr2) {
+      if (
+        Object.prototype.toString.call(arr1) === "[object Array]" &&
+        Object.prototype.toString.call(arr2) === "[object Array]"
+      ) {
+        return arr1.concat(arr2).unique();
+      }
+    },
+    compare: function(x, y) {
+      if (x < y) {
+        return 1;
+      } else if (x > y) {
+        return -1;
+      } else {
+        return 0;
+      }
+    },
+    pageFunc(e) {
+      this.animalClassfadeIn = false;
+      setTimeout(() => {
+        this.animalClassfadeOut = true;
+      }, 0);
+      setTimeout(() => {
+        this.$emit("changeState");
+      }, 300);
+    },
+    minusFunc() {
       if (this.totalCount === 1) {
         return wx.showToast({
-          title: '商品数量不能小于1',
-          icon: 'none',
+          title: "商品数量不能小于1",
+          icon: "none",
           duration: 2000,
           mask: true
-        })
+        });
       } else {
-        this.totalCount--
+        this.totalCount--;
       }
     },
-    plusFunc () {
-      this.totalCount++
+    plusFunc() {
+      this.totalCount++;
     },
-    submitFunc () {
-      let self = this
+    submitFunc() {
+      let self = this;
       wx.getStorage({
-        key: 'phoneRegister',
+        key: "phoneRegister",
         success: function(res) {
-          if(res.data === '0') {
+          if (res.data === "0") {
             wx.navigateTo({
-              url: '/pages/login/main'
-            })
+              url: "/pages/login/main"
+            });
           } else {
             if (self.typeIndex === 0) {
+              if (self.contractId === '') {
+                return wx.showToast({
+                  title: '请选择套餐',
+                  icon: "none",
+                  duration: 1000,
+                  mask: true
+                })
+              }
               wx.navigateTo({
-                url:'/pages/confirm/main?proNum='+ self.totalCount + '&detailId=' + self.detailId + '&contractId=' + self.contractId
-              })
+                url: "/pages/confirm/main?proNum=" + self.totalCount + "&detailId=" + self.detailId + "&contractId=" + self.contractId
+              });
             }
             if (self.typeIndex === 1) {
               self.$http.addCart({
@@ -165,191 +303,265 @@ export default {
                   product_price: self.proList.price_new,
                   contract_id: self.contractId
                 }),
-                'openid': self.openId
-              }).then(res => {
-                if (res.data.code === 'E00000') {
-                  self.pageFunc()
+                openid: self.openId
+              })
+              .then(res => {
+                if (res.data.code === "E00000") {
+                  self.pageFunc();
                   return wx.showToast({
                     title: res.data.content,
-                    icon: 'none',
+                    icon: "none",
                     duration: 1000,
                     mask: true
-                  })
+                  });
                 }
-              })
+              });
             }
           }
         }
-      })
+      });
+    },
+    init() {
+      let indexs = [], //属性对象
+        contentObj = {}, //套餐数据
+        contract = [],
+        contractObj = {}, //组合数据
+        dataObj = {},
+        classdata = {},
+        price = [];
+      for (let i = 0, length = this.parameterData.length; i < length; i++) {
+        indexs[i] = i;
+        let obj = this.parameterData[i];
+        price[i] = obj.product_price;
+        if (obj.contractname) {
+          contract.push({
+            contractname: obj.contractname,
+            contractId: obj.contractId,
+            index: i
+          });
+        }
+        let content = obj.detail_info.content;
+        for (let j = 0, size = content.length; j < size; j++) {
+          let contentData = content[j]; // 单项赋值
+          let name = contentData.paramTypeName + "_" + contentData.paramName; // 定义名称
+          let params = contentObj[contentData.paramTypeName]; // 定义名称
+          if (contentObj && params && params.length > 0) {
+            let datas = contentObj[contentData.paramTypeName];
+            var flag = true;
+            for (let k in datas) {
+              if (datas[k] == contentData.paramName) {
+                flag = false;
+                break;
+              }
+            }
+            if (flag) {
+              datas.push(contentData.paramName);
+              contentObj[contentData.paramTypeName] = datas;
+            }
+          } else {
+            let datas = [];
+            datas.push(contentData.paramName);
+            contentObj[contentData.paramTypeName] = datas;
+          }
+          if (dataObj[name]) {
+            let datas = dataObj[name];
+            datas.push(i);
+            dataObj[name] = datas;
+          } else {
+            dataObj[name] = [i];
+            classdata[name] = 3;
+          }
+        }
+      }
+      this.contentObj = contentObj;
+      this.dataObj = dataObj;
+      this.classdata = classdata;
+      this.indexs = indexs;
+      price.sort(this.compare); // 价格排序
+      let _price = 0;
+      if (price.length == 1) {
+        _price = price[0];
+      }
+      if (price.length > 1) {
+        _price = price[price.length - 1] + "~" + price[0];
+      }
+      this.price = _price;
     }
   }
-}
+};
 </script>
 
 <style lang="less" scoped>
-  .page{
+.page {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  .pageContent {
     width: 100%;
-    height: 100%;
-    position: fixed;
-    top: 0;
+    height: 8.4rem;
+    position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
-    .pageContent{
+    z-index: 10;
+    .mealContent {
       width: 100%;
-      height: 8.4rem;
+      height: 7.2rem;
+      padding: 0 0 0.2rem 0;
+      background: #fff;
       position: absolute;
-      bottom: 0;
+      bottom: 1rem;
       left: 0;
       right: 0;
-      z-index: 10;
-      .mealContent{
-        width: 100%;
-        height: 7.2rem;
-        padding: 0 0 .2rem 0;
-        background: #fff;
-        position: absolute;
-        bottom: 1rem;
-        left: 0;
-        right: 0;
-        .product{
-          padding: .4rem 0;
-          margin: 0 0 0 .24rem;
-          display: flex;
-          .proImg{
-            width: 1.6rem;
-            height: 1.6rem;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-          }
-          .proIntro{
-            flex: 1;
-            margin: 0 .1rem 0 .24rem;
-            .Name{
-              color: #333;
-              font-size: .32rem;
-            }
-            .content{
-              color: #777;
-              font-size: .24rem;
-              height: .64rem;
-              line-height: .32rem;
-              margin: 0 0 .04rem 0;
-            }
-            .price{
-              color: #ff5959;
-              font-size: .32rem;
-              span{
-                color: #999;
-                font-size: .2rem;
-                text-decoration:line-through;
-              }
-            }
-          }
+      .product {
+        padding: 0.4rem 0;
+        margin: 0 0 0 0.24rem;
+        display: flex;
+        .proImg {
+          width: 1.6rem;
+          height: 1.6rem;
+          border: 1px solid #ccc;
+          box-sizing: border-box;
         }
-        .specList{
-          font-size: 0;
-          margin: 0 .24rem 0 .24rem;
-          display: flex;
-          .listTitle{
+        .proIntro {
+          flex: 1;
+          margin: 0 0.1rem 0 0.24rem;
+          .Name {
+            color: #333;
+            font-size: 0.32rem;
+          }
+          .content {
             color: #777;
-            font-size: .26rem;
-            width: 1.1rem;
-            line-height: .5rem;
-            text-align: center;
-            margin: .4rem 0 0 0;
+            font-size: 0.24rem;
+            height: 0.64rem;
+            line-height: 0.32rem;
+            margin: 0 0 0.04rem 0;
           }
-          .listCategory{
-            flex: 1;
-            .categoryList{
-              display: inline-block;
-              color: #333;
-              font-size: .26rem;
-              padding: 0 .36rem;
-              margin: .4rem 0 0 .4rem;
-              background: #eee;
-              border-radius: 4px;
-              height: .5rem;
-              line-height: .5rem;
-              &.active{
-                color: #333;
-                background: #ffda44;
-              }
-            }
-          }
-        }
-        .choiseCount{
-          margin: .4rem .24rem 0 .24rem;
-          display: flex;
-          .countTitle{
-            flex: 1;
-            color: #777;
-            font-size: .26rem;
-            height: .6rem;
-            line-height: .6rem;
-          }
-          .countContent{
-            text-align: center;
-            border-radius: 3px;
-            overflow: hidden;
-            .contIcon{
-              display: inline-block;
-              width: .6rem;
-              height: .6rem;
-              background: #f5f5f5;
-              vertical-align: middle;
-              &.iconMinus{
-                background-image: url('../../static/images/icon_minus.png');
-                background-size: 40% 40%;
-                background-repeat: no-repeat;
-                background-position: center center;
-              }
-              &.iconPlus{
-                background-image: url('../../static/images/icon_add.png');
-                background-size: 40% 40%;
-                background-repeat: no-repeat;
-                background-position: center center;
-              }
-            }
-            .contNum{
-              display: inline-block;
-              min-width: .6rem;
-              height: .6rem;
-              line-height: .6rem;
+          .price {
+            color: #ff5959;
+            font-size: 0.32rem;
+            span {
               color: #999;
-              font-size: .26rem;
-              margin: 0 1px;
-              background: #f5f5f5;
-              vertical-align: middle;
+              font-size: 0.2rem;
+              text-decoration: line-through;
             }
           }
         }
       }
-      .submit{
-        color: #222;
-        font-size: .32rem;
-        width: 100%;
-        height: 1rem;
-        line-height: 1rem;
-        text-align: center;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: #ffda44;
+      .specList {
+        font-size: 0;
+        margin: 0 0.24rem 0 0.24rem;
+        display: flex;
+        .listTitle {
+          color: #777;
+          font-size: 0.26rem;
+          width: 1.1rem;
+          line-height: 0.5rem;
+          text-align: center;
+          margin: 0.4rem 0 0 0;
+          &.active {
+            color: #333;
+            background: #ffda44;
+          }
+        }
+        .listCategory {
+          flex: 1;
+          .categoryList {
+            display: inline-block;
+            color: #333;
+            font-size: 0.26rem;
+            padding: 0 0.36rem;
+            margin: 0.4rem 0 0 0.4rem;
+            background: #eee;
+            border-radius: 4px;
+            height: 0.5rem;
+            line-height: 0.5rem;
+            &.active {
+              color: #333;
+              background: #ffda44;
+            }
+            &.active1 {
+              color: #999;
+            }
+          }
+        }
+      }
+      .choiseCount {
+        margin: 0.4rem 0.24rem 0 0.24rem;
+        display: flex;
+        .countTitle {
+          flex: 1;
+          color: #777;
+          font-size: 0.26rem;
+          height: 0.6rem;
+          line-height: 0.6rem;
+        }
+        .countContent {
+          text-align: center;
+          border-radius: 3px;
+          overflow: hidden;
+          .contIcon {
+            display: inline-block;
+            width: 0.6rem;
+            height: 0.6rem;
+            background: #f5f5f5;
+            vertical-align: middle;
+            &.iconMinus {
+              background-image: url("../../static/images/icon_minus.png");
+              background-size: 40% 40%;
+              background-repeat: no-repeat;
+              background-position: center center;
+            }
+            &.iconPlus {
+              background-image: url("../../static/images/icon_add.png");
+              background-size: 40% 40%;
+              background-repeat: no-repeat;
+              background-position: center center;
+            }
+          }
+          .contNum {
+            display: inline-block;
+            min-width: 0.6rem;
+            height: 0.6rem;
+            line-height: 0.6rem;
+            color: #999;
+            font-size: 0.26rem;
+            margin: 0 1px;
+            background: #f5f5f5;
+            vertical-align: middle;
+          }
+        }
       }
     }
-    .zzc{
+    .submit {
+      color: #222;
+      font-size: 0.32rem;
       width: 100%;
-      height: 100%;
+      height: 1rem;
+      line-height: 1rem;
+      text-align: center;
       position: absolute;
-      top: 0;
-      left: 0;
       bottom: 0;
+      left: 0;
       right: 0;
-      z-index: 1;
-      background-color: rgba(0,0,0, .5);
+      background: #ffda44;
     }
   }
+  .zzc {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
 </style>

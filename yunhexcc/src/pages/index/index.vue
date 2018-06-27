@@ -161,7 +161,7 @@ export default {
   // onShareAppMessage: function (res) {
   //   return {
   //     title: '潮机优选',
-  //     path: '/page/index'
+  //     path: 'pages/index/main?flag=1'
   //   }
   // }
 }

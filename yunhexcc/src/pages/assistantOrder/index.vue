@@ -39,6 +39,10 @@
             <div class='unClickBtn'>待评价</div>
             <!--<div class='orderBtn' @click='modificationRemarkClick(goodsData.order_no)'>修改备注</div>-->
           </div>
+          <div v-if="goodsData.order_status == 5" class='opertionBtn'>
+            <div class='unClickBtn'>已评价</div>
+            <!--<div class='orderBtn' @click='modificationRemarkClick(goodsData.order_no)'>修改备注</div>-->
+          </div>
         </div>
         <div class="sepertLine">
         </div>

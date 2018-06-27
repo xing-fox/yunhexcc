@@ -9,14 +9,14 @@
     </swiper>
     <div class="proIntro">
       <div class="price">¥{{ dataList.price_new }}<span v-if="dataList.price_new != dataList.price_old">¥{{ dataList.price_old }}</span></div>
-      <div class="title">{{ dataList.product_name }}</div>
+      <div class="title" @click="titleFunc">{{ dataList.product_name }} <span v-if="productStatus">{{ productId }}</span> </div>
     </div>
     <div class="protab">
-        <div class='singleList bor-1px-b' @click="changeSpecFunc">
+        <!-- <div class='singleList bor-1px-b' @click="changeSpecFunc">
           <span class='title'>已选</span>
           <span><span v-if="dataList.color">{{ dataList.color }} </span><span v-if="dataList.memory_capacity">{{ dataList.memory_capacity }} </span><span v-if="dataList.supplier_desc">{{ dataList.supplier_desc }} </span><span v-if="dataList.contract_name">{{ dataList.contract_name }}</span></span>
           <div class='arrow_right'></div>
-        </div>
+        </div> -->
         <!-- <div class='singleList bor-1px-b' @click="chooseFunc">
           <span class='title'>送至</span>
           <span class="addr">
@@ -48,7 +48,7 @@
     </div>
     <div class="proBuy">
       <!-- <div class="star bor-1px-t"></div> -->
-      <div class="shoppingCart" @click="shopCartFunc">
+      <div class="shoppingCart" v-if="shoppingStatus" @click="shopCartFunc">
         <span>加入购物车</span>
       </div>
       <div class="buyNow" @click="changeSpecFunc">
@@ -64,6 +64,8 @@ import setMeal from '@/components/setMeal'
 export default {
   data () {
     return {
+      count: 0,
+      InterVal: '',
       openId: '',
       detailId: '',
       productId: '',
@@ -72,6 +74,7 @@ export default {
       interval: 5000,
       duration: 900,
       circular: true,
+      productStatus: false,
       setMealState: false,
       indicatorDots: true,
       activeFlag: true, // 图文消息切换
@@ -83,15 +86,19 @@ export default {
       supplierId: '', // 供应商规格id
       contractId: '', // 套餐规格id
       contractSureId: '', // 套餐id
-      specData: ''
+      specData: '',
+      shoppingStatus: true
     }
   },
   onLoad (options) {
     this.setMealState = false
     this.productId = options.id
+    if (options.shop && options.shop == 1) {
+      this.shoppingStatus = false
+    }
     wx.removeStorage({
       key: 'choiseAddr',
-      success: function(res) {} 
+      success: function(res) {}
     })
   },
   onShow () {
@@ -132,6 +139,7 @@ export default {
       this.$http.Selectparameter({
         data: JSON.stringify({
           product_id: this.productId,
+          // product_id: 28,
           color_id: this.colorId,
           memory_id: this.memoryId,
           supplier_id: this.supplierId,
@@ -140,7 +148,9 @@ export default {
         'openid': this.openId
       }).then(res => {
         if (res.data.code == 'E00000') {
-          console.log(res)
+          res.data.content.goodsdetailinfo.map((item) => {
+            item.detail_info = JSON.parse(item.detail_info)
+          })
           this.specData = res.data.content
         }
       })
@@ -233,6 +243,17 @@ export default {
     },
     stateFunc () {
       this.setMealState = false
+    },
+    titleFunc () {
+      clearTimeout(this.InterVal)
+      this.count++
+      if (this.count > 10) {
+        this.productStatus = true
+      }
+      this.InterVal = setTimeout(() => {
+        this.count = 0
+        this.productStatus = false
+      }, 500)
     }
   }
 }
