@@ -41,9 +41,19 @@
       return {
         animalClassfadeIn: true,
         animalClassfadeOut: false,
-        takenCode: ''
+        takenCode: '',
+        openId: '',
 
       }
+    },
+    created() {
+      let self = this
+      wx.getStorage({
+        key: "openId",
+        success: function(res) {
+          self.openId = res.data
+        }
+      })
     },
     methods: {
 

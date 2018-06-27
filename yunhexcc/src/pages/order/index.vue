@@ -17,7 +17,8 @@
           <div class='middleView' v-for='(goodsData,subIndex) in content.goodsInfo' :key="subIndex" @click='orderClick(content.order_no,content.order_type)'>
             <div class="goodInfoDiv">
 
-              <img class='goodsImg' :src="goodsData.picture_url" />
+              <img class='goodsImg' v-if="content.order_type == 2" :src="goodsData.picture_url" />
+              <img class='goodsImgNoUrl' v-if="content.order_type !=2"/>
               <view class='goodNameInfo'>
                 <view class='goodsName'>{{goodsData.product_name}}</view>
                 <view class='goodsPlans'>{{goodsData.color?goodsData.color:''}}{{goodsData.memory_capacity?goodsData.memory_capacity:''}} {{goodsData.supplier_name?goodsData.supplier_name:''}} {{goodsData.contract_name?goodsData.contract_name:''}}</view>
@@ -440,6 +441,15 @@
           width: 59px;
           height: 59px;
           background-color: lightgray;
+        }
+        .goodsImgNoUrl {
+        	  display: inline-block;
+          width: 59px;
+          height: 59px;
+          background-color: lightgray;
+          background-image: url("../../../static/images/pay_flow.png");
+          background-size: 100% 100%;
+   	      background-repeat: no-repeat;
         }
         .goodNameInfo {
           display: inline-block;
