@@ -151,6 +151,10 @@ export default {
       })
       this.allProduct()
     }
+    wx.setStorage({
+      key: 'productFlag',
+      data: true
+    })
   },
   onReachBottom () {
     if (this.dataFlag) {

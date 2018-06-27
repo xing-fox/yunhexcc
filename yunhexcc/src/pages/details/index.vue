@@ -121,6 +121,12 @@ export default {
               self.address = `${res.data.receiver_area}${res.data.detail_address}`
             }
           })
+          wx.getStorage({
+            key: 'productFlag',
+            success: function(res) {
+              self.shoppingStatus = res.data
+            }
+          })
         })
         self.Goodsdescribe()
         self.Selectparameter()

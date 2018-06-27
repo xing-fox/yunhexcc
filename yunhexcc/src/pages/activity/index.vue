@@ -474,8 +474,10 @@ export default {
     })
   },
   onShow () {
-    // this.pagNo = 1
-    // this.trendData = []
+    wx.setStorage({
+      key: 'productFlag',
+      data: false
+    })
   },
   onReachBottom () {
     if (this.trendFlag) {
