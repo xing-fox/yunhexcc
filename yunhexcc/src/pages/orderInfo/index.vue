@@ -62,7 +62,7 @@
           <div class='goodsPriceInfo'>
             <div class='goodsPrice'>¥ {{goodsData.product_price}}</div>
             <div class='goodsCount'>{{goodsData.product_number}}</div>
-            <div class='delectOrderBtn' @click='evalClick(urlData.order_no,goodsData.id)' v-if="urlData.order_status == 5">评价</div>
+            <div class='delectOrderBtn' @click='evalClick(urlData.order_no,goodsData.id)' v-if="urlData.order_status == 4">评价</div>
           </div>
         </div>
       </div>

@@ -61,7 +61,8 @@ export default {
   color: #222;
   font-size: 0.3rem;
   letter-spacing: 0;
-  line-height: 0.42rem;
+  line-height: .42rem;
+  height: .84rem;
   text-align: center;
   display: -webkit-box;
   word-break: break-all;

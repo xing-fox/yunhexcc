@@ -43,12 +43,12 @@ export default {
         //   iconPath: 'static/images/star.png',
         //   selectedIconPath: 'static/images/star_1.png'
         // },
-        // {
-        //   text: '活动',
-        //   pagePath: 'pages/activity/main',
-        //   iconPath: 'static/images/star.png',
-        //   selectedIconPath: 'static/images/star_1.png'
-        // },
+        {
+          text: '潮品狂欢购',
+          pagePath: 'pages/activity/main',
+          iconPath: 'static/images/activity.png',
+          selectedIconPath: 'static/images/activity_1.png'
+        },
         // {
         //   text: '消息',
         //   pagePath: 'pages/shops/main',

@@ -55,7 +55,7 @@
             <span>¥{{ dataList.product_price }}</span>
           </div>
           <div class="spec">
-            <span class="spec_span"><span v-if="dataList.color">{{ dataList.color }}</span><span v-if="dataList.memory_capacity"> {{ dataList.memory_capacity }}</span><span v-if="dataList.supplier_desc"> {{ dataList.supplier_desc }}</span><span v-if="dataList.contract_name"> {{ dataList.contract_name }}</span></span>
+            <span class="spec_span">{{ dataList.detailsInfo }}</span>
             <span>x{{ proNum }}</span>
           </div>
         </div>
@@ -102,6 +102,7 @@ export default {
       scoreStar: '',
       dataList: Object,
       couponMessage: '',
+      productFlag: '', // 判断商品来源
       payTypeValue: '在线付款',
       payTypeFlag: 0,
       payType: ['在线付款'],
@@ -157,7 +158,16 @@ export default {
         }),
         'openid': this.openId
       }).then(res => {
-        this.order_no = res.data.content.order_no
+        if (res.data.code === 'E00000') {
+          this.order_no = res.data.content.order_no
+        } else {
+          return wx.showToast({
+            title: res.data.msg,
+            icon: 'none',
+            duration: 2000,
+            mask: true
+          })
+        }
       }).then(() => {
         if (this.payTypeFlag == 1) {
           wx.showToast({
@@ -236,6 +246,12 @@ export default {
   onShow () {
     let self = this
     wx.getStorage({
+      key: 'productFlag',
+      success: function(res) {
+        self.productFlag = res.data
+      }
+    })
+    wx.getStorage({
       key: 'openId',
       success: function(res) {
         self.openId = res.data
@@ -246,6 +262,7 @@ export default {
           'openid': self.openId
         }).then(res => {
           self.dataList = res.data.content
+          
           self.addrInfor = {
             userName: self.dataList.receiver_name,
             telNumber: self.dataList.receiver_phone,
@@ -321,6 +338,14 @@ export default {
                 couponAmount: res.data.coupon_amount
               }
             }
+          })
+          /**
+           * 选择的套餐
+           */
+          self.dataList.detailsInfo = ''
+          self.dataList.detail_info = JSON.parse(self.dataList.detail_info)
+          self.dataList.detail_info.content.map((item) => {
+            self.dataList.detailsInfo += item.paramName + ' '
           })
         })
       } 
