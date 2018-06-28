@@ -226,7 +226,11 @@ export default {
     /*确认收货*/
     takenorder (params) {
     	return request('yunhe/wechat/order/takenorder', params)
-    	}
+    	},
+      /*推荐笔记*/
+    customerinfonote (params) {
+        return request('yunhe/wechat/customer/customerinfonote', params)
+      }
    
     
 }

@@ -73,371 +73,429 @@
 			<span>订单查询</span>
 			<i class="icon_right"></i>
 		</div>
+		<div class="recommendNote">
+			<div class="notePage">
+			<i class="noteIcon"></i>
+			<div class="noteTag">为您推荐</div>
+			</div>
+		</div>
+    <recommendNote :noteList = 'noteData'></recommendNote>
 	</div>
 </template>
 
 <script>
-	export default {
-		data() {
-			return {
-				openId: '',
-				infoUser: '',
-				countAni: false,
-				dataList: Object,
-				userInfos: Object,
-				registerMessage: '',
-				isAssisstanat: false
-			}
-		},
-		onLoad() {
-			let self = this;
-			wx.getStorage({
-				key: "openId",
-				success: function(res) {
-					self.openId = res.data
-				}
-			})
-		},
-		onShow() {
-			let self = this
+import recommendNote from "@/components/recommentNote";
+import { Base64 } from "js-base64";
+export default {
+  data() {
+    return {
+      openId: "",
+      infoUser: "",
+      countAni: false,
+      dataList: Object,
+      userInfos: Object,
+      registerMessage: "",
+      isAssisstanat: false,
+      noteData: []
+    };
+  },
+  onLoad() {
+    let self = this;
+    wx.getStorage({
+      key: "openId",
+      success: function(res) {
+        self.openId = res.data;
 
-			wx.checkSession({
-				success: function() {
-					self.phoneRegister()
-				},
-				fail: function() {
-					wx.login({
-						success: function(res) {
-							if(res.code) {
-								self.$http.Xcclogin({
-									'code': res.code
-								}).then(res => {
-									wx.setStorage({
-										key: 'openId',
-										data: res.data.content.openid
-									})
-									wx.setStorage({
-										key: 'phoneRegister',
-										data: res.data.content.phone_register
-									})
-									self.openId = res.data.content.openid
-									self.phoneRegister()
-								})
-							}
-						}
-					})
-				}
-			})
-		},
-		methods: {
-			phoneRegister() {
-				let self = this
+        //推荐笔记
+        self.$http
+          .customerinfonote({
+            openid: self.openId
+          })
+          .then(res => {
+            if (res.data.code == "E00000") {
 
-				wx.getStorage({
-					key: "phoneRegister",
-					success: function(res) {
-						if(res.data === '0') {
-							wx.navigateTo({
-								url: "/pages/login/main"
-							})
-						} else {
+              res.data.content.map((item, index) => {
+                let _len = item.picture_url.lastIndexOf("/") + 1;
+                item.picture_url = item.picture_url.substring(0, _len) + "2x_" + item.picture_url.slice(_len);
+                item.note_name = Base64.decode(item.note_name);
+                item.note_desc = Base64.decode(item.note_desc);
+              });
+              self.noteData = res.data.content;
+            }
+          });
+      }
+    });
+  },
+  onShow() {
+    let self = this;
 
-							self.$http.infoCheck({
-								openid: self.openId
-							}).then(res => {
+    wx.checkSession({
+      success: function() {
+        self.phoneRegister();
+      },
+      fail: function() {
+        wx.login({
+          success: function(res) {
+            if (res.code) {
+              self.$http
+                .Xcclogin({
+                  code: res.code
+                })
+                .then(res => {
+                  wx.setStorage({
+                    key: "openId",
+                    data: res.data.content.openid
+                  });
+                  wx.setStorage({
+                    key: "phoneRegister",
+                    data: res.data.content.phone_register
+                  });
+                  self.openId = res.data.content.openid;
+                  self.phoneRegister();
+                });
+            }
+          }
+        });
+      }
+    });
+  },
+  components: {
+    recommendNote
+  },
+  methods: {
+    phoneRegister() {
+      let self = this;
 
-								if(res.data.success === true) {
+      wx.getStorage({
+        key: "phoneRegister",
+        success: function(res) {
+          if (res.data === "0") {
+            wx.navigateTo({
+              url: "/pages/login/main"
+            });
+          } else {
+            self.$http
+              .infoCheck({
+                openid: self.openId
+              })
+              .then(res => {
+                if (res.data.success === true) {
+                  if (res.data.content.assistant_id) {
+                    self.isAssisstanat = true;
+                  }
 
-									if(res.data.content.assistant_id) {
-										self.isAssisstanat = true
-									}
-
-									self.$http.customerInfoUser({
-										openid: self.openId
-									}).then(res => {
-										if(res.data.code == 'E00000') {
-											self.infoUser = res.data.content
-											if(res.data.content.add_record_flag == "0") {
-												self.registerMessage = "已签"
-											} else {
-												self.registerMessage = "签到"
-											}
-										}
-									})
-									self.$http.orderTotal({
-										openid: self.openId
-									}).then(res => {
-										if(res.data.code == 'E00000') {
-											self.dataList = res.data.content
-										}
-									})
-
-								} else {
-									wx.navigateTo({
-										url: "/pages/login/main"
-									})
-								}
-							})
-						}
-
-					}
-				})
-
-			},
-			addressFunc() {
-				wx.navigateTo({
-					url: "/pages/address/main?from=1"
-				})
-			},
-			counponFunc() {
-				wx.navigateTo({
-					url: "/pages/coupon/main"
-				})
-			},
-			goToOrderList(index) {
-				wx.navigateTo({
-					url: "/pages/order/main?currentIndex=" + index
-				})
-			},
-			goToShopCart() {
-				wx.navigateTo({
-					url: "/pages/shopCart/main"
-				})
-			},
-			registerFunc() {
-				if(this.infoUser.add_record_flag == "0") {
-					return wx.showToast({
-						title: "您已签过到了！",
-						icon: "none",
-						duration: 1000,
-						mask: false
-					})
-				}
-				this.$http.addrecord({
-					openid: this.openId
-				}).then(res => {
-					if(res.data.success) {
-						this.registerMessage = "已签"
-						wx.showToast({
-							title: '签到成功，恭喜您获得10猿币!',
-							icon: "none",
-							duration: 1000,
-							mask: false
-						})
-						setTimeout(() => {
-							this.countAni = true
-							this.infoUser.cur_bal = parseInt(this.infoUser.cur_bal) + 10
-						}, 1000)
-					}
-				})
-			},
-			orderqueryFunc() {
-				wx.navigateTo({
-					url: "/pages/assistantOrder/main"
-				})
-			}
-		}
-	}
+                  self.$http
+                    .customerInfoUser({
+                      openid: self.openId
+                    })
+                    .then(res => {
+                      if (res.data.code == "E00000") {
+                        self.infoUser = res.data.content;
+                        if (res.data.content.add_record_flag == "0") {
+                          self.registerMessage = "已签";
+                        } else {
+                          self.registerMessage = "签到";
+                        }
+                      }
+                    });
+                  self.$http
+                    .orderTotal({
+                      openid: self.openId
+                    })
+                    .then(res => {
+                      if (res.data.code == "E00000") {
+                        self.dataList = res.data.content;
+                      }
+                    });
+                } else {
+                  wx.navigateTo({
+                    url: "/pages/login/main"
+                  });
+                }
+              });
+          }
+        }
+      });
+    },
+    addressFunc() {
+      wx.navigateTo({
+        url: "/pages/address/main?from=1"
+      });
+    },
+    counponFunc() {
+      wx.navigateTo({
+        url: "/pages/coupon/main"
+      });
+    },
+    goToOrderList(index) {
+      wx.navigateTo({
+        url: "/pages/order/main?currentIndex=" + index
+      });
+    },
+    goToShopCart() {
+      wx.navigateTo({
+        url: "/pages/shopCart/main"
+      });
+    },
+    registerFunc() {
+      if (this.infoUser.add_record_flag == "0") {
+        return wx.showToast({
+          title: "您已签过到了！",
+          icon: "none",
+          duration: 1000,
+          mask: false
+        });
+      }
+      this.$http
+        .addrecord({
+          openid: this.openId
+        })
+        .then(res => {
+          if (res.data.success) {
+            this.registerMessage = "已签";
+            wx.showToast({
+              title: "签到成功，恭喜您获得10猿币!",
+              icon: "none",
+              duration: 1000,
+              mask: false
+            });
+            setTimeout(() => {
+              this.countAni = true;
+              this.infoUser.cur_bal = parseInt(this.infoUser.cur_bal) + 10;
+            }, 1000);
+          }
+        });
+    },
+    orderqueryFunc() {
+      wx.navigateTo({
+        url: "/pages/assistantOrder/main"
+      });
+    }
+  }
+};
 </script>
 
 <style scoped lang="less">
-	.page {
-		background: #f3f5f9;
-	}
-	
-	.header {
-		width: 100%;
-		height: 4.2rem;
-		background-image: url("http://test.xclerk.com/mrsyg/YunHaiTongProject/public_tab/image/xcc/bg.jpg");
-		background-size: 100% 100%;
-		background-repeat: no-repeat;
-		position: relative;
-		.userinfo {
-			width: 100%;
-			position: absolute;
-			top: 1rem;
-			bottom: 0;
-			left: 0;
-			right: 0;
-			margin: auto auto;
-			text-align: center;
-			.userPhoto {
-				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				margin: 0 auto;
-				width: 1.7rem;
-				height: 1.7rem;
-				border-radius: .85rem;
-				overflow: hidden;
-				box-sizing: border-box;
-				border: 2px solid #fff;
-				.userImg {
-					display: block;
-					width: 100%;
-					height: 100%;
-					box-sizing: border-box;
-				}
-			}
-			.userName {
-				color: #222;
-				font-size: 0.32rem;
-				width: 100%;
-				position: absolute;
-				bottom: 0.8rem;
-				left: 0;
-				text-align: center;
-			}
-		}
-		.register {
-			position: absolute;
-			bottom: 0.5rem;
-			right: 0;
-			color: #333;
-			font-size: 0;
-			width: 1.5rem;
-			height: 0.8rem;
-			line-height: 0.8rem;
-			text-align: center;
-			border-top-left-radius: 0.4rem;
-			border-bottom-left-radius: 0.4rem;
-			background: #fff;
-			i {
-				display: inline-block;
-				width: 0.8rem;
-				height: 0.8rem;
-				background-image: url("../../../static/images/signIn.png");
-				background-size: 60% 60%;
-				background-repeat: no-repeat;
-				background-position: center center;
-				vertical-align: middle;
-			}
-			span {
-				font-size: 0.3rem;
-				margin: 0 0 0 -0.1rem;
-				vertical-align: middle;
-			}
-		}
-	}
-	
-	.tabList {
-		width: 100%;
-		height: 1.5rem;
-		background: #fff;
-		display: flex;
-		li {
-			flex: 1;
-			text-align: center;
-			.count {
-				color: #222;
-				font-size: 0.36rem;
-				margin: 0.28rem 0 0 0;
-			}
-			.type {
-				color: #999;
-				font-size: 0.28rem;
-			}
-		}
-	}
-	
-	.order {
-		width: 100%;
-		background: #fff;
-		margin: 0.24rem 0 0 0;
-		.title {
-			height: 0.92rem;
-			line-height: 0.92rem;
-			margin: 0 0 0 0.3rem;
-			display: flex;
-			span {
-				flex: 1;
-				color: #222;
-				font-size: 0.3rem;
-			}
-			.icon_right {
-				display: inline-block;
-				width: 0.92rem;
-				height: 0.92rem;
-				background-image: url("../../../static/images/right.png");
-				background-size: 30% 30%;
-				background-repeat: no-repeat;
-				background-position: center center;
-			}
-		}
-		.orderList {
-			width: 100%;
-			display: flex;
-			li {
-				flex: 1;
-				padding: 0.2rem 0;
-				text-align: center;
-				position: relative;
-				.icon {
-					display: inline-block;
-					width: 0.5rem;
-					height: 0.5rem;
-					background-size: 100% 100%;
-					background-repeat: no-repeat;
-					background-position: center center;
-					&.icon_order1 {
-						background-image: url("../../../static/images/icon_order1.png");
-					}
-					&.icon_order2 {
-						background-image: url("../../../static/images/icon_order2.png");
-					}
-					&.icon_order3 {
-						background-image: url("../../../static/images/icon_order3.png");
-					}
-					&.icon_order4 {
-						background-image: url("../../../static/images/icon_order4.png");
-					}
-					&.icon_order5 {
-						background-image: url("../../../static/images/icon_order5.png");
-					}
-				}
-				p {
-					color: #222;
-					font-size: 0.28rem;
-				}
-				.number {
-					color: #fff;
-					font-size: 0.22rem;
-					width: 0.34rem;
-					height: 0.34rem;
-					border-radius: 0.2rem;
-					line-height: 0.34rem;
-					text-align: center;
-					box-sizing: border-box;
-					position: absolute;
-					top: 0.1rem;
-					right: 0.5rem;
-					background: red;
-				}
-			}
-		}
-	}
-	
-	.coupon {
-		background: #fff;
-		height: 0.92rem;
-		line-height: 0.92rem;
-		margin: 0.24rem 0;
-		padding: 0 0 0 0.3rem;
-		display: flex;
-		span {
-			flex: 1;
-			color: #222;
-			font-size: 0.32rem;
-		}
-		.icon_right {
-			display: inline-block;
-			width: 0.92rem;
-			height: 0.92rem;
-			background-image: url("../../../static/images/right.png");
-			background-size: 30% 30%;
-			background-repeat: no-repeat;
-			background-position: center center;
-		}
-	}
+.page {
+  background: #f3f5f9;
+}
+
+.header {
+  width: 100%;
+  height: 4.2rem;
+  background-image: url("http://test.xclerk.com/mrsyg/YunHaiTongProject/public_tab/image/xcc/bg.jpg");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  position: relative;
+  .userinfo {
+    width: 100%;
+    position: absolute;
+    top: 1rem;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto auto;
+    text-align: center;
+    .userPhoto {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      width: 1.7rem;
+      height: 1.7rem;
+      border-radius: 0.85rem;
+      overflow: hidden;
+      box-sizing: border-box;
+      border: 2px solid #fff;
+      .userImg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+      }
+    }
+    .userName {
+      color: #222;
+      font-size: 0.32rem;
+      width: 100%;
+      position: absolute;
+      bottom: 0.8rem;
+      left: 0;
+      text-align: center;
+    }
+  }
+  .register {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0;
+    color: #333;
+    font-size: 0;
+    width: 1.5rem;
+    height: 0.8rem;
+    line-height: 0.8rem;
+    text-align: center;
+    border-top-left-radius: 0.4rem;
+    border-bottom-left-radius: 0.4rem;
+    background: #fff;
+    i {
+      display: inline-block;
+      width: 0.8rem;
+      height: 0.8rem;
+      background-image: url("../../../static/images/signIn.png");
+      background-size: 60% 60%;
+      background-repeat: no-repeat;
+      background-position: center center;
+      vertical-align: middle;
+    }
+    span {
+      font-size: 0.3rem;
+      margin: 0 0 0 -0.1rem;
+      vertical-align: middle;
+    }
+  }
+}
+
+.tabList {
+  width: 100%;
+  height: 1.5rem;
+  background: #fff;
+  display: flex;
+  li {
+    flex: 1;
+    text-align: center;
+    .count {
+      color: #222;
+      font-size: 0.36rem;
+      margin: 0.28rem 0 0 0;
+    }
+    .type {
+      color: #999;
+      font-size: 0.28rem;
+    }
+  }
+}
+
+.order {
+  width: 100%;
+  background: #fff;
+  margin: 0.24rem 0 0 0;
+  .title {
+    height: 0.92rem;
+    line-height: 0.92rem;
+    margin: 0 0 0 0.3rem;
+    display: flex;
+    span {
+      flex: 1;
+      color: #222;
+      font-size: 0.3rem;
+    }
+    .icon_right {
+      display: inline-block;
+      width: 0.92rem;
+      height: 0.92rem;
+      background-image: url("../../../static/images/right.png");
+      background-size: 30% 30%;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+  }
+  .orderList {
+    width: 100%;
+    display: flex;
+    li {
+      flex: 1;
+      padding: 0.2rem 0;
+      text-align: center;
+      position: relative;
+      .icon {
+        display: inline-block;
+        width: 0.5rem;
+        height: 0.5rem;
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        background-position: center center;
+        &.icon_order1 {
+          background-image: url("../../../static/images/icon_order1.png");
+        }
+        &.icon_order2 {
+          background-image: url("../../../static/images/icon_order2.png");
+        }
+        &.icon_order3 {
+          background-image: url("../../../static/images/icon_order3.png");
+        }
+        &.icon_order4 {
+          background-image: url("../../../static/images/icon_order4.png");
+        }
+        &.icon_order5 {
+          background-image: url("../../../static/images/icon_order5.png");
+        }
+      }
+      p {
+        color: #222;
+        font-size: 0.28rem;
+      }
+      .number {
+        color: #fff;
+        font-size: 0.22rem;
+        width: 0.34rem;
+        height: 0.34rem;
+        border-radius: 0.2rem;
+        line-height: 0.34rem;
+        text-align: center;
+        box-sizing: border-box;
+        position: absolute;
+        top: 0.1rem;
+        right: 0.5rem;
+        background: red;
+      }
+    }
+  }
+}
+
+.coupon {
+  background: #fff;
+  height: 0.92rem;
+  line-height: 0.92rem;
+  margin: 0.24rem 0;
+  padding: 0 0 0 0.3rem;
+  display: flex;
+  span {
+    flex: 1;
+    color: #222;
+    font-size: 0.32rem;
+  }
+  .icon_right {
+    display: inline-block;
+    width: 0.92rem;
+    height: 0.92rem;
+    background-image: url("../../../static/images/right.png");
+    background-size: 30% 30%;
+    background-repeat: no-repeat;
+    background-position: center center;
+  }
+}
+.recommendNote {
+  display: flex;
+  height: 0.3rem;
+  .notePage {
+    display: flex;
+    .noteIcon {
+      margin: 0 0.17rem;
+      width: 0.3rem;
+      height: 0.3rem;
+      background-image: url("../../../static/images/icon_note.png");
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+    .noteTag {
+      line-height: 0.3rem;
+      height: 0.3rem;
+      color: #222;
+      text-align: center;
+      font-size: 0.28rem;
+    }
+  }
+}
 </style>
