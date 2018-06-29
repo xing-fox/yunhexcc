@@ -248,5 +248,9 @@ export default {
   /*潮品金牌店员*/
   getassistantmanager (params) {
     return request('/yunhe/wechat/assistant/getassistantmanager', params)
+  },
+  /*推荐笔记*/
+  customerinfonote (params) {
+    return request('yunhe/wechat/customer/customerinfonote', params)
   }
 }
