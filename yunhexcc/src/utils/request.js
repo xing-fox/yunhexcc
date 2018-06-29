@@ -29,7 +29,7 @@ export function request(url, params) {
 
 const env = process.env.NODE_ENV
 if (env === 'development') {
-  fly.config.baseURL = 'https://test.xclerk.com'
+  fly.config.baseURL = 'https://www.xclerk.com'
 }
 
 export default {

@@ -62,12 +62,12 @@
       </div>
       <div class="proPrice bor-1px-b">
         <div class="tab">
-          <span>商品总价:</span>
-          <span>¥{{ dataList.price_sum }}</span>
+          <span>商品运费:</span>
+          <span>¥{{ dataList.delivery_amt }}</span>
         </div>
         <div class="tab">
-          <span>商品运费:</span>
-          <span>¥{{ dataList.pay_way}}</span>
+          <span>商品总价:</span>
+          <span>¥{{ dataList.price_sum }}</span>
         </div>
       </div>
       <div class="payType" @click="couponFunc">
@@ -262,7 +262,18 @@ export default {
           'openid': self.openId
         }).then(res => {
           self.dataList = res.data.content
-          
+          /**
+           * 判断是否活动过来的商品
+           */
+          if (self.dataList.from_channel !== 'dxt' && !self.productFlag) {
+            self.dispatchValue = '送货上门'
+            self.dispatchFlag = 1
+            self.dispatchType = ['送货上门']
+          } else {
+            self.dispatchValue = '到店自提'
+            self.dispatchFlag = 0
+            self.dispatchType = ['到店自提', '送货上门']
+          }
           self.addrInfor = {
             userName: self.dataList.receiver_name,
             telNumber: self.dataList.receiver_phone,
@@ -279,8 +290,8 @@ export default {
           self.couponInfor = {
             couponFlag: 0,
             couponId: self.dataList.coupon_id || '',
-            priceSum: parseFloat(self.dataList.price_sum).toFixed(2),
-            couponAmount: self.dataList.coupon_amount2
+            priceSum: (parseFloat(self.dataList.price_sum) + parseFloat(self.dataList.delivery_amt)).toFixed(2),
+            couponAmount: self.dataList.coupon_amount
           }
           self.$http.SelectCoupon({
             'order_amount': self.dataList.price_sum,
@@ -330,12 +341,12 @@ export default {
           wx.getStorage({
             key: 'useCoupon',
             success: function(res) {
-              let _sum = ((parseFloat(self.couponInfor.priceSum)*100 - parseFloat(res.data.coupon_amount)*100)/100).toFixed(2)
+              let _sum = ((parseFloat(self.couponInfor.priceSum)*100 - parseFloat(res.data.serve_amount)*100)/100).toFixed(2)
               self.couponInfor = {
                 couponFlag: 1,
                 couponId: res.data.coupon_id,
-                priceSum: parseFloat(self.couponInfor.priceSum) < parseFloat(res.data.coupon_amount) ? 0 : _sum,
-                couponAmount: res.data.coupon_amount
+                priceSum: parseFloat(self.couponInfor.priceSum) < parseFloat(res.data.serve_amount) ? 0 : _sum,
+                couponAmount: res.data.serve_amount
               }
             }
           })

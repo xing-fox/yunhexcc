@@ -73,13 +73,13 @@
 			<span>订单查询</span>
 			<i class="icon_right"></i>
 		</div>
-		<div class="recommendNote">
+		<!-- <div class="recommendNote">
 			<div class="notePage">
 			<i class="noteIcon"></i>
 			<div class="noteTag">为您推荐</div>
 			</div>
-		</div>
-    <recommendNote :noteList = 'noteData'></recommendNote>
+		</div> -->
+    <!-- <recommendNote :noteList = 'noteData'></recommendNote> -->
 	</div>
 </template>
 
