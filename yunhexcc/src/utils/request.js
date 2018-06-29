@@ -123,7 +123,7 @@ export default {
   },
   /*我的订单*/
   OrderMyOrder (params) {
-    return request('/yunhe/wechat/orderinfo/myorder', params)
+    return request('/yunhe/wechat/orderinfo/newmyorder', params)
   },
   /*订单详情*/
   OrderOrderDetail (params) {
