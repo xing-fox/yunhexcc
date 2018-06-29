@@ -4,13 +4,13 @@
       <ul>
         <li v-for="(item, index) in DataList" :key="index" @click="choiseFunc(index)">  
           <div class="list_main">
-            <div class="price">¥<span :class="{priceFont: item.coupon_amount >= 100}">{{ item.coupon_amount }}</span></div>
+            <div class="price">¥<span :class="{priceFont: item.serve_amount >= 100}">{{ item.serve_amount }}</span></div>
             <div class="intro">
               <div class="addr">
                 <span>{{ item.remarks }}</span>
               </div>
               <div class="money">
-                <span>满{{ item.serve_amount }}元可用</span>
+                <span>满{{ item.coupon_amount }}元可用</span>
               </div>
             </div>
           </div>
